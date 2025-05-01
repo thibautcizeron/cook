@@ -1,0 +1,44 @@
+{% extends "index/base.html" %}
+
+{% block title %}Cocktails - Recettes{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto  p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl text-white font-bold">Nos cocktails rafraîchissants 🍹</h1>
+        {% if is_contributor or is_admin or is_superuser %}
+            <a href="{% url 'recettes_add' %}" class="bg-green-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-green-700 transition duration-300">
+                + Ajouter un plat
+            </a>
+            {% endif %}
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {% for cocktail in cocktails %}
+            <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+                <a href="{% url 'recettes_details' cocktail.id %}">
+                    {% if cocktail.image %}
+                        <img src="{{ cocktail.image.url }}" alt="{{ cocktail.titre }}" class="w-full h-40 object-cover">
+                    {% else %}
+                        <div class="w-full h-40 bg-gray-200 flex items-center justify-center text-gray-500">
+                            Aucune image
+                        </div>
+                    {% endif %}
+                </a>
+                <div class="p-4">
+                    <h2 class="text-xl font-semibold">
+                        <a href="{% url 'recettes_details' cocktail.id %}" class="hover:text-blue-500">
+                            {{ cocktail.titre }}
+                        </a>
+                    </h2>
+                    {% if cocktail.nbpersonne %}
+                        <p class="text-gray-600 text-sm">Nombre de personnes: {{ cocktail.nbpersonne }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        {% empty %}
+            <p class="col-span-full text-center text-gray-500">Aucun cocktail disponible.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

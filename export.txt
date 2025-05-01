@@ -1,0 +1,5 @@
+# Dump les données
+python manage.py dumpdata --indent 2 > backup.json
+
+# Load les données 
+python manage.py loaddata backup.json

@@ -1,0 +1,90 @@
+{% extends "index/base.html" %}
+
+{% block title %}Mon Compte{% endblock %}
+
+{% block content %}
+<!-- Fond sombre pour correspondre à la page de connexion -->
+<div class="bg-gray-800 min-h-screen py-8 px-4 sm:px-6 md:py-12">
+    <div class="max-w-lg mx-auto bg-gray-800 rounded-xl shadow-2xl overflow-hidden">
+        <!-- En-tête stylisé -->
+        <div class="bg-green-600 px-6 py-4">
+            <h2 class="text-2xl sm:text-3xl font-bold text-white text-center">Mon Compte</h2>
+        </div>
+
+        <!-- Messages de confirmation/erreur -->
+        {% if messages %}
+        <div class="px-6 py-3">
+            {% for message in messages %}
+                <div class="{% if message.tags == 'error' %}bg-red-600{% else %}bg-green-600{% endif %} text-white px-4 py-3 rounded-lg shadow mb-2">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Onglets pour basculer entre l'affichage et la modification -->
+        <div class="bg-gray-700 px-4 py-2 flex border-b border-gray-600">
+            <a href="{% url 'users_account' %}" class="px-4 py-2 font-medium rounded-t-lg mr-2 bg-gray-800 text-green-400 border-b-2 border-green-500">
+                Afficher
+            </a>
+            <a href="{% url 'users_account_edit' %}" class="px-4 py-2 font-medium rounded-t-lg text-gray-300 hover:text-green-400">
+                Modifier
+            </a>
+        </div>
+
+        <!-- Mode affichage -->
+        <div class="p-6 sm:p-8">
+            <div class="grid grid-cols-1 gap-4 sm:gap-6">
+                <!-- Information utilisateur avec cards individuelles pour chaque élément -->
+                <div class="bg-gray-700 rounded-lg p-4 shadow-sm border border-gray-600">
+                    <p class="text-gray-400 text-sm">Nom d'utilisateur</p>
+                    <p class="text-gray-200 font-semibold text-lg">{{ user.username }}</p>
+                </div>
+                
+                <div class="bg-gray-700 rounded-lg p-4 shadow-sm border border-gray-600">
+                    <p class="text-gray-400 text-sm">Email</p>
+                    <p class="text-gray-200 font-semibold text-lg break-all">{{ user.email }}</p>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="bg-gray-700 rounded-lg p-4 shadow-sm border border-gray-600">
+                        <p class="text-gray-400 text-sm">Prénom</p>
+                        <p class="text-gray-200 font-semibold text-lg">{{ user.first_name }}</p>
+                    </div>
+                    
+                    <div class="bg-gray-700 rounded-lg p-4 shadow-sm border border-gray-600">
+                        <p class="text-gray-400 text-sm">Nom</p>
+                        <p class="text-gray-200 font-semibold text-lg">{{ user.last_name }}</p>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-700 rounded-lg p-4 shadow-sm border border-gray-600">
+                    <p class="text-gray-400 text-sm">Date d'inscription</p>
+                    <p class="text-gray-200 font-semibold text-lg">{{ user.date_joined|date:"d/m/Y H:i" }}</p>
+                </div>
+            </div>
+
+            <!-- Boutons d'action avec design amélioré -->
+            <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">              
+                <a href="{% url 'home' %}" class="flex justify-center items-center bg-gray-600 hover:bg-gray-500 text-gray-200 font-medium py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Retour
+                </a>
+                <a href="{% url 'users_account_edit' %}" class="flex justify-center items-center bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
+                    Modifier mon profil
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Information de dernière connexion -->
+    <div class="max-w-lg mx-auto mt-4 text-center text-gray-500 text-sm">
+        Dernière connexion : {{ user.last_login|date:"d/m/Y H:i"|default:"Première connexion" }}
+    </div>
+</div>
+{% endblock %}

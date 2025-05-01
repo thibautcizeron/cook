@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chargement - COOKBOOK</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #1e293b; /* bg-slate-800 - slightly lighter */
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        
+        .loading-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #1e293b; /* bg-slate-800 - slightly lighter */
+        }
+        
+        /* Cartoon Pot Animation */
+        .pot-container {
+            position: relative;
+            width: 300px;
+            height: 260px;
+            margin-bottom: 3rem;
+        }
+        
+        /* Cooker body - now gray */
+        .pot-body {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 140px;
+            background-color: #374151; /* bg-gray-700 - Slightly lighter */
+            border-radius: 20px 20px 60px 60px / 20px 20px 70px 70px;
+            background-image: linear-gradient(to right, #4b5563, #374151, #4b5563);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+        }
+        
+        /* Pot highlight/shadow for dimension */
+        .pot-highlight {
+            position: absolute;
+            top: 0;
+            right: 20px;
+            width: 60px;
+            height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2));
+            border-radius: 0 20px 70px 0 / 0 20px 70px 0;
+            z-index: 11;
+        }
+        
+        /* Left pot handle - now green */
+        .handle-left {
+            position: absolute;
+            top: 20%;
+            left: -30px;
+            width: 30px;
+            height: 30px;
+            background-color: #10b981; /* Emerald green */
+            border-radius: 10px;
+            z-index: 12;
+        }
+        
+        /* Right pot handle - now green */
+        .handle-right {
+            position: absolute;
+            top: 20%;
+            right: -30px;
+            width: 30px;
+            height: 30px;
+            background-color: #10b981; /* Emerald green */
+            border-radius: 10px;
+            z-index: 12;
+        }
+        
+        /* Pot lid - gray with handle - position significantly lowered */
+        .pot-lid {
+            position: absolute;
+            top: 30px; /* Significantly lowered from 10px to 30px */
+            left: 50%;
+            width: 180px;
+            height: 30px;
+            background-color: #374151; /* bg-gray-700 - Matching pot body */
+            border-radius: 100px 100px 20px 20px;
+            transform-origin: center bottom;
+            transform: translateX(-50%);
+            animation: lidBounce 1.5s infinite ease-in-out;
+            z-index: 20;
+        }
+        
+        /* Lid handle - green */
+        .lid-handle {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 15px;
+            background-color: #10b981; /* Emerald green */
+            border-radius: 15px 15px 0 0;
+            z-index: 21;
+        }
+        
+        /* Steam coming out */
+        .steam {
+            position: absolute;
+            top: -10px;
+            right: 30px;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(237, 242, 247, 0.8); /* White steam */
+            border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg) scale(0);
+            opacity: 0;
+            z-index: 5;
+            animation: steamPuff 3s infinite ease-out;
+        }
+        
+        /* Stove base */
+        .stove-base {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 250px;
+            height: 20px;
+            background-color: #9E9E9E; /* Gray */
+            border-radius: 5px;
+            z-index: 1;
+        }
+        
+        /* Flames animation - lighter */
+        .flames-container {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 5px;
+            z-index: 3;
+        }
+        
+        .flame {
+            width: 10px;
+            height: 20px;
+            background: linear-gradient(to top, #4b5563, #9ca3af);
+            border-radius: 5px 5px 10px 10px;
+            animation: flameFlicker 0.5s infinite alternate;
+            box-shadow: 0 0 5px rgba(156, 163, 175, 0.5);
+        }
+        
+        @keyframes flameFlicker {
+            0% { height: 15px; opacity: 0.8; }
+            100% { height: 25px; opacity: 1; }
+        }
+        
+        /* Different flame sizes and animations */
+        .flame:nth-child(1) { 
+            height: 18px; 
+            animation-duration: 0.3s; 
+        }
+        .flame:nth-child(2) { 
+            height: 22px; 
+            animation-duration: 0.4s; 
+            animation-delay: 0.1s;
+        }
+        .flame:nth-child(3) { 
+            height: 20px; 
+            animation-duration: 0.35s; 
+            animation-delay: 0.05s;
+        }
+        .flame:nth-child(4) { 
+            height: 23px; 
+            animation-duration: 0.45s; 
+            animation-delay: 0.15s;
+        }
+        .flame:nth-child(5) { 
+            height: 19px; 
+            animation-duration: 0.25s; 
+            animation-delay: 0.2s;
+        }
+        
+        /* Animations - adjusted for lower lid position */
+        @keyframes lidBounce {
+            0% { 
+                transform: translateX(-50%) rotate(0deg) translateY(0); 
+            }
+            25% { 
+                transform: translateX(-50%) rotate(-8deg) translateY(-12px); 
+            }
+            50% {
+                transform: translateX(-50%) rotate(0deg) translateY(-4px);
+            }
+            75% { 
+                transform: translateX(-50%) rotate(8deg) translateY(-12px); 
+            }
+            100% {
+                transform: translateX(-50%) rotate(0deg) translateY(0);
+            }
+        }
+        
+        @keyframes steamPuff {
+            0% {
+                transform: rotate(-45deg) scale(0);
+                opacity: 0;
+            }
+            20% {
+                transform: rotate(-45deg) scale(1);
+                opacity: 0.8;
+            }
+            80% {
+                transform: rotate(-45deg) translateY(-60px) scale(2);
+                opacity: 0.2;
+            }
+            100% {
+                transform: rotate(-45deg) translateY(-80px) scale(2.5);
+                opacity: 0;
+            }
+        }
+        
+        /* Title and loading text */
+        .title {
+            font-family: 'DM Serif Display', serif;
+            font-size: 3rem;
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+        
+        .loading-text {
+            color: #cbd5e1;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+        
+        /* Progress bar */
+        .progress-container {
+            width: 200px;
+            height: 3px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 1.5px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #10b981; /* Emerald green to match pot */
+            transition: width 0.1s ease;
+        }
+        
+        /* Fade out animation */
+        .fade-out {
+            animation: fadeOut 0.5s ease forwards;
+        }
+        
+        @keyframes fadeOut {
+            to { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-container" id="loadingContainer">
+        <div class="pot-container">
+            <!-- Stove base -->
+            <div class="stove-base"></div>
+            
+            <!-- Flames animation -->
+            <div class="flames-container">
+                <div class="flame"></div>
+                <div class="flame"></div>
+                <div class="flame"></div>
+                <div class="flame"></div>
+                <div class="flame"></div>
+            </div>
+            
+            <!-- Pot body and handles -->
+            <div class="pot-body">
+                <div class="pot-highlight"></div>
+                <div class="handle-left"></div>
+                <div class="handle-right"></div>
+                
+                <!-- Bubbles container inside pot -->
+                <div class="bubbles-container" id="bubblesContainer"></div>
+            </div>
+            
+            <!-- Pot lid with animation -->
+            <div class="pot-lid">
+                <div class="lid-handle"></div>
+            </div>
+            
+            <!-- Steam element -->
+            <div class="steam" id="steam"></div>
+        </div>
+        
+        <h1 class="title">COOKBOOK</h1>
+        <p class="loading-text" id="loadingText">Préparation en cours...</p>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Loading configuration
+            const loadingTime = 4000; // 5 seconds
+            
+            // Elements
+            const progressBar = document.getElementById('progressBar');
+            const loadingContainer = document.getElementById('loadingContainer');
+            const loadingText = document.getElementById('loadingText');
+            const steam = document.getElementById('steam');
+            const bubblesContainer = document.getElementById('bubblesContainer');
+            
+            // Create multiple steam puffs
+            function createMultipleSteamPuffs() {
+                // Clone the steam element
+                for (let i = 0; i < 3; i++) {
+                    const newSteam = steam.cloneNode(true);
+                    newSteam.style.animationDelay = (i * 1.2) + 's';
+                    steam.parentNode.appendChild(newSteam);
+                }
+            }
+            
+            // Create bubbles animation
+            function createBubbles() {
+                function createBubble() {
+                    const bubble = document.createElement('div');
+                    bubble.classList.add('bubble');
+                    
+                    // Random properties
+                    const size = 5 + Math.random() * 10;
+                    const left = 10 + Math.random() * 80; // 10% to 90% of container width
+                    const duration = 1 + Math.random() * 1.5;
+                    
+                    // Style the bubble
+                    bubble.style.width = `${size}px`;
+                    bubble.style.height = `${size}px`;
+                    bubble.style.left = `${left}%`;
+                    bubble.style.bottom = '0';
+                    bubble.style.animationDuration = `${duration}s`;
+                    
+                    bubblesContainer.appendChild(bubble);
+                    
+                    // Remove after animation completes
+                    setTimeout(() => {
+                        bubble.remove();
+                    }, duration * 1000);
+                }
+                
+                // Create bubbles at random intervals
+                setInterval(createBubble, 300);
+            }
+            
+            // Loading messages
+            const messages = [
+                "Préparation en cours...",
+                "Mijotage...",
+                "Ça bout...",
+                "Presque prêt..."
+            ];
+            
+            // Update progress bar
+            function updateProgress() {
+                const startTime = Date.now();
+                
+                function step() {
+                    const currentTime = Date.now();
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(elapsed / loadingTime * 100, 100);
+                    
+                    progressBar.style.width = progress + '%';
+                    
+                    if (progress < 100) {
+                        requestAnimationFrame(step);
+                    }
+                }
+                
+                requestAnimationFrame(step);
+            }
+            
+            // Cycle through loading messages
+            function cycleMessages() {
+                let messageIndex = 0;
+                
+                setInterval(() => {
+                    loadingText.textContent = messages[messageIndex];
+                    messageIndex = (messageIndex + 1) % messages.length;
+                }, 1500);
+            }
+            
+            // Initialize animations
+            createMultipleSteamPuffs();
+            createBubbles();
+            updateProgress();
+            cycleMessages();
+            
+            // Redirect after loading completes
+            setTimeout(() => {
+                loadingContainer.classList.add('fade-out');
+                setTimeout(() => {
+                    window.location.href = "{% url 'layout' %}";
+                }, 500);
+            }, loadingTime);
+        });
+    </script>
+</body>
+</html>

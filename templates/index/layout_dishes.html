@@ -1,0 +1,48 @@
+{% extends "index/base.html" %}
+
+{% block title %}Plats - Recettes{% endblock %}
+
+{% block content %}
+<div class="bg-gray-800 text-white">
+    <div class="max-w-6xl mx-auto p-6">
+        <!-- Header avec titre -->
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-100">Nos plats savoureux 🍛</h1>
+            {% if is_contributor or is_admin or is_superuser %}
+            <a href="{% url 'recettes_add' %}" class="bg-green-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-green-700 transition duration-300">
+                + Ajouter un plat
+            </a>
+            {% endif %}
+        </div>
+
+        <!-- Liste des plats -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {% for plat in plats %}
+                <div class="bg-white shadow-lg rounded-lg overflow-hidden transition-all hover:scale-105 hover:shadow-xl">
+                    <a href="{% url 'recettes_details' plat.id %}">
+                        {% if plat.image %}
+                            <img src="{{ plat.image.url }}" alt="{{ plat.titre }}" class="w-full h-40 object-cover">
+                        {% else %}
+                            <div class="w-full h-40 bg-gray-200 flex items-center justify-center text-gray-500">
+                                Aucune image
+                            </div>
+                        {% endif %}
+                    </a>
+                    <div class="p-4">
+                        <h2 class="text-xl font-semibold text-gray-800">
+                            <a href="{% url 'recettes_details' plat.id %}" class="hover:text-green-600">
+                                {{ plat.titre }}
+                            </a>
+                        </h2>
+                        {% if plat.nbpersonne %}
+                            <p class="text-gray-600 text-sm">Nombre de personnes: {{ plat.nbpersonne }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% empty %}
+                <p class="col-span-full text-center text-gray-500">Aucun plat disponible.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,172 @@
+{% extends 'index/base.html' %}
+
+{% block title %}{{ form.instance.id|yesno:"Modifier un ingrédient,Ajouter un ingrédient" }}{% endblock %}
+
+{% block content %}
+
+<div class="bg-gray-800 py-8 min-h-screen">
+    <div class="max-w-3xl mx-auto px-4">
+        <div class="bg-white shadow-xl rounded-lg overflow-hidden">
+            <!-- Header -->
+            <div class="bg-blue-600 py-4">
+                <h2 class="text-center text-2xl font-bold text-white">{{ form.instance.id|yesno:"Modifier un ingrédient,Ajouter un ingrédient" }}</h2>
+            </div>
+            
+            <!-- Form -->
+            <form method="POST" enctype="multipart/form-data" class="p-6">
+                {% csrf_token %}
+                
+                <!-- Form Fields -->
+                <div class="space-y-4 mb-6">
+                    <!-- Nom -->
+                    <div>
+                        <label for="id_nom" class="block text-sm font-medium text-gray-700 mb-1">Nom</label>
+                        {{ form.nom }}
+                    </div>
+                    
+                    <!-- Image -->
+                    <div>
+                        <label for="id_image" class="block text-sm font-medium text-gray-700 mb-1">Image</label>
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                            {% if form.instance.image %}
+                                <div class="mb-3 image-preview">
+                                    <img src="{{ form.instance.image.url }}" alt="{{ form.instance.nom }}" class="mx-auto h-40 object-cover rounded-lg">
+                                </div>
+                            {% else %}
+                                <div class="mb-3 image-preview" style="display: none;">
+                                    <img src="" alt="Aperçu de l'image" class="mx-auto h-40 object-cover rounded-lg">
+                                </div>
+                            {% endif %}
+                            
+                            <div class="custom-file-input">
+                                <input type="file" name="{{ form.image.html_name }}" id="{{ form.image.auto_id }}" class="hidden-file-input" accept="image/*">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex space-x-4 pt-4 border-t border-gray-200">
+                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium flex items-center justify-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Enregistrer
+                    </button>
+                    <a href="{% url 'ingredients' %}" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 rounded-lg font-medium flex items-center justify-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        Retour
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Styles généraux pour les champs */
+    input[type="text"], 
+    input[type="number"],
+    textarea,
+    select {
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        color: #374151;
+    }
+    
+    input[type="text"]:focus, 
+    input[type="number"]:focus,
+    textarea:focus,
+    select:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+        border-color: transparent;
+    }
+    
+    /* Style pour le select */
+    select {
+        appearance: none;
+        padding-right: 2rem;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+        background-position: right 0.5rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+    }
+    
+    /* Style amélioré pour input file */
+    .custom-file-input {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+    }
+    
+    .hidden-file-input {
+        opacity: 0;
+        width: 0.1px;
+        height: 0.1px;
+        position: absolute;
+        z-index: -1;
+    }
+    
+    .custom-file-input:after {
+        content: 'Choisir un fichier';
+        display: inline-block;
+        padding: 0.5rem 1.5rem;
+        border-radius: 9999px;
+        background-color: #ebf5ff;
+        color: #1d4ed8;
+        font-weight: 600;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    
+    .custom-file-input:hover:after {
+        background-color: #dbeafe;
+    }
+</style>
+
+{% block extra_js %}
+<script>
+    // Configuration du sélecteur de fichier personnalisé
+    document.addEventListener('DOMContentLoaded', function() {
+        // Ajouter un événement de clic sur tous les custom-file-input
+        document.querySelectorAll('.custom-file-input').forEach(wrapper => {
+            wrapper.addEventListener('click', function() {
+                this.querySelector('.hidden-file-input').click();
+            });
+        });
+        
+        // Capturer le changement de fichier et prévisualiser l'image
+        document.querySelectorAll('.hidden-file-input').forEach(input => {
+            input.addEventListener('change', function() {
+                const fileInputContainer = this.closest('.border-dashed');
+                const imagePreview = fileInputContainer.querySelector('.image-preview');
+                const previewImg = imagePreview.querySelector('img');
+                
+                // Si un fichier est sélectionné
+                if (this.files && this.files.length > 0) {
+                    const file = this.files[0];
+                    
+                    // Prévisualiser l'image
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            previewImg.src = e.target.result;
+                            previewImg.alt = "Aperçu de l'image";
+                            imagePreview.style.display = 'block';
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
+
+{% endblock %}

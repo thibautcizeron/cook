@@ -1,0 +1,49 @@
+{% extends "index/base.html" %}
+
+{% block title %}Desserts - Recettes{% endblock %}
+
+{% block content %}
+<div class="bg-gray-800 text-white">
+    <div class="max-w-6xl mx-auto  p-6">
+        <!-- Header avec titre -->
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-100">Nos desserts gourmands 🍰</h1>
+            {% if is_contributor or is_admin or is_superuser %}
+            <a href="{% url 'recettes_add' %}" class="bg-green-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-green-700 transition duration-300">
+                + Ajouter un plat
+            </a>
+            {% endif %}
+        </div>
+        
+
+        <!-- Liste des desserts -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {% for dessert in desserts %}
+                <div class="bg-white shadow-lg rounded-lg overflow-hidden transition-all hover:scale-105 hover:shadow-xl">
+                    <a href="{% url 'recettes_details' dessert.id %}">
+                        {% if dessert.image %}
+                            <img src="{{ dessert.image.url }}" alt="{{ dessert.titre }}" class="w-full h-40 object-cover">
+                        {% else %}
+                            <div class="w-full h-40 bg-gray-200 flex items-center justify-center text-gray-500">
+                                Aucune image
+                            </div>
+                        {% endif %}
+                    </a>
+                    <div class="p-4">
+                        <h2 class="text-xl font-semibold text-gray-800">
+                            <a href="{% url 'recettes_details' dessert.id %}" class="hover:text-green-600">
+                                {{ dessert.titre }}
+                            </a>
+                        </h2>
+                        {% if dessert.nbpersonne %}
+                            <p class="text-gray-600 text-sm">Nombre de personnes: {{ dessert.nbpersonne }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% empty %}
+                <p class="col-span-full text-center text-gray-500">Aucun dessert disponible.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
