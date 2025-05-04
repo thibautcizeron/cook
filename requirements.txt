@@ -1,0 +1,3 @@
+python-dotenv
+django
+psycopg2 --user

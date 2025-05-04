@@ -9,6 +9,7 @@ from unidecode import unidecode
 from .forms import RegisterForm
 import re
 
+
 @login_required
 def user_account_edit(request):
     """Vue pour modifier le profil de l'utilisateur avec vérifications renforcées pour le mot de passe"""
@@ -225,3 +226,4 @@ def search_users(request):
         results = []
 
     return JsonResponse(results, safe=False)
+

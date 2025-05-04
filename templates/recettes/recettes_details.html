@@ -15,12 +15,40 @@
                 </div>
             </h2>
             
+            <!-- Sélecteur pour ajuster le nombre de personnes -->
             {% if recette.nbpersonne %}
-                <div class="flex items-center bg-gray-100 px-4 py-2 rounded-full">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                    <span class="text-sm font-medium text-gray-700">{{ recette.nbpersonne }} personnes</span>
+                <div class="relative dropdown-container">
+                    <div class="flex items-center">
+                        <span class="text-sm font-medium text-gray-700 mr-2">Ajuster pour:</span>
+                        <button id="dropdown-button" class="text-sm border border-gray-300 rounded-md shadow-sm px-4 py-1.5 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center">
+                            <span id="selected-option">{{ nb_personnes_souhaite|default:recette.nbpersonne }} personne{% if nb_personnes_souhaite|default:recette.nbpersonne != 1 %}s{% endif %}</span>
+                            <svg class="ml-2 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div id="dropdown-menu" class="hidden absolute right-0 mt-1 w-44 bg-white border border-gray-200 rounded-md shadow-lg z-10 max-h-80 overflow-y-auto">
+                        <form id="nb_persons_form" method="get">
+                            <input type="hidden" id="nb_personnes" name="nb_personnes" value="{{ nb_personnes_souhaite|default:recette.nbpersonne }}">
+                        </form>
+                        <ul class="py-1">
+                            {% for i in "123456789"|make_list %}
+                                <li class="dropdown-option {% if nb_personnes_souhaite == i|add:'0' or recette.nbpersonne == i|add:'0' and not nb_personnes_souhaite %}bg-blue-500 text-white{% endif %}" data-value="{{ i }}">
+                                    <div class="block px-4 py-2 text-sm hover:bg-gray-100 {% if nb_personnes_souhaite == i|add:'0' or recette.nbpersonne == i|add:'0' and not nb_personnes_souhaite %}hover:bg-blue-600{% endif %} cursor-pointer">
+                                        {{ i }} personne{% if i != "1" %}s{% endif %}
+                                    </div>
+                                </li>
+                            {% endfor %}
+                            {% for i in "0123456789"|make_list %}
+                                <li class="dropdown-option {% if nb_personnes_souhaite == "1"|add:i|add:"0" %}bg-blue-500 text-white{% endif %}" data-value="{{ "1"|add:i }}">
+                                    <div class="block px-4 py-2 text-sm hover:bg-gray-100 {% if nb_personnes_souhaite == "1"|add:i|add:"0" %}hover:bg-blue-600{% endif %} cursor-pointer">
+                                        1{{ i }} personnes
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
                 </div>
             {% endif %}
         </div>
@@ -34,7 +62,6 @@
             {% endif %}
             
             <div class="w-full md:w-1/2 flex flex-col justify-center">
-                <!-- Vous pouvez ajouter des informations supplémentaires ici si besoin -->
                 <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-100">
                     <h3 class="text-lg font-semibold text-yellow-800 mb-2">À propos de cette recette</h3>
                     <p class="text-gray-700">
@@ -52,10 +79,10 @@
         <div class="mb-8">
             <h3 class="text-xl font-semibold mb-4 pb-2 border-b-2 border-gray-200">Ingrédients</h3>
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
-                {% for ri in ingredients %}
+                {% for ingredient in ingredients %}
                 <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 p-3 text-center border border-gray-100">
-                    {% if ri.ingredient.image %}
-                        <img src="{{ ri.ingredient.image.url }}" alt="{{ ri.ingredient.nom }}" class="w-14 h-14 object-cover mx-auto mb-2 rounded">
+                    {% if ingredient.ingredient.image %}
+                        <img src="{{ ingredient.ingredient.image.url }}" alt="{{ ingredient.ingredient.nom }}" class="w-14 h-14 object-cover mx-auto mb-2 rounded">
                     {% else %}
                         <div class="w-14 h-14 bg-gray-200 rounded mx-auto mb-2 flex items-center justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -63,8 +90,13 @@
                             </svg>
                         </div>
                     {% endif %}
-                    <h3 class="text-md font-medium text-gray-800">{{ ri.ingredient.nom }}</h3>
-                    <p class="text-sm text-gray-600 mt-1">{{ ri.quantite }}</p>
+                    <h3 class="text-md font-medium text-gray-800">{{ ingredient.ingredient.nom }}</h3>
+                    <p class="text-sm text-gray-600 mt-1">
+                        {{ ingredient.quantite_ajustee }}
+                        {% if nb_personnes_souhaite != nb_personnes_original %}
+                            <span class="text-xs text-gray-400 block">({{ ingredient.quantite_originale }} pour {{ nb_personnes_original }})</span>
+                        {% endif %}
+                    </p>
                 </div>
                 {% empty %}
                 <p class="text-gray-500 col-span-full text-center py-4">Aucun ingrédient ajouté.</p>
@@ -101,7 +133,78 @@
                 </svg>
                 Retour aux recettes
             </a>
-            
         </div>
     </div>
+
+    <style>
+        /* Styles pour la liste déroulante personnalisée */
+        .dropdown-option.bg-blue-500 {
+            background-color: #4F86F7;
+        }
+        
+        #dropdown-menu {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+        }
+        
+        #dropdown-menu::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        #dropdown-menu::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        #dropdown-menu::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropdownButton = document.getElementById('dropdown-button');
+            const dropdownMenu = document.getElementById('dropdown-menu');
+            const hiddenInput = document.getElementById('nb_personnes');
+            const form = document.getElementById('nb_persons_form');
+            const dropdownOptions = document.querySelectorAll('.dropdown-option');
+            const selectedOptionText = document.getElementById('selected-option');
+            
+            // Ouvrir/fermer le menu déroulant
+            dropdownButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                dropdownMenu.classList.toggle('hidden');
+                
+                // Faire défiler jusqu'à l'option sélectionnée
+                if (!dropdownMenu.classList.contains('hidden')) {
+                    const selectedOption = dropdownMenu.querySelector('.bg-blue-500');
+                    if (selectedOption) {
+                        setTimeout(() => {
+                            selectedOption.scrollIntoView({ block: 'center', behavior: 'auto' });
+                        }, 10);
+                    }
+                }
+            });
+            
+            // Gérer la sélection des options
+            dropdownOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const value = this.dataset.value;
+                    const text = this.textContent.trim();
+                    
+                    // Mettre à jour l'entrée cachée et soumettre le formulaire
+                    hiddenInput.value = value;
+                    selectedOptionText.textContent = text;
+                    form.submit();
+                });
+            });
+            
+            // Fermer le menu si on clique ailleurs
+            document.addEventListener('click', function(e) {
+                if (!dropdownButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                    dropdownMenu.classList.add('hidden');
+                }
+            });
+        });
+    </script>
 {% endblock %}

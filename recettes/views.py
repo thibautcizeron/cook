@@ -71,8 +71,57 @@ def recettes_list(request):
 
 def recettes_details(request, recette_id):
     recette = get_object_or_404(Recette, id=recette_id)
-    ingredients = RecetteIngredient.objects.filter(recette=recette)  
-    return render(request, 'recettes/recettes_details.html', {'recette': recette, 'ingredients': ingredients})
+    ingredients_originaux = RecetteIngredient.objects.filter(recette=recette)
+    
+    # Paramètre pour le nombre de personnes souhaité
+    nb_personnes_souhaite = request.GET.get('nb_personnes', None)
+    
+    # Conversion des quantités si nécessaire
+    ingredients = []
+    ratio = 1  # Par défaut, pas de changement
+    
+    if nb_personnes_souhaite and recette.nbpersonne:
+        try:
+            nb_personnes_souhaite = int(nb_personnes_souhaite)
+            if recette.nbpersonne > 0:
+                ratio = nb_personnes_souhaite / recette.nbpersonne
+        except (ValueError, ZeroDivisionError):
+            nb_personnes_souhaite = recette.nbpersonne
+    
+    # Préparation des données d'ingrédients avec quantités ajustées
+    for ri in ingredients_originaux:
+        quantite_ajustee = ri.quantite
+        if ratio != 1:
+            # Extraction des nombres pour faire le produit en croix
+            import re
+            nombres = re.findall(r'(\d+(?:[.,]\d+)?)', ri.quantite)
+            if nombres:
+                quantite_ajustee = ri.quantite
+                for nombre in nombres:
+                    # Conversion en float pour le calcul
+                    nombre_float = float(nombre.replace(',', '.'))
+                    # Calcul du produit en croix
+                    nouvelle_valeur = nombre_float * ratio
+                    # Formatage du résultat
+                    if nouvelle_valeur == int(nouvelle_valeur):
+                        nouvelle_valeur_str = str(int(nouvelle_valeur))
+                    else:
+                        nouvelle_valeur_str = f"{nouvelle_valeur:.1f}".replace('.', ',')
+                    # Remplacement dans la chaîne
+                    quantite_ajustee = quantite_ajustee.replace(nombre, nouvelle_valeur_str, 1)
+        
+        ingredients.append({
+            'ingredient': ri.ingredient,
+            'quantite_originale': ri.quantite,
+            'quantite_ajustee': quantite_ajustee
+        })
+    
+    return render(request, 'recettes/recettes_details.html', {
+        'recette': recette, 
+        'ingredients': ingredients,
+        'nb_personnes_souhaite': nb_personnes_souhaite,
+        'nb_personnes_original': recette.nbpersonne
+    })
 
 @login_required
 @user_passes_test(lambda u: is_contributor(u) or is_admin(u) or is_superuser(u))
