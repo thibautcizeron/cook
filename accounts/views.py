@@ -9,7 +9,6 @@ from unidecode import unidecode
 from .forms import RegisterForm
 import re
 
-
 @login_required
 def user_account_edit(request):
     """Vue pour modifier le profil de l'utilisateur avec vérifications renforcées pour le mot de passe"""
@@ -97,8 +96,16 @@ def user_account_edit(request):
             
     return render(request, 'accounts/users_account_edit.html')
 
-def is_password_valid(password):
-    """Vérifie si le mot de passe répond aux critères de complexité."""
+def is_password_valid(password, previous_passwords=None):
+    """Vérifie si le mot de passe répond aux critères de complexité et s'il est différent des 5 derniers."""
+    # Si previous_passwords n'est pas fourni, initialiser à une liste vide
+    if previous_passwords is None:
+        previous_passwords = []
+    
+    # Vérifier si le mot de passe est différent des 5 derniers
+    if password in previous_passwords[-5:]:
+        return False
+    
     # Au moins 8 caractères
     if len(password) < 8:
         return False
