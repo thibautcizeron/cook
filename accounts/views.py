@@ -234,3 +234,5 @@ def search_users(request):
 
     return JsonResponse(results, safe=False)
 
+def show_politique(request):
+    return render(request, 'index/politique.html')

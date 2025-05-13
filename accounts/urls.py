@@ -40,4 +40,6 @@ urlpatterns = [
              template_name='accounts/password_reset_complete.html'
          ), 
          name='password_reset_complete'),
+
+    path('politique/', views.show_politique, name='politique'),
 ]
