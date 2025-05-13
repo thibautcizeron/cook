@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from django.views.generic import TemplateView
 
 urlpatterns = [
 
@@ -25,11 +26,6 @@ urlpatterns = [
     path('cocktails/', views.show_cocktails, name='layout_cocktails'),
 
     path('', views.loading_page, name='loading_page'),
+    path('recettes/<int:recette_id>/noter/', views.noter_recette, name='noter_recette'),
 
-
-
-
-
-
-    
 ]

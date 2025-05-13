@@ -30,7 +30,7 @@ SECRET_KEY = "django-insecure-x@kd0o+&7d5u9f-w5$m$xwmp8*l&#o0a3n#u_ar*p1_7h588ww
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost']
 
 
 # Application definition
@@ -54,7 +54,6 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     'recettes.middleware.LoadingPageMiddleware',
-
 ]
 
 ROOT_URLCONF = "cook.urls"

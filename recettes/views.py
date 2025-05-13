@@ -1,13 +1,38 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Recette, Ingredient, Categorie, Etape, RecetteIngredient
+from .models import Recette, Ingredient, Categorie, Etape, RecetteIngredient, Note
 from .forms import RecetteForm, IngredientForm, CategorieForm, EtapeForm, RecetteIngredientForm
 from django.forms import formset_factory, inlineformset_factory
 from unidecode import unidecode
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Q
+from django.contrib import messages
 
-
+@login_required
+def noter_recette(request, recette_id):
+    if request.method == 'POST':
+        recette = get_object_or_404(Recette, id=recette_id)
+        valeur = int(request.POST.get('valeur', 0))
+        
+        if valeur < 1 or valeur > 5:
+            messages.error(request, 'La note doit être entre 1 et 5')
+            return redirect('recettes_details', recette_id=recette_id)
+            
+        # Créer ou mettre à jour la note
+        note, created = Note.objects.update_or_create(
+            utilisateur=request.user,
+            recette=recette,
+            defaults={'valeur': valeur}
+        )
+        
+        if created:
+            messages.success(request, 'Votre note a été enregistrée')
+        else:
+            messages.success(request, 'Votre note a été mise à jour')
+        
+        return redirect('recettes_details', recette_id=recette_id)
+    
+    return redirect('recettes_details', recette_id=recette_id)
 
 def is_user(user):
     return user.groups.filter(name="Users").exists()
@@ -27,12 +52,11 @@ def home(request):
     return render(request, 'index/layout.html', {'recettes': recettes})
 
 def search_recipe(request):
-    query = request.GET.get('q', '').strip()  # Nettoie la requête
-    normalized_query = unidecode(query).lower()  # Supprime les accents et met en minuscule
+    query = request.GET.get('q', '').strip()  
+    normalized_query = unidecode(query).lower() 
 
     recettes = Recette.objects.all()
     
-    # Filtrer les recettes avec un titre similaire à la requête
     matching_recettes = [
         {
             "id": recette.id,
@@ -73,12 +97,22 @@ def recettes_details(request, recette_id):
     recette = get_object_or_404(Recette, id=recette_id)
     ingredients_originaux = RecetteIngredient.objects.filter(recette=recette)
     
-    # Paramètre pour le nombre de personnes souhaité
+    # Récupérer la note de l'utilisateur actuel si connecté
+    note_utilisateur = None
+    if request.user.is_authenticated:
+        note_utilisateur = Note.objects.filter(utilisateur=request.user, recette=recette).first()
+    
+    # Calcul de la note moyenne
+    notes = Note.objects.filter(recette=recette)
+    note_moyenne = 0
+    nombre_votes = notes.count()
+    if nombre_votes > 0:
+        note_moyenne = sum(note.valeur for note in notes) / nombre_votes
+    
     nb_personnes_souhaite = request.GET.get('nb_personnes', None)
     
-    # Conversion des quantités si nécessaire
     ingredients = []
-    ratio = 1  # Par défaut, pas de changement
+    ratio = 1  
     
     if nb_personnes_souhaite and recette.nbpersonne:
         try:
@@ -88,26 +122,20 @@ def recettes_details(request, recette_id):
         except (ValueError, ZeroDivisionError):
             nb_personnes_souhaite = recette.nbpersonne
     
-    # Préparation des données d'ingrédients avec quantités ajustées
     for ri in ingredients_originaux:
         quantite_ajustee = ri.quantite
         if ratio != 1:
-            # Extraction des nombres pour faire le produit en croix
             import re
             nombres = re.findall(r'(\d+(?:[.,]\d+)?)', ri.quantite)
             if nombres:
                 quantite_ajustee = ri.quantite
                 for nombre in nombres:
-                    # Conversion en float pour le calcul
                     nombre_float = float(nombre.replace(',', '.'))
-                    # Calcul du produit en croix
                     nouvelle_valeur = nombre_float * ratio
-                    # Formatage du résultat
                     if nouvelle_valeur == int(nouvelle_valeur):
                         nouvelle_valeur_str = str(int(nouvelle_valeur))
                     else:
                         nouvelle_valeur_str = f"{nouvelle_valeur:.1f}".replace('.', ',')
-                    # Remplacement dans la chaîne
                     quantite_ajustee = quantite_ajustee.replace(nombre, nouvelle_valeur_str, 1)
         
         ingredients.append({
@@ -120,7 +148,10 @@ def recettes_details(request, recette_id):
         'recette': recette, 
         'ingredients': ingredients,
         'nb_personnes_souhaite': nb_personnes_souhaite,
-        'nb_personnes_original': recette.nbpersonne
+        'nb_personnes_original': recette.nbpersonne,
+        'note_utilisateur': note_utilisateur,
+        'note_moyenne': note_moyenne,
+        'nombre_votes': nombre_votes
     })
 
 @login_required
@@ -329,5 +360,8 @@ def show_cocktails(request):
 
 def loading_page(request):
     return render(request, 'index/loading.html')
+
+
+
 
 

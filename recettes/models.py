@@ -1,4 +1,6 @@
 from django.db import models
+from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 class Categorie(models.Model):
     nom = models.CharField(max_length=255, unique=True)
@@ -32,6 +34,12 @@ class Recette(models.Model):
     def __str__(self):
         return self.titre
     
+    def note_moyenne(self):
+        notes = self.notes.all()
+        if notes.exists():
+            return sum(note.valeur for note in notes) / notes.count()
+        return 0 
+    
     class Meta:
         verbose_name = "Recette"
         verbose_name_plural = "Recettes"
@@ -58,3 +66,22 @@ class Etape(models.Model):
     class Meta:
         verbose_name = "Etape"
         verbose_name_plural = "Etapes"
+
+class Note(models.Model):
+    utilisateur = models.ForeignKey(User, on_delete=models.CASCADE)
+    recette = models.ForeignKey(Recette, on_delete=models.CASCADE, related_name="notes")
+    valeur = models.IntegerField(
+        validators=[
+            MinValueValidator(1, message="La note minimale est 1"),
+            MaxValueValidator(5, message="La note maximale est 5")
+        ]
+    )
+    date_creation = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        verbose_name = "Note"
+        verbose_name_plural = "Notes"
+        unique_together = ('utilisateur', 'recette')
+    
+    def __str__(self):
+        return f"{self.utilisateur.username} - {self.recette.titre} - {self.valeur}/5"

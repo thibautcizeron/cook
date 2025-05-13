@@ -15,3 +15,4 @@ class LoadingPageMiddleware:
         # Pour les requêtes suivantes, continuer normalement
         response = self.get_response(request)
         return response
+

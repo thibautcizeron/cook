@@ -53,6 +53,64 @@
             {% endif %}
         </div>
         
+        <!-- NOUVEAU : Section de notation -->
+        <div class="mb-6 bg-gray-50 p-4 rounded-lg border border-gray-200">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <!-- Affichage de la note moyenne -->
+                <div class="note-moyenne">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Note moyenne</h3>
+                    <div class="flex items-center">
+                        <div class="text-2xl font-bold text-gray-800 mr-2">{{ note_moyenne|floatformat:1 }}</div>
+                        <div class="etoiles-affichage flex">
+                            {% for i in "12345"|make_list %}
+                                {% if forloop.counter <= note_moyenne %}
+                                    <span class="text-yellow-400 text-2xl">★</span>
+                                {% else %}
+                                    <span class="text-gray-300 text-2xl">★</span>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <div class="text-sm text-gray-500 ml-2">({{ nombre_votes }} vote{{ nombre_votes|pluralize }})</div>
+                    </div>
+                </div>
+                
+                <!-- Formulaire de notation -->
+                {% if user.is_authenticated %}
+                    <div class="notation-recette">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Votre note</h3>
+                        <form method="post" action="{% url 'noter_recette' recette.id %}" class="form-notation">
+                            {% csrf_token %}
+                            <div class="etoiles flex flex-row-reverse justify-end">
+                                <input type="radio" id="etoile5" name="valeur" value="5" {% if note_utilisateur.valeur == 5 %}checked{% endif %} class="hidden">
+                                <label for="etoile5" class="text-2xl text-gray-300 hover:text-yellow-400 cursor-pointer mx-1">★</label>
+                                
+                                <input type="radio" id="etoile4" name="valeur" value="4" {% if note_utilisateur.valeur == 4 %}checked{% endif %} class="hidden">
+                                <label for="etoile4" class="text-2xl text-gray-300 hover:text-yellow-400 cursor-pointer mx-1">★</label>
+                                
+                                <input type="radio" id="etoile3" name="valeur" value="3" {% if note_utilisateur.valeur == 3 %}checked{% endif %} class="hidden">
+                                <label for="etoile3" class="text-2xl text-gray-300 hover:text-yellow-400 cursor-pointer mx-1">★</label>
+                                
+                                <input type="radio" id="etoile2" name="valeur" value="2" {% if note_utilisateur.valeur == 2 %}checked{% endif %} class="hidden">
+                                <label for="etoile2" class="text-2xl text-gray-300 hover:text-yellow-400 cursor-pointer mx-1">★</label>
+                                
+                                <input type="radio" id="etoile1" name="valeur" value="1" {% if note_utilisateur.valeur == 1 %}checked{% endif %} class="hidden">
+                                <label for="etoile1" class="text-2xl text-gray-300 hover:text-yellow-400 cursor-pointer mx-1">★</label>
+                            </div>
+                            <button type="submit" class="mt-2 inline-flex items-center px-3 py-1.5 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors">
+                                Envoyer ma note
+                            </button>
+                        </form>
+                    </div>
+                {% else %}
+                    <div class="notation-recette">
+                        <p class="text-sm text-gray-600">
+                            <a href="{% url 'login' %}?next={{ request.path }}" class="text-blue-500 hover:text-blue-700">Connectez-vous</a> pour noter cette recette.
+                        </p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
         <!-- Section image et détails -->
         <div class="flex flex-col md:flex-row gap-6 mb-8">
             {% if recette.image %}
@@ -159,6 +217,20 @@
             background-color: rgba(0, 0, 0, 0.2);
             border-radius: 4px;
         }
+        
+        /* NOUVEAU: Styles pour la notation */
+        .etoiles label {
+            transition: color 0.2s ease;
+        }
+        
+        .etoiles input:checked ~ label {
+            color: #F59E0B; /* text-yellow-500 */
+        }
+        
+        .etoiles label:hover,
+        .etoiles label:hover ~ label {
+            color: #F59E0B; /* text-yellow-500 */
+        }
     </style>
 
     <script>
@@ -204,6 +276,15 @@
                 if (!dropdownButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
                     dropdownMenu.classList.add('hidden');
                 }
+            });
+            
+            // NOUVEAU: JavaScript pour les étoiles
+            const etoiles = document.querySelectorAll('.etoiles input');
+            etoiles.forEach(etoile => {
+                etoile.addEventListener('change', function() {
+                    // Option: soumettre automatiquement le formulaire lors de la sélection
+                    // this.closest('form').submit();
+                });
             });
         });
     </script>
