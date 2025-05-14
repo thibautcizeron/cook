@@ -236,3 +236,6 @@ def search_users(request):
 
 def show_politique(request):
     return render(request, 'index/politique.html')
+
+def show_mentions(request):
+    return render(request, 'index/mentions.html')

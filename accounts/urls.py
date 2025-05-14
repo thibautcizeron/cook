@@ -42,4 +42,5 @@ urlpatterns = [
          name='password_reset_complete'),
 
     path('politique/', views.show_politique, name='politique'),
+    path('mentions/', views.show_mentions, name='mentions'),
 ]
