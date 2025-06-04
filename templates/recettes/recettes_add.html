@@ -1,4 +1,6 @@
 {% extends 'index/base.html' %}
+{% load static %}
+
 {% block content %}
 
 <div class="bg-gray-800 py-8 min-h-screen">
@@ -13,20 +15,34 @@
             <form method="post" enctype="multipart/form-data" class="p-4 sm:p-6 md:p-8">
                 {% csrf_token %}
                 
+                <!-- Affichage des erreurs générales -->
+                {% if form.non_field_errors %}
+                    <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+                
                 <!-- Basic Info -->
                 <div class="grid md:grid-cols-2 gap-6 mb-8">
                     <!-- Left column -->
                     <div class="space-y-5">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Nom de la recette</label>
-                            <input type="text" name="titre" 
-                                class="border border-gray-300 p-2 sm:p-3 rounded-lg w-full text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nom de la recette *</label>
+                            <input type="text" name="titre" required
+                                class="border border-gray-300 p-2 sm:p-3 rounded-lg w-full text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                placeholder="Entrez le nom de votre recette">
+                            {% if recette_form.titre.errors %}
+                                <div class="text-red-500 text-sm mt-1">{{ recette_form.titre.errors }}</div>
+                            {% endif %}
                         </div>
                         
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Nombre de personnes</label>
-                            <input type="number" name="nbpersonne" 
+                            <input type="number" name="nbpersonne" min="1" max="20" value="4"
                                 class="border border-gray-300 p-2 sm:p-3 rounded-lg w-full text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+                            {% if recette_form.nbpersonne.errors %}
+                                <div class="text-red-500 text-sm mt-1">{{ recette_form.nbpersonne.errors }}</div>
+                            {% endif %}
                         </div>
                         
                         <div>
@@ -46,21 +62,31 @@
                                     </svg>
                                 </div>
                             </div>
+                            {% if recette_form.categorie.errors %}
+                                <div class="text-red-500 text-sm mt-1">{{ recette_form.categorie.errors }}</div>
+                            {% endif %}
                         </div>
                     </div>
                     
                     <!-- Right column -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Image de la recette</label>
-                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                            <div class="mb-4 flex justify-center items-center h-32 sm:h-48">
-                                <svg class="h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors">
+                            <div class="mb-4 flex justify-center items-center h-32 sm:h-48" id="image-preview-container">
+                                <svg class="h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" id="default-icon">
                                     <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                                 </svg>
+                                <img id="image-preview" class="hidden max-h-48 max-w-full object-contain rounded-lg shadow-md" alt="Aperçu de l'image">
                             </div>
-                            <input type="file" name="image" 
-                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                            <p class="text-xs text-gray-500 mt-2">Sélectionnez une image pour votre recette</p>
+                            <input type="file" name="image" accept="image/*" id="image-input"
+                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
+                            <p class="text-xs text-gray-500 mt-2">
+                                Formats acceptés: JPG, PNG, WEBP (Max: 5MB)<br>
+                                L'image sera automatiquement optimisée
+                            </p>
+                            {% if recette_form.image.errors %}
+                                <div class="text-red-500 text-sm mt-2">{{ recette_form.image.errors }}</div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -97,7 +123,7 @@
                                 </div>
                                 <div class="w-full sm:w-1/3">
                                     <label class="block text-xs font-medium text-gray-500 mb-1">Quantité</label>
-                                    <input type="text" name="{{ form.prefix }}-quantite" class="border border-gray-300 p-2 rounded-lg w-full text-gray-700 focus:ring-blue-500 focus:border-transparent">
+                                    <input type="text" name="{{ form.prefix }}-quantite" placeholder="ex: 250g, 2 cuillères..." class="border border-gray-300 p-2 rounded-lg w-full text-gray-700 focus:ring-blue-500 focus:border-transparent">
                                 </div>
                                 <div class="flex justify-end sm:w-auto sm:flex-none sm:flex-shrink-0 sm:items-end">
                                     <button type="button" class="bg-red-100 hover:bg-red-200 text-red-700 w-8 h-8 rounded-full flex items-center justify-center remove-ingredient transition">
@@ -140,7 +166,7 @@
                                         </svg>
                                     </button>
                                 </div>
-                                <textarea name="{{ form.prefix }}-description" class="border border-gray-300 p-2 sm:p-3 rounded-lg w-full text-gray-700 focus:ring-blue-500 focus:border-transparent min-h-24"></textarea>
+                                <textarea name="{{ form.prefix }}-description" placeholder="Décrivez cette étape de préparation..." class="border border-gray-300 p-2 sm:p-3 rounded-lg w-full text-gray-700 focus:ring-blue-500 focus:border-transparent min-h-24"></textarea>
                             </div>
                         {% endfor %}
                     </div>
@@ -168,6 +194,45 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+        // Prévisualisation de l'image
+        const imageInput = document.getElementById('image-input');
+        const imagePreview = document.getElementById('image-preview');
+        const defaultIcon = document.getElementById('default-icon');
+        const previewContainer = document.getElementById('image-preview-container');
+        
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Vérifier le type de fichier
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+                if (!allowedTypes.includes(file.type)) {
+                    alert('Format de fichier non supporté. Utilisez JPG, PNG ou WEBP.');
+                    this.value = '';
+                    return;
+                }
+                
+                // Vérifier la taille (5MB max)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('Le fichier est trop volumineux. Taille maximum: 5MB.');
+                    this.value = '';
+                    return;
+                }
+                
+                // Afficher l'aperçu
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.classList.remove('hidden');
+                    defaultIcon.classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                // Remettre l'icône par défaut
+                imagePreview.classList.add('hidden');
+                defaultIcon.classList.remove('hidden');
+            }
+        });
+
         // Gestion des ingrédients
         let ingredientFormset = document.getElementById("ingredient-formset");
         let ingredientTotalForms = document.querySelector("[name='ingredients-TOTAL_FORMS']");

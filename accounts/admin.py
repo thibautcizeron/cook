@@ -1,7 +1,9 @@
+# accounts/admin.py
 from django.contrib import admin
 from django.contrib.auth.models import User, Group
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin, GroupAdmin as BaseGroupAdmin
 
-class UserAdmin(admin.ModelAdmin):
+class UserAdmin(BaseUserAdmin):
     list_display = ('username', 'email', 'first_name', 'last_name', 'get_groups')
     list_filter = ('groups',)
     search_fields = ('username', 'email', 'first_name', 'last_name')
@@ -12,9 +14,13 @@ class UserAdmin(admin.ModelAdmin):
         return ", ".join([group.name for group in obj.groups.all()])
     get_groups.short_description = "Groupes"
 
-# Enregistre le modèle User avec la configuration personnalisée
+# Désenregistrer les modèles existants et les réenregistrer avec la configuration personnalisée
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 
-# Assurer que le modèle Group est bien visible aussi
-admin.site.register(Group)
+# Pour Group, on peut soit le laisser tel quel, soit le personnaliser
+# Si vous voulez le personnaliser, décommentez les lignes ci-dessous :
+# admin.site.unregister(Group)
+# admin.site.register(Group, BaseGroupAdmin)
+
+# Sinon, Group reste avec sa configuration par défaut

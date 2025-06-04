@@ -1,4 +1,5 @@
 {% extends 'index/base.html' %}
+{% load static %}
 
 {% block title %}Liste des Ingrédients{% endblock %}
 
@@ -56,7 +57,7 @@
                         <td class="px-6 py-5 text-left font-medium">{{ ingredient.nom }}</td>
                         <td class="px-6 py-5 text-center">
                             {% if ingredient.image %}
-                                <img src="{{ ingredient.image.url }}" class="w-16 h-16 object-cover rounded-lg shadow mx-auto hover:scale-105 transition-transform duration-200">
+                                <img src="{% static ingredient.image %}" class="w-16 h-16 object-cover rounded-lg shadow mx-auto hover:scale-105 transition-transform duration-200" alt="{{ ingredient.nom }}">
                             {% else %}
                                 <div class="w-16 h-16 bg-gray-100 flex items-center justify-center rounded-lg mx-auto text-gray-400">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -169,10 +170,14 @@
                             ingredients.forEach(ingredient => {
                                 const li = document.createElement('li');
                                 li.className = 'px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0';
+                                
+                                // Construire l'URL de l'image pour la recherche
+                                const imageUrl = ingredient.image ? `/static/${ingredient.image}` : null;
+                                
                                 li.innerHTML = `
                                     <div class="flex items-center gap-3">
-                                        ${ingredient.image ? 
-                                            `<img src="${ingredient.image}" class="w-10 h-10 object-cover rounded-lg">` : 
+                                        ${imageUrl ? 
+                                            `<img src="${imageUrl}" class="w-10 h-10 object-cover rounded-lg">` : 
                                             `<div class="w-10 h-10 bg-gray-100 flex items-center justify-center rounded-lg text-gray-400">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -294,11 +299,14 @@
                             const tr = document.createElement('tr');
                             tr.classList.add('hover:bg-gray-50', 'transition-all', 'duration-200', 'group');
                             
+                            // Construire l'URL de l'image pour AJAX
+                            const imageUrl = ingredient.image ? `/static/${ingredient.image}` : null;
+                            
                             tr.innerHTML = `
                                 <td class="px-6 py-5 text-left font-medium">${ingredient.nom}</td>
                                 <td class="px-6 py-5 text-center">
-                                    ${ingredient.image ? 
-                                        `<img src="${ingredient.image}" class="w-16 h-16 object-cover rounded-lg shadow mx-auto hover:scale-105 transition-transform duration-200">` : 
+                                    ${imageUrl ? 
+                                        `<img src="${imageUrl}" class="w-16 h-16 object-cover rounded-lg shadow mx-auto hover:scale-105 transition-transform duration-200" alt="${ingredient.nom}">` : 
                                         `<div class="w-16 h-16 bg-gray-100 flex items-center justify-center rounded-lg mx-auto text-gray-400">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -336,9 +344,13 @@
                     data.ingredients.forEach(ingredient => {
                         const ingredientItem = document.createElement('li');
                         ingredientItem.classList.add('p-4', 'bg-gray-50', 'rounded-lg', 'shadow-sm', 'flex', 'items-center', 'gap-3');
+                        
+                        // Construire l'URL de l'image pour les résultats
+                        const imageUrl = ingredient.image ? `/static/${ingredient.image}` : null;
+                        
                         ingredientItem.innerHTML = `
-                            ${ingredient.image ? 
-                                `<img src="${ingredient.image}" class="w-12 h-12 object-cover rounded-lg shadow">` : 
+                            ${imageUrl ? 
+                                `<img src="${imageUrl}" class="w-12 h-12 object-cover rounded-lg shadow">` : 
                                 `<div class="w-12 h-12 bg-gray-100 flex items-center justify-center rounded-lg text-gray-400">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />

@@ -1,3 +1,4 @@
+# recettes/views.py
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Recette, Ingredient, Categorie, Etape, RecetteIngredient, Note
 from .forms import RecetteForm, IngredientForm, CategorieForm, EtapeForm, RecetteIngredientForm
@@ -7,6 +8,130 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Q
 from django.contrib import messages
+from django.conf import settings
+import os
+import uuid
+import re
+from PIL import Image
+from django.utils.text import slugify
+
+# Gestionnaire de stockage personnalisé pour les images
+class StaticImageStorage:
+    """Gestionnaire personnalisé pour stocker les images dans les dossiers static"""
+    
+    def __init__(self):
+        self.static_root = getattr(settings, 'STATICFILES_DIRS', [settings.BASE_DIR / 'static'])[0]
+        
+    def save_recipe_image(self, uploaded_file, recipe_title, recipe_id=None):
+        """Sauvegarde une image de recette avec le nom de la recette"""
+        return self._save_image(uploaded_file, 'recettes', recipe_title, recipe_id)
+    
+    def save_ingredient_image(self, uploaded_file, ingredient_name, ingredient_id=None):
+        """Sauvegarde une image d'ingrédient avec le nom de l'ingrédient"""
+        return self._save_image(uploaded_file, 'ingredients', ingredient_name, ingredient_id)
+    
+    def _save_image(self, uploaded_file, folder_name, item_name, item_id=None):
+        """Méthode privée pour sauvegarder une image avec un nom personnalisé"""
+        if not uploaded_file:
+            return None
+            
+        # Créer le dossier de destination
+        destination_folder = os.path.join(self.static_root, 'images', folder_name)
+        os.makedirs(destination_folder, exist_ok=True)
+        
+        # Nettoyer le nom de l'élément pour créer un nom de fichier valide
+        clean_name = self._clean_filename(item_name)
+        
+        # Générer un nom de fichier basé sur le nom de l'élément
+        file_extension = os.path.splitext(uploaded_file.name)[1].lower()
+        if not file_extension:
+            file_extension = '.jpg'  # Extension par défaut
+            
+        # Créer le nom de fichier : nom_de_la_recette_id.extension
+        if item_id:
+            filename = f"{clean_name}_{item_id}{file_extension}"
+        else:
+            # Si pas d'ID, ajouter un identifiant unique court
+            filename = f"{clean_name}_{uuid.uuid4().hex[:6]}{file_extension}"
+        
+        file_path = os.path.join(destination_folder, filename)
+        
+        # Vérifier si le fichier existe déjà et le supprimer pour éviter les doublons
+        if os.path.exists(file_path):
+            try:
+                os.remove(file_path)
+            except Exception as e:
+                print(f"Erreur lors de la suppression de l'ancien fichier {file_path}: {e}")
+        
+        # Sauvegarder le fichier
+        with open(file_path, 'wb+') as destination:
+            for chunk in uploaded_file.chunks():
+                destination.write(chunk)
+        
+        # Optimiser l'image
+        self._optimize_image(file_path)
+        
+        # Retourner le chemin relatif pour l'URL
+        return f"images/{folder_name}/{filename}"
+    
+    def _clean_filename(self, name):
+        """Nettoie un nom pour en faire un nom de fichier valide"""
+        if not name:
+            return "image"
+        
+        # Utiliser slugify pour créer un nom de fichier propre
+        clean_name = slugify(name)
+        
+        # Limiter la longueur pour éviter les noms de fichiers trop longs
+        if len(clean_name) > 50:
+            clean_name = clean_name[:50]
+        
+        # Si le nom devient vide après nettoyage, utiliser un nom par défaut
+        if not clean_name:
+            clean_name = "image"
+            
+        return clean_name
+    
+    def _optimize_image(self, file_path, max_size=(800, 600), quality=85):
+        """Optimise et redimensionne l'image"""
+        try:
+            with Image.open(file_path) as img:
+                # Convertir en RGB si nécessaire
+                if img.mode in ('RGBA', 'LA', 'P'):
+                    img = img.convert('RGB')
+                
+                # Redimensionner si nécessaire
+                img.thumbnail(max_size, Image.Resampling.LANCZOS)
+                
+                # Sauvegarder avec compression
+                img.save(file_path, optimize=True, quality=quality)
+        except Exception as e:
+            print(f"Erreur lors de l'optimisation de l'image {file_path}: {e}")
+    
+    def delete_image(self, image_path):
+        """Supprime une image du système de fichiers"""
+        if not image_path:
+            return
+            
+        full_path = os.path.join(self.static_root, image_path)
+        if os.path.exists(full_path):
+            try:
+                os.remove(full_path)
+                print(f"Image supprimée: {full_path}")
+            except Exception as e:
+                print(f"Erreur lors de la suppression de l'image {full_path}: {e}")
+    
+    def update_image(self, old_image_path, new_uploaded_file, folder_name, item_name, item_id=None):
+        """Met à jour une image (supprime l'ancienne et sauvegarde la nouvelle)"""
+        # Supprimer l'ancienne image
+        if old_image_path:
+            self.delete_image(old_image_path)
+        
+        # Sauvegarder la nouvelle image
+        return self._save_image(new_uploaded_file, folder_name, item_name, item_id)
+
+# Instance globale du gestionnaire de stockage
+storage = StaticImageStorage()
 
 @login_required
 def noter_recette(request, recette_id):
@@ -46,7 +171,6 @@ def is_admin(user):
 def is_superuser(user):
     return user.is_superuser
 
-
 def home(request):
     recettes = Recette.objects.all()
     return render(request, 'index/layout.html', {'recettes': recettes})
@@ -71,8 +195,8 @@ def search_recipe(request):
 @login_required
 @user_passes_test(lambda u: is_admin(u) or is_superuser(u))
 def recettes_list(request):
-    order = request.GET.get("order", "asc")  # Ordre de tri par défaut
-    search_query = request.GET.get("search", "").strip()  # Récupérer la recherche
+    order = request.GET.get("order", "asc")
+    search_query = request.GET.get("search", "").strip()
 
     recettes = Recette.objects.all()
 
@@ -90,7 +214,7 @@ def recettes_list(request):
         "recettes": recettes,
         "categories": categories,
         "order": order,
-        "search_query": search_query  # Transmettre la recherche au template
+        "search_query": search_query
     })
 
 def recettes_details(request, recette_id):
@@ -166,8 +290,21 @@ def recettes_add(request):
         etape_formset = EtapeFormSet(request.POST, prefix='etapes')
 
         if recette_form.is_valid() and ingredient_formset.is_valid() and etape_formset.is_valid():
-            recette = recette_form.save()
+            # Créer la recette d'abord sans l'image
+            recette = recette_form.save(commit=False)
+            recette.save()  # Sauvegarder pour obtenir l'ID
+            
+            # Gérer l'upload de l'image avec le titre de la recette
+            if 'image' in request.FILES:
+                image_path = storage.save_recipe_image(
+                    request.FILES['image'], 
+                    recette.titre,  # Utiliser le titre de la recette
+                    recette.id
+                )
+                recette.image = image_path
+                recette.save()  # Sauvegarder à nouveau avec l'image
 
+            # Créer les ingrédients
             for form in ingredient_formset:
                 if form.cleaned_data.get('ingredient') and form.cleaned_data.get('quantite'):
                     RecetteIngredient.objects.create(
@@ -176,6 +313,7 @@ def recettes_add(request):
                         quantite=form.cleaned_data['quantite']
                     )
 
+            # Créer les étapes
             for form in etape_formset:
                 if form.cleaned_data.get('description'):
                     Etape.objects.create(
@@ -183,7 +321,13 @@ def recettes_add(request):
                         description=form.cleaned_data['description']
                     )
 
+            messages.success(request, f'Recette "{recette.titre}" créée avec succès!')
             return redirect('recettes')
+        else:
+            # Afficher les erreurs
+            for field, errors in recette_form.errors.items():
+                for error in errors:
+                    messages.error(request, f"Erreur dans {field}: {error}")
 
     else:
         recette_form = RecetteForm()
@@ -198,8 +342,7 @@ def recettes_add(request):
         'etape_formset': etape_formset,
         'categories': categories,
         'ingredients': ingredients, 
-})
-
+    })
 
 @login_required
 @user_passes_test(lambda u: is_admin(u) or is_superuser(u))
@@ -219,10 +362,32 @@ def recettes_edit(request, pk):
         etape_formset = EtapeFormSet(request.POST, instance=recette, prefix='etapes')
 
         if recette_form.is_valid() and ingredient_formset.is_valid() and etape_formset.is_valid():
+            # Sauvegarder la recette d'abord
+            old_image = recette.image
             recette = recette_form.save()
+            
+            # Gérer l'upload de l'image si une nouvelle image est fournie
+            if 'image' in request.FILES:
+                new_image_path = storage.update_image(
+                    old_image, 
+                    request.FILES['image'], 
+                    'recettes', 
+                    recette.titre,  # Utiliser le titre de la recette
+                    recette.id
+                )
+                recette.image = new_image_path
+                recette.save()
+            
             ingredient_formset.save()
             etape_formset.save()
+            
+            messages.success(request, f'Recette "{recette.titre}" modifiée avec succès!')
             return redirect('recettes')
+        else:
+            # Afficher les erreurs
+            for field, errors in recette_form.errors.items():
+                for error in errors:
+                    messages.error(request, f"Erreur dans {field}: {error}")
     else:
         recette_form = RecetteForm(instance=recette)
         ingredient_formset = RecetteIngredientFormSet(instance=recette, prefix='ingredients')
@@ -245,11 +410,18 @@ def recettes_edit(request, pk):
 def recettes_delete(request, pk):
     recette = get_object_or_404(Recette, pk=pk)
     if request.method == "POST":
+        recette_titre = recette.titre
+        
+        # Supprimer l'image associée
+        if recette.image:
+            storage.delete_image(recette.image)
+        
         recette.delete()
+        messages.success(request, f'Recette "{recette_titre}" supprimée avec succès!')
         return redirect('recettes')
     return render(request, 'recette/recettes.html', {'recette': recette})
 
-
+# VUES POUR LES INGRÉDIENTS
 
 @login_required
 @user_passes_test(lambda u: is_admin(u) or is_superuser(u))
@@ -261,7 +433,14 @@ def ingredient_list(request):
         ingredients = ingredients.filter(nom__icontains=search_query)
 
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        ingredients_data = list(ingredients.values('id', 'nom', 'image'))
+        ingredients_data = []
+        for ingredient in ingredients:
+            data = {
+                'id': ingredient.id,
+                'nom': ingredient.nom,
+                'image': ingredient.image_url if ingredient.image else None
+            }
+            ingredients_data.append(data)
         return JsonResponse({'ingredients': ingredients_data})
 
     return render(request, 'ingredients/ingredients.html', {
@@ -275,8 +454,26 @@ def ingredients_add(request):
     if request.method == "POST":
         form = IngredientForm(request.POST, request.FILES)
         if form.is_valid():
-            ingredient = form.save()
+            ingredient = form.save(commit=False)
+            ingredient.save()  # Sauvegarder pour obtenir l'ID
+            
+            # Gérer l'upload de l'image avec le nom de l'ingrédient
+            if 'image' in request.FILES:
+                image_path = storage.save_ingredient_image(
+                    request.FILES['image'], 
+                    ingredient.nom,  # Utiliser le nom de l'ingrédient
+                    ingredient.id
+                )
+                ingredient.image = image_path
+                ingredient.save()  # Sauvegarder à nouveau avec l'image
+            
+            messages.success(request, f'Ingrédient "{ingredient.nom}" créé avec succès!')
             return redirect('ingredients')
+        else:
+            # Afficher les erreurs
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"Erreur dans {field}: {error}")
     else:
         form = IngredientForm()
     return render(request, 'ingredients/ingredients_add.html', {'form': form})
@@ -288,8 +485,29 @@ def ingredients_edit(request, pk):
     if request.method == "POST":
         form = IngredientForm(request.POST, request.FILES, instance=ingredient) 
         if form.is_valid():
-            form.save()
+            # Sauvegarder l'ingrédient d'abord
+            old_image = ingredient.image
+            ingredient = form.save()
+            
+            # Gérer l'upload de l'image si une nouvelle image est fournie
+            if 'image' in request.FILES:
+                new_image_path = storage.update_image(
+                    old_image, 
+                    request.FILES['image'], 
+                    'ingredients', 
+                    ingredient.nom,  # Utiliser le nom de l'ingrédient
+                    ingredient.id
+                )
+                ingredient.image = new_image_path
+                ingredient.save()
+            
+            messages.success(request, f'Ingrédient "{ingredient.nom}" modifié avec succès!')
             return redirect('ingredients')
+        else:
+            # Afficher les erreurs
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"Erreur dans {field}: {error}")
     else:
         form = IngredientForm(instance=ingredient)  
     return render(request, 'ingredients/ingredients_edit.html', {'form': form, 'ingredient': ingredient})
@@ -299,7 +517,14 @@ def ingredients_edit(request, pk):
 def ingredients_delete(request, pk):
     ingredient = get_object_or_404(Ingredient, pk=pk)
     if request.method == "POST":
+        ingredient_nom = ingredient.nom
+        
+        # Supprimer l'image associée
+        if ingredient.image:
+            storage.delete_image(ingredient.image)
+        
         ingredient.delete()
+        messages.success(request, f'Ingrédient "{ingredient_nom}" supprimé avec succès!')
         return redirect('ingredients')
     return render(request, 'recette/ingredients.html', {'ingredient': ingredient})
 
@@ -331,7 +556,6 @@ def show_starts(request):
 
     return render(request, 'index/layout_starts.html', {'entrees': entrees})
 
-
 def show_dishes(request):
     try:
         categorie_plat = Categorie.objects.get(nom="plat")  
@@ -360,8 +584,3 @@ def show_cocktails(request):
 
 def loading_page(request):
     return render(request, 'index/loading.html')
-
-
-
-
-

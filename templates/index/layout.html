@@ -1,15 +1,18 @@
 {% extends 'index/base.html' %}
+{% load static %}
 
 {% block title %}Accueil - Recettes{% endblock %}
 
 {% block content %}
 <div class="w-full max-w-full">
     <!-- Section Hero améliorée avec parallax et superposition de texte -->
-    <div class="relative w-full h-[400px] sm:h-[500px] md:h-[600px] bg-cover bg-center bg-fixed" style="background-image: url('/media/index/main-layout.jpg');">
+    <div class="relative w-full h-[400px] sm:h-[500px] md:h-[600px] bg-cover bg-center bg-fixed" style="background-image: url({% static 'images/index/main-layout.jpg' %});">
         <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70 flex flex-col items-center justify-center text-center px-4">
-            <h1 class="text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-2 sm:mb-4 tracking-tight" style="font-family: 'DM Serif Display', serif;">Découvrez des recettes inspirantes</h1>
-            <!-- Bouton Ajouter Recette -->
-            {% if is_contributor or is_admin or is_superuser %}   
+            <h1 class="text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-2 sm:mb-4 tracking-tight" style="font-family: 'DM Serif Display', serif;">
+                Découvrez des recettes inspirantes
+            </h1>
+
+            {% if is_contributor or is_admin or is_superuser %}
             <div class="flex justify-center mt-8">
                 <a href="{% url 'recettes_add' %}" class="bg-green-600 text-white px-6 py-3 rounded-full shadow-lg hover:bg-green-700 transition-all">
                     + Ajouter une recette
@@ -18,6 +21,7 @@
             {% endif %}
         </div>
     </div>
+
 
     <!-- Section Catégories avec designs élégants en carré -->
     <div class="py-10 sm:py-12 md:py-16 bg-gray-900">
@@ -112,7 +116,7 @@
                             <div class="bg-gray-900 rounded-lg overflow-hidden shadow-lg h-full transform transition-all duration-300 hover:scale-105">
                                 <a href="{% url 'recettes_details' recette.id %}" class="block relative">
                                     {% if recette.image %}
-                                        <img src="{{ recette.image.url }}" alt="{{ recette.titre }}" class="w-full h-40 sm:h-48 md:h-56 object-cover">
+                                        <img src="{% static recette.image %}" alt="{{ recette.titre }}" class="w-full h-40 sm:h-48 md:h-56 object-cover">
                                     {% else %}
                                         <div class="w-full h-40 sm:h-48 md:h-56 bg-gray-700 flex items-center justify-center">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -274,20 +278,22 @@
         // Variables pour le carrousel
         let position = 0;
         const cards = document.querySelectorAll('.recette-card');
-        let cardWidth = cards[0].offsetWidth;
+        let cardWidth = cards[0]?.offsetWidth || 0;
         let visibleCards = Math.floor(carousel.offsetWidth / cardWidth);
         let maxPosition = Math.max(0, cards.length - visibleCards);
         
         // Fonctions pour le carrousel
         function updateCarouselMetrics() {
-            cardWidth = cards[0].offsetWidth;
-            visibleCards = Math.floor(carousel.offsetWidth / cardWidth);
-            maxPosition = Math.max(0, cards.length - visibleCards);
-            
-            // Réajuster la position si nécessaire
-            if (position > maxPosition) {
-                position = maxPosition;
-                updateCarouselPosition();
+            if (cards.length > 0) {
+                cardWidth = cards[0].offsetWidth;
+                visibleCards = Math.floor(carousel.offsetWidth / cardWidth);
+                maxPosition = Math.max(0, cards.length - visibleCards);
+                
+                // Réajuster la position si nécessaire
+                if (position > maxPosition) {
+                    position = maxPosition;
+                    updateCarouselPosition();
+                }
             }
         }
         
@@ -306,77 +312,79 @@
             updateCarouselPosition();
         }
         
-        // Écouteurs d'événements pour les boutons
-        prevBtn.addEventListener('click', () => moveCarousel('prev'));
-        nextBtn.addEventListener('click', () => moveCarousel('next'));
-        
-        // Support tactile pour le carrousel
-        let touchStartX = 0;
-        let touchEndX = 0;
-        
-        carousel.addEventListener('touchstart', function(e) {
-            touchStartX = e.changedTouches[0].screenX;
-        }, false);
-        
-        carousel.addEventListener('touchend', function(e) {
-            touchEndX = e.changedTouches[0].screenX;
-            handleSwipe();
-        }, false);
-        
-        function handleSwipe() {
-            const swipeThreshold = 50; // Nombre de pixels pour considérer un swipe
+        // Écouteurs d'événements pour les boutons (seulement si on a des cartes)
+        if (cards.length > 0) {
+            prevBtn.addEventListener('click', () => moveCarousel('prev'));
+            nextBtn.addEventListener('click', () => moveCarousel('next'));
             
-            if (touchStartX - touchEndX > swipeThreshold) {
-                // Swipe vers la gauche - image suivante
-                moveCarousel('next');
-            } else if (touchEndX - touchStartX > swipeThreshold) {
-                // Swipe vers la droite - image précédente
-                moveCarousel('prev');
-            }
-        }
-        
-        // Ajuster le carrousel en cas de redimensionnement
-        function handleResize() {
-            updateCarouselMetrics();
-            updateCarouselPosition();
-        }
-        
-        window.addEventListener('resize', handleResize);
-        
-        // Initialisation initiale
-        updateCarouselMetrics();
-        
-        // Défilement automatique optionnel
-        let autoScroll;
-        
-        function startAutoScroll() {
-            autoScroll = setInterval(() => {
-                if (position < maxPosition) {
+            // Support tactile pour le carrousel
+            let touchStartX = 0;
+            let touchEndX = 0;
+            
+            carousel.addEventListener('touchstart', function(e) {
+                touchStartX = e.changedTouches[0].screenX;
+            }, false);
+            
+            carousel.addEventListener('touchend', function(e) {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+            }, false);
+            
+            function handleSwipe() {
+                const swipeThreshold = 50; // Nombre de pixels pour considérer un swipe
+                
+                if (touchStartX - touchEndX > swipeThreshold) {
+                    // Swipe vers la gauche - image suivante
                     moveCarousel('next');
-                } else {
-                    // Retour au début
-                    position = 0;
-                    updateCarouselPosition();
+                } else if (touchEndX - touchStartX > swipeThreshold) {
+                    // Swipe vers la droite - image précédente
+                    moveCarousel('prev');
                 }
-            }, 5000);
+            }
+            
+            // Ajuster le carrousel en cas de redimensionnement
+            function handleResize() {
+                updateCarouselMetrics();
+                updateCarouselPosition();
+            }
+            
+            window.addEventListener('resize', handleResize);
+            
+            // Initialisation initiale
+            updateCarouselMetrics();
+            
+            // Défilement automatique optionnel
+            let autoScroll;
+            
+            function startAutoScroll() {
+                autoScroll = setInterval(() => {
+                    if (position < maxPosition) {
+                        moveCarousel('next');
+                    } else {
+                        // Retour au début
+                        position = 0;
+                        updateCarouselPosition();
+                    }
+                }, 5000);
+            }
+            
+            function stopAutoScroll() {
+                clearInterval(autoScroll);
+            }
+            
+            // Démarrer le défilement automatique
+            startAutoScroll();
+            
+            // Arrêter le défilement automatique au survol ou toucher
+            carousel.addEventListener('mouseenter', stopAutoScroll);
+            carousel.addEventListener('touchstart', stopAutoScroll);
+            
+            // Redémarrer le défilement automatique à la fin du survol ou toucher
+            carousel.addEventListener('mouseleave', startAutoScroll);
+            carousel.addEventListener('touchend', () => {
+                setTimeout(startAutoScroll, 3000); // Délai avant de redémarrer après un toucher
+            });
         }
-        
-        function stopAutoScroll() {
-            clearInterval(autoScroll);
-        }
-        
-        // Démarrer le défilement automatique
-        startAutoScroll();
-        
-        // Arrêter le défilement automatique au survol ou toucher
-        carousel.addEventListener('mouseenter', stopAutoScroll);
-        carousel.addEventListener('touchstart', stopAutoScroll);
-        
-        // Redémarrer le défilement automatique à la fin du survol ou toucher
-        carousel.addEventListener('mouseleave', startAutoScroll);
-        carousel.addEventListener('touchend', () => {
-            setTimeout(startAutoScroll, 3000); // Délai avant de redémarrer après un toucher
-        });
         
         // Animation d'entrée pour les catégories
         const categoryCards = document.querySelectorAll('.category-card');

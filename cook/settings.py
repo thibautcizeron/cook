@@ -1,3 +1,4 @@
+# cook/settings.py
 """
 Django settings for cook project.
 
@@ -16,10 +17,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -32,9 +31,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['localhost']
 
-
 # Application definition
-
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -43,6 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "recettes", 
+    "accounts",  # Ajout de l'app accounts
 ]
 
 MIDDLEWARE = [
@@ -77,10 +75,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "cook.wsgi.application"
 
-
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': os.getenv('DB_ENGINE'),
@@ -92,10 +88,8 @@ DATABASES = {
     }
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
@@ -111,37 +105,34 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
-
 LANGUAGE_CODE = "en-us"
-
 TIME_ZONE = "UTC"
-
 USE_I18N = True
-
 USE_TZ = True
-
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# Configuration des fichiers statiques
+STATIC_URL = "/static/"
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# Configuration pour les fichiers media (conserver pour les anciennes images)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# URL de base pour les fichiers statiques
-STATIC_URL = "/static/"
-
+# Configuration d'authentification
 LOGIN_REDIRECT_URL = '/'  
 LOGOUT_REDIRECT_URL = '/accounts/login/' 
 LOGIN_URL = '/accounts/login/' 
 
-# Configuration pour le développement 
-#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
+# Configuration email
 EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
 EMAIL_HOST = os.getenv('EMAIL_HOST')
 EMAIL_PORT = int(os.getenv('EMAIL_PORT', 465))
@@ -151,4 +142,10 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
 
-
+# Configuration spécifique pour la gestion des images
+IMAGE_UPLOAD_SETTINGS = {
+    'MAX_FILE_SIZE': 5 * 1024 * 1024,  # 5MB
+    'ALLOWED_FORMATS': ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
+    'THUMBNAIL_SIZE': (800, 600),
+    'QUALITY': 85,
+}

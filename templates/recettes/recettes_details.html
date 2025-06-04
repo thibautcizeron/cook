@@ -1,4 +1,5 @@
 {% extends 'index/base.html' %}
+{% load static %}
 
 {% block title %}Détails de la Recette{% endblock %}
 
@@ -9,7 +10,7 @@
             <h2 class="text-2xl md:text-3xl font-bold flex items-center">
                 <div class="flex items-center">
                     {% if recette.categorie.image %}
-                        <img src="{{ recette.categorie.image.url }}" alt="{{ recette.categorie.nom }}" class="w-8 h-8 rounded-full mr-3">
+                        <img src="{% static recette.categorie.image %}" alt="{{ recette.categorie.nom }}" class="w-8 h-8 rounded-full mr-3">
                     {% endif %}
                     <span>{{ recette.titre }}</span>
                 </div>
@@ -51,7 +52,7 @@
             <div class="w-full md:w-1/2 mb-4 md:mb-0">
                 {% if recette.image %}
                     <div class="w-full h-48 md:h-64 overflow-hidden rounded-lg shadow-lg mx-auto max-w-md mb-4">
-                        <img src="{{ recette.image.url }}" alt="{{ recette.titre }}" class="w-full h-full object-cover">
+                        <img src="{% static recette.image %}" alt="{{ recette.titre }}" class="w-full h-full object-cover">
                     </div>
                 {% else %}
                     <div class="w-full h-48 md:h-64 rounded-lg shadow-lg bg-gray-200 flex items-center justify-center mx-auto max-w-md mb-4">
@@ -141,7 +142,7 @@
                 {% for ingredient in ingredients %}
                 <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 p-3 text-center border border-gray-100">
                     {% if ingredient.ingredient.image %}
-                        <img src="{{ ingredient.ingredient.image.url }}" alt="{{ ingredient.ingredient.nom }}" class="w-14 h-14 object-cover mx-auto mb-2 rounded">
+                        <img src="{% static ingredient.ingredient.image %}" alt="{{ ingredient.ingredient.nom }}" class="w-14 h-14 object-cover mx-auto mb-2 rounded">
                     {% else %}
                         <div class="w-14 h-14 bg-gray-200 rounded mx-auto mb-2 flex items-center justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -219,7 +220,7 @@
             border-radius: 4px;
         }
         
-        /* NOUVEAU: Styles pour la notation */
+        /* Styles pour la notation */
         .etoiles label {
             transition: color 0.2s ease;
         }
@@ -279,7 +280,7 @@
                 }
             });
             
-            // NOUVEAU: JavaScript pour les étoiles
+            // JavaScript pour les étoiles
             const etoiles = document.querySelectorAll('.etoiles input');
             etoiles.forEach(etoile => {
                 etoile.addEventListener('change', function() {

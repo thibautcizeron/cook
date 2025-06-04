@@ -1,4 +1,5 @@
 {% extends 'index/base.html' %}
+{% load static %}
 
 {% block content %}
 
@@ -23,15 +24,27 @@
                         {% if field.name == 'image' %}
                         <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
                             {% if ingredient.image %}
-                                <div class="mb-3">
-                                    <img src="{{ ingredient.image.url }}" alt="{{ ingredient.nom }}" class="mx-auto h-40 object-cover rounded-lg">
+                                <div class="mb-3 image-preview">
+                                    <img src="{% static ingredient.image %}" alt="{{ ingredient.nom }}" class="mx-auto h-40 object-cover rounded-lg">
+                                    <p class="text-xs text-gray-600 mt-2">Image actuelle</p>
+                                </div>
+                            {% else %}
+                                <div class="mb-3 image-preview" style="display: none;">
+                                    <img src="" alt="Aperçu de l'image" class="mx-auto h-40 object-cover rounded-lg">
                                 </div>
                             {% endif %}
                             
                             <div class="custom-file-input">
-                                <input type="file" name="{{ field.html_name }}" id="{{ field.auto_id }}" class="hidden-file-input" {% if field.value %}value="{{ field.value }}"{% endif %} accept="image/*">
+                                <input type="file" name="{{ field.html_name }}" id="{{ field.auto_id }}" class="hidden-file-input" accept="image/*">
                             </div>
-                            <p class="text-xs text-gray-500 mt-2">Laisser vide pour conserver l'image actuelle</p>
+                            <p class="text-xs text-gray-500 mt-2">
+                                {% if ingredient.image %}
+                                    Choisir une nouvelle image pour remplacer l'actuelle
+                                {% else %}
+                                    Choisir une image pour cet ingrédient
+                                {% endif %}
+                            </p>
+                            <p class="text-xs text-gray-400 mt-1">Formats acceptés: JPG, PNG, WEBP (Max: 5MB)</p>
                         </div>
                         {% else %}
                             {{ field }}
@@ -123,6 +136,16 @@
     .custom-file-input:hover:after {
         background-color: #dbeafe;
     }
+
+    /* Animation pour la prévisualisation */
+    .image-preview img {
+        transition: all 0.3s ease;
+    }
+    
+    .image-preview.updated img {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
 </style>
 
 {% block extra_js %}
@@ -136,16 +159,48 @@
             });
         });
         
-        // Capturer le changement de fichier et afficher son nom
+        // Capturer le changement de fichier et prévisualiser l'image
         document.querySelectorAll('.hidden-file-input').forEach(input => {
             input.addEventListener('change', function() {
+                const fileInputContainer = this.closest('.border-dashed');
+                const imagePreview = fileInputContainer.querySelector('.image-preview');
+                const previewImg = imagePreview.querySelector('img');
                 const wrapper = this.closest('.custom-file-input');
                 
                 // Si un fichier est sélectionné
                 if (this.files && this.files.length > 0) {
-                    const fileName = this.files[0].name;
+                    const file = this.files[0];
+                    const fileName = file.name;
                     
-                    // Supprimer le contenu généré après précédemment
+                    // Vérifier que c'est bien une image
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            previewImg.src = e.target.result;
+                            previewImg.alt = "Nouvelle image sélectionnée";
+                            imagePreview.style.display = 'block';
+                            
+                            // Ajouter une animation pour indiquer le changement
+                            imagePreview.classList.add('updated');
+                            setTimeout(() => {
+                                imagePreview.classList.remove('updated');
+                            }, 1000);
+                            
+                            // Mettre à jour le texte sous l'image
+                            const currentImageText = imagePreview.querySelector('p');
+                            if (currentImageText) {
+                                currentImageText.textContent = 'Nouvelle image sélectionnée';
+                                currentImageText.className = 'text-xs text-blue-600 mt-2 font-medium';
+                            }
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        alert('Veuillez sélectionner un fichier image valide (JPG, PNG, WEBP).');
+                        this.value = '';
+                        return;
+                    }
+                    
+                    // Supprimer le nom de fichier précédent s'il existe
                     const existingFileName = wrapper.querySelector('.selected-file-name');
                     if (existingFileName) {
                         existingFileName.remove();
@@ -153,9 +208,16 @@
                     
                     // Ajouter le nom du fichier sélectionné
                     const fileNameElement = document.createElement('span');
-                    fileNameElement.className = 'selected-file-name block mt-2 text-sm text-blue-600';
-                    fileNameElement.textContent = fileName;
+                    fileNameElement.className = 'selected-file-name block mt-2 text-sm text-blue-600 font-medium';
+                    fileNameElement.innerHTML = `<svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>${fileName}`;
                     wrapper.appendChild(fileNameElement);
+                    
+                    // Mettre à jour le texte d'aide
+                    const helpText = fileInputContainer.querySelector('.text-gray-500');
+                    if (helpText) {
+                        helpText.textContent = 'Nouvelle image sélectionnée - sera sauvegardée lors de l\'enregistrement';
+                        helpText.className = 'text-xs text-blue-600 mt-2';
+                    }
                 }
             });
         });

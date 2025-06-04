@@ -1,4 +1,6 @@
 {% extends 'index/base.html' %}
+{% load static %}
+
 {% block content %}
 
 <div class="bg-gray-800 py-8 min-h-screen">
@@ -49,25 +51,43 @@
                         </div>
                     </div>
                     
-                    <!-- Right column -->
+                    <!-- Right column - Image Section -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Image de la recette</label>
                         <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                            <!-- Affichage de l'image existante -->
                             {% if recette.image %}
-                                <div class="mb-4">
-                                    <img src="{{ recette.image.url }}" alt="{{ recette.titre }}" class="mx-auto h-32 sm:h-48 object-cover rounded-lg">
+                                <div class="mb-4 image-preview">
+                                    <img src="{% static recette.image %}" alt="{{ recette.titre }}" class="mx-auto h-32 sm:h-48 object-cover rounded-lg shadow-md">
+                                    <p class="text-sm text-gray-600 mt-2">Image actuelle</p>
                                 </div>
-                                <p class="text-sm text-gray-500 mb-2">Modifier l'image (optionnel)</p>
+                                <p class="text-sm text-gray-500 mb-2">Choisir une nouvelle image pour remplacer l'actuelle</p>
                             {% else %}
-                                <div class="mb-4 flex justify-center items-center h-32 sm:h-48">
-                                    <svg class="h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
+                                <div class="mb-4 image-preview" style="display: none;">
+                                    <img src="" alt="Aperçu" class="mx-auto h-32 sm:h-48 object-cover rounded-lg shadow-md">
+                                    <p class="text-sm text-gray-600 mt-2">Nouvelle image</p>
+                                </div>
+                                <div class="mb-4 flex justify-center items-center h-32 sm:h-48 no-image-placeholder">
+                                    <div class="text-center">
+                                        <svg class="h-12 w-12 text-gray-400 mx-auto mb-2" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                        <p class="text-sm text-gray-500">Aucune image</p>
+                                    </div>
                                 </div>
                             {% endif %}
-                            <input type="file" name="image" 
-                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                            <p class="text-xs text-gray-500 mt-2">Laisser vide pour conserver l'image actuelle</p>
+                            
+                            <!-- Input file personnalisé -->
+                            <div class="custom-file-input">
+                                <input type="file" name="image" id="id_image" class="hidden-file-input" accept="image/*">
+                            </div>
+                            <p class="text-xs text-gray-500 mt-2">
+                                {% if recette.image %}
+                                    Laisser vide pour conserver l'image actuelle
+                                {% else %}
+                                    Formats acceptés: JPG, PNG, WEBP (Max: 5MB)
+                                {% endif %}
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -203,8 +223,76 @@
     </div>
 </div>
 
+<style>
+    /* Style amélioré pour input file */
+    .custom-file-input {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+    }
+    
+    .hidden-file-input {
+        opacity: 0;
+        width: 0.1px;
+        height: 0.1px;
+        position: absolute;
+        z-index: -1;
+    }
+    
+    .custom-file-input:after {
+        content: 'Choisir une nouvelle image';
+        display: inline-block;
+        padding: 0.5rem 1.5rem;
+        border-radius: 9999px;
+        background-color: #ebf5ff;
+        color: #1d4ed8;
+        font-weight: 600;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    
+    .custom-file-input:hover:after {
+        background-color: #dbeafe;
+    }
+</style>
+
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+        // Configuration du sélecteur de fichier personnalisé
+        document.querySelectorAll('.custom-file-input').forEach(wrapper => {
+            wrapper.addEventListener('click', function() {
+                this.querySelector('.hidden-file-input').click();
+            });
+        });
+        
+        // Prévisualisation d'image
+        document.getElementById('id_image').addEventListener('change', function() {
+            const file = this.files[0];
+            const imagePreview = document.querySelector('.image-preview');
+            const noImagePlaceholder = document.querySelector('.no-image-placeholder');
+            const previewImg = imagePreview.querySelector('img');
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    previewImg.alt = "Aperçu de la nouvelle image";
+                    imagePreview.style.display = 'block';
+                    if (noImagePlaceholder) {
+                        noImagePlaceholder.style.display = 'none';
+                    }
+                    
+                    // Mettre à jour le texte d'aide
+                    const helpText = document.querySelector('.custom-file-input').parentElement.querySelector('.text-xs');
+                    if (helpText) {
+                        helpText.textContent = "Nouvelle image sélectionnée - " + file.name;
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
         // Masquer les champs DELETE pour qu'ils ne soient pas visibles mais fonctionnels
         document.querySelectorAll('input[name$="-DELETE"]').forEach(checkbox => {
             checkbox.style.display = 'none';

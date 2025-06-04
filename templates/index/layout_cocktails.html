@@ -1,44 +1,92 @@
 {% extends "index/base.html" %}
+{% load static %}
 
 {% block title %}Cocktails - Recettes{% endblock %}
 
 {% block content %}
-<div class="max-w-6xl mx-auto  p-6">
+<div class="max-w-6xl mx-auto p-6">
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl text-white font-bold">Nos cocktails rafraîchissants 🍹</h1>
         {% if is_contributor or is_admin or is_superuser %}
             <a href="{% url 'recettes_add' %}" class="bg-green-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-green-700 transition duration-300">
-                + Ajouter un plat
+                + Ajouter un cocktail
             </a>
-            {% endif %}
+        {% endif %}
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {% for cocktail in cocktails %}
-            <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+            <div class="bg-white shadow-lg rounded-lg overflow-hidden transform hover:scale-105 transition duration-300">
                 <a href="{% url 'recettes_details' cocktail.id %}">
                     {% if cocktail.image %}
-                        <img src="{{ cocktail.image.url }}" alt="{{ cocktail.titre }}" class="w-full h-40 object-cover">
+                        <img src="{% static cocktail.image %}" alt="{{ cocktail.titre }}" class="w-full h-40 object-cover">
                     {% else %}
-                        <div class="w-full h-40 bg-gray-200 flex items-center justify-center text-gray-500">
-                            Aucune image
+                        <div class="w-full h-40 bg-gradient-to-br from-blue-200 to-purple-300 flex items-center justify-center text-gray-600">
+                            <div class="text-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                                <span class="text-sm">🍹 Cocktail</span>
+                            </div>
                         </div>
                     {% endif %}
                 </a>
                 <div class="p-4">
-                    <h2 class="text-xl font-semibold">
-                        <a href="{% url 'recettes_details' cocktail.id %}" class="hover:text-blue-500">
+                    <h2 class="text-xl font-semibold mb-2">
+                        <a href="{% url 'recettes_details' cocktail.id %}" class="hover:text-blue-500 transition duration-200">
                             {{ cocktail.titre }}
                         </a>
                     </h2>
+                    
                     {% if cocktail.nbpersonne %}
-                        <p class="text-gray-600 text-sm">Nombre de personnes: {{ cocktail.nbpersonne }}</p>
+                        <div class="flex items-center text-gray-600 text-sm mb-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                            {{ cocktail.nbpersonne }} personne{{ cocktail.nbpersonne|pluralize }}
+                        </div>
+                    {% endif %}
+
+                    <!-- Affichage de la catégorie -->
+                    {% if cocktail.categorie %}
+                        <div class="flex items-center text-gray-500 text-xs">
+                            {% if cocktail.categorie.image %}
+                                <img src="{% static cocktail.categorie.image %}" alt="{{ cocktail.categorie.nom }}" class="w-4 h-4 rounded-full mr-1">
+                            {% endif %}
+                            <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded-full">{{ cocktail.categorie.nom|capfirst }}</span>
+                        </div>
+                    {% endif %}
+
+                    <!-- Note moyenne si disponible -->
+                    {% if cocktail.note_moyenne > 0 %}
+                        <div class="flex items-center mt-2">
+                            <div class="flex text-yellow-400">
+                                {% for i in "12345"|make_list %}
+                                    {% if forloop.counter <= cocktail.note_moyenne %}
+                                        <span class="text-sm">★</span>
+                                    {% else %}
+                                        <span class="text-sm text-gray-300">★</span>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <span class="text-xs text-gray-500 ml-1">({{ cocktail.note_moyenne|floatformat:1 }})</span>
+                        </div>
                     {% endif %}
                 </div>
             </div>
-        {% empty %}
-            <p class="col-span-full text-center text-gray-500">Aucun cocktail disponible.</p>
         {% endfor %}
     </div>
 </div>
+
+<style>
+    /* Animation pour les cartes */
+    .bg-white:hover {
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Gradient personnalisé pour les images manquantes */
+    .bg-gradient-to-br {
+        background: linear-gradient(135deg, #ddd6fe 0%, #c4b5fd 100%);
+    }
+</style>
 {% endblock %}

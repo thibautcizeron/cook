@@ -1,16 +1,25 @@
+# recettes/models.py
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.templatetags.static import static
 
 class Image(models.Model):
     """Modèle centralisé pour gérer toutes les images"""
     nom = models.CharField(max_length=255)
-    fichier = models.ImageField(upload_to='images/')
+    fichier = models.CharField(max_length=500)  # Chemin vers le fichier static
     description = models.TextField(blank=True, null=True)
     date_creation = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
         return self.nom
+    
+    @property
+    def url(self):
+        """Retourne l'URL static de l'image"""
+        if self.fichier:
+            return static(self.fichier)
+        return None
     
     class Meta:
         verbose_name = "Image"
@@ -18,10 +27,17 @@ class Image(models.Model):
 
 class Categorie(models.Model):
     nom = models.CharField(max_length=255, unique=True)
-    image = models.ImageField(upload_to='categories/', null=True, blank=True)  
+    image = models.CharField(max_length=500, null=True, blank=True)  # Chemin vers l'image static
 
     def __str__(self):
         return self.nom
+    
+    @property
+    def image_url(self):
+        """Retourne l'URL static de l'image de catégorie"""
+        if self.image:
+            return static(self.image)
+        return None
     
     class Meta:
         verbose_name = "Categorie"
@@ -30,10 +46,17 @@ class Categorie(models.Model):
 
 class Ingredient(models.Model):
     nom = models.CharField(max_length=255, unique=True)
-    image = models.ImageField(upload_to='ingredients/')  
+    image = models.CharField(max_length=500, null=True, blank=True)  # Chemin vers l'image static
 
     def __str__(self):
         return self.nom
+    
+    @property
+    def image_url(self):
+        """Retourne l'URL static de l'image d'ingrédient"""
+        if self.image:
+            return static(self.image)
+        return None
     
     class Meta:
         verbose_name = "Ingredient"
@@ -43,10 +66,17 @@ class Recette(models.Model):
     titre = models.CharField(max_length=255)
     nbpersonne = models.IntegerField(default=1)
     categorie = models.ForeignKey(Categorie, on_delete=models.SET_NULL, null=True, blank=True)
-    image = models.ImageField(upload_to='recettes/', null=True, blank=True)
+    image = models.CharField(max_length=500, null=True, blank=True)  # Chemin vers l'image static
 
     def __str__(self):
         return self.titre
+    
+    @property
+    def image_url(self):
+        """Retourne l'URL static de l'image de recette"""
+        if self.image:
+            return static(self.image)
+        return None
     
     def note_moyenne(self):
         notes = self.notes.all()
@@ -65,8 +95,6 @@ class RecetteIngredient(models.Model):
 
     class Meta:
         unique_together = ('recette', 'ingredient')
-
-    class Meta:
         verbose_name = "RecetteIngredient"
         verbose_name_plural = "RecetteIngredients"
 
