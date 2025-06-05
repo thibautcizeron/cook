@@ -27,5 +27,8 @@ urlpatterns = [
 
     path('', views.loading_page, name='loading_page'),
     path('recettes/<int:recette_id>/noter/', views.noter_recette, name='noter_recette'),
+    
+    path('logs/', views.activity_logs, name='activity_logs'),
+    path('logs/<int:log_id>/', views.activity_log_detail, name='activity_log_detail'),
 
 ]

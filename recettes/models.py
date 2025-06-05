@@ -3,7 +3,60 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.templatetags.static import static
+from django.utils import timezone
 
+class ActivityLog(models.Model):
+    ACTION_CHOICES = [
+        ('CREATE', 'Ajouté'),
+        ('UPDATE', 'Modifié'),
+        ('DELETE', 'Supprimé'),
+    ]
+    
+    MODEL_CHOICES = [
+        ('RECETTE', 'Recette'),
+        ('INGREDIENT', 'Ingrédient'),
+        ('CATEGORIE', 'Catégorie'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Utilisateur")
+    action = models.CharField(max_length=10, choices=ACTION_CHOICES, verbose_name="Action")
+    model_type = models.CharField(max_length=20, choices=MODEL_CHOICES, verbose_name="Type")
+    object_name = models.CharField(max_length=200, verbose_name="Nom de l'objet")
+    object_id = models.PositiveIntegerField(verbose_name="ID de l'objet", null=True, blank=True)
+    details = models.TextField(blank=True, verbose_name="Détails")
+    timestamp = models.DateTimeField(default=timezone.now, verbose_name="Date et heure")
+    ip_address = models.GenericIPAddressField(null=True, blank=True, verbose_name="Adresse IP")
+    
+    class Meta:
+        ordering = ['-timestamp']
+        verbose_name = "Log d'activité"
+        verbose_name_plural = "Logs d'activité"
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.get_action_display()} {self.get_model_type_display()} '{self.object_name}' - {self.timestamp.strftime('%d/%m/%Y %H:%M')}"
+    
+    @staticmethod
+    def log_activity(user, action, model_type, object_name, object_id=None, details='', request=None):
+        """
+        Méthode statique pour enregistrer une activité
+        """
+        ip_address = None
+        if request:
+            x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+            if x_forwarded_for:
+                ip_address = x_forwarded_for.split(',')[0]
+            else:
+                ip_address = request.META.get('REMOTE_ADDR')
+        
+        ActivityLog.objects.create(
+            user=user,
+            action=action,
+            model_type=model_type,
+            object_name=object_name,
+            object_id=object_id,
+            details=details,
+            ip_address=ip_address
+        )
 class Image(models.Model):
     """Modèle centralisé pour gérer toutes les images"""
     nom = models.CharField(max_length=255)

@@ -14,6 +14,85 @@ import uuid
 import re
 from PIL import Image
 from django.utils.text import slugify
+from django.core.paginator import Paginator
+from .models import ActivityLog
+import json
+
+def is_superuser(user):
+    """Vérifie si l'utilisateur est un superutilisateur"""
+    return user.is_superuser
+
+@user_passes_test(is_superuser)
+def activity_logs(request):
+    """Vue pour afficher les logs d'activité - uniquement pour les superutilisateurs"""
+    logs = ActivityLog.objects.select_related('user').all()
+    
+    # Filtres
+    action_filter = request.GET.get('action', '')
+    model_filter = request.GET.get('model', '')
+    user_filter = request.GET.get('user', '')
+    search_query = request.GET.get('search', '')
+    
+    if action_filter:
+        logs = logs.filter(action=action_filter)
+    
+    if model_filter:
+        logs = logs.filter(model_type=model_filter)
+    
+    if user_filter:
+        logs = logs.filter(user__username__icontains=user_filter)
+    
+    if search_query:
+        logs = logs.filter(
+            Q(object_name__icontains=search_query) |
+            Q(details__icontains=search_query)
+        )
+    
+    # Pagination
+    paginator = Paginator(logs, 25)  # 25 logs par page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    # Statistiques rapides
+    stats = {
+        'total_logs': ActivityLog.objects.count(),
+        'total_creates': ActivityLog.objects.filter(action='CREATE').count(),
+        'total_updates': ActivityLog.objects.filter(action='UPDATE').count(),
+        'total_deletes': ActivityLog.objects.filter(action='DELETE').count(),
+    }
+    
+    context = {
+        'page_obj': page_obj,
+        'action_filter': action_filter,
+        'model_filter': model_filter,
+        'user_filter': user_filter,
+        'search_query': search_query,
+        'stats': stats,
+        'action_choices': ActivityLog.ACTION_CHOICES,
+        'model_choices': ActivityLog.MODEL_CHOICES,
+    }
+    
+    return render(request, 'recettes/activity_logs.html', context)
+
+@user_passes_test(is_superuser)
+def activity_log_detail(request, log_id):
+    """Vue pour afficher le détail d'un log"""
+    log = get_object_or_404(ActivityLog, id=log_id)
+    
+    # Essayer de parser les détails comme JSON s'ils existent
+    parsed_details = None
+    if log.details:
+        try:
+            parsed_details = json.loads(log.details)
+        except (json.JSONDecodeError, ValueError):
+            parsed_details = log.details
+    
+    context = {
+        'log': log,
+        'parsed_details': parsed_details,
+    }
+    
+    return render(request, 'recettes/activity_log_detail.html', context)
 
 # Gestionnaire de stockage personnalisé pour les images
 class StaticImageStorage:
@@ -167,9 +246,6 @@ def is_contributor(user):
 
 def is_admin(user):
     return user.groups.filter(name="Administrators").exists()
-
-def is_superuser(user):
-    return user.is_superuser
 
 def home(request):
     recettes = Recette.objects.all()

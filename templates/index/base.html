@@ -144,6 +144,7 @@
                                     {% endif %}
                                     {% if user.is_superuser %}
                                         <li><a class="block px-4 py-2 text-gray-300 hover:bg-gray-700" href="{% url 'users' %}">Utilisateurs</a></li>
+                                        <li><a class="block px-4 py-2 text-gray-300 hover:bg-gray-700" href="{% url 'activity_logs' %}">Logs</a></li>
                                     {% endif %}
                                 </ul>
                             </div>
