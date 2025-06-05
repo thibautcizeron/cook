@@ -16,7 +16,9 @@ from PIL import Image
 from django.utils.text import slugify
 from django.core.paginator import Paginator
 from .models import ActivityLog
+from .utils import log_recette_activity, log_ingredient_activity, log_categorie_activity
 import json
+from datetime import datetime
 
 def is_superuser(user):
     """Vérifie si l'utilisateur est un superutilisateur"""
@@ -229,6 +231,23 @@ def noter_recette(request, recette_id):
             defaults={'valeur': valeur}
         )
         
+        # Logger l'activité de notation
+        action_text = "ajoutée" if created else "mise à jour"
+        ActivityLog.log_activity(
+            user=request.user,
+            action='CREATE' if created else 'UPDATE',
+            model_type='RECETTE',
+            object_name=f"Note pour {recette.titre}",
+            object_id=recette.id,
+            details=json.dumps({
+                'note_valeur': valeur,
+                'note_action': action_text,
+                'recette_id': recette.id,
+                'recette_titre': recette.titre,
+            }, ensure_ascii=False),
+            request=request
+        )
+        
         if created:
             messages.success(request, 'Votre note a été enregistrée')
         else:
@@ -381,6 +400,7 @@ def recettes_add(request):
                 recette.save()  # Sauvegarder à nouveau avec l'image
 
             # Créer les ingrédients
+            ingredients_count = 0
             for form in ingredient_formset:
                 if form.cleaned_data.get('ingredient') and form.cleaned_data.get('quantite'):
                     RecetteIngredient.objects.create(
@@ -388,14 +408,31 @@ def recettes_add(request):
                         ingredient=form.cleaned_data['ingredient'],
                         quantite=form.cleaned_data['quantite']
                     )
+                    ingredients_count += 1
 
             # Créer les étapes
+            etapes_count = 0
             for form in etape_formset:
                 if form.cleaned_data.get('description'):
                     Etape.objects.create(
                         recette=recette,
                         description=form.cleaned_data['description']
                     )
+                    etapes_count += 1
+
+            # Logger l'activité de création
+            log_recette_activity(
+                user=request.user,
+                action='CREATE',
+                recette=recette,
+                request=request,
+                additional_details={
+                    'ingredients_count': ingredients_count,
+                    'etapes_count': etapes_count,
+                    'has_image': bool(recette.image),
+                    'created_at': datetime.now().isoformat(),
+                }
+            )
 
             messages.success(request, f'Recette "{recette.titre}" créée avec succès!')
             return redirect('recettes')
@@ -424,6 +461,12 @@ def recettes_add(request):
 @user_passes_test(lambda u: is_admin(u) or is_superuser(u))
 def recettes_edit(request, pk):
     recette = get_object_or_404(Recette, pk=pk)
+    
+    # Stocker les valeurs originales pour le log
+    original_titre = recette.titre
+    original_categorie = recette.categorie.nom if recette.categorie else None
+    original_nbpersonne = recette.nbpersonne
+    original_image = recette.image
 
     RecetteIngredientFormSet = inlineformset_factory(
         Recette, RecetteIngredient, form=RecetteIngredientForm, extra=1, can_delete=True
@@ -443,6 +486,7 @@ def recettes_edit(request, pk):
             recette = recette_form.save()
             
             # Gérer l'upload de l'image si une nouvelle image est fournie
+            image_updated = False
             if 'image' in request.FILES:
                 new_image_path = storage.update_image(
                     old_image, 
@@ -453,9 +497,38 @@ def recettes_edit(request, pk):
                 )
                 recette.image = new_image_path
                 recette.save()
+                image_updated = True
             
             ingredient_formset.save()
             etape_formset.save()
+            
+            # Préparer les détails des modifications
+            modifications = []
+            if original_titre != recette.titre:
+                modifications.append(f"Titre: '{original_titre}' → '{recette.titre}'")
+            if original_categorie != (recette.categorie.nom if recette.categorie else None):
+                new_cat = recette.categorie.nom if recette.categorie else "Aucune"
+                modifications.append(f"Catégorie: '{original_categorie}' → '{new_cat}'")
+            if original_nbpersonne != recette.nbpersonne:
+                modifications.append(f"Nb personnes: {original_nbpersonne} → {recette.nbpersonne}")
+            if image_updated:
+                modifications.append("Image mise à jour")
+            
+            # Logger l'activité de modification
+            log_recette_activity(
+                user=request.user,
+                action='UPDATE',
+                recette=recette,
+                request=request,
+                additional_details={
+                    'modifications': modifications,
+                    'original_titre': original_titre,
+                    'ingredients_count': recette.recette_ingredients.count(),
+                    'etapes_count': recette.etapes.count(),
+                    'image_updated': image_updated,
+                    'modified_at': datetime.now().isoformat(),
+                }
+            )
             
             messages.success(request, f'Recette "{recette.titre}" modifiée avec succès!')
             return redirect('recettes')
@@ -487,10 +560,31 @@ def recettes_delete(request, pk):
     recette = get_object_or_404(Recette, pk=pk)
     if request.method == "POST":
         recette_titre = recette.titre
+        recette_categorie = recette.categorie.nom if recette.categorie else None
+        recette_nbpersonne = recette.nbpersonne
+        ingredients_count = recette.recette_ingredients.count()
+        etapes_count = recette.etapes.count()
+        had_image = bool(recette.image)
         
         # Supprimer l'image associée
         if recette.image:
             storage.delete_image(recette.image)
+        
+        # Logger l'activité de suppression avant de supprimer la recette
+        log_recette_activity(
+            user=request.user,
+            action='DELETE',
+            recette=recette,
+            request=request,
+            additional_details={
+                'deleted_at': datetime.now().isoformat(),
+                'ingredients_count': ingredients_count,
+                'etapes_count': etapes_count,
+                'had_image': had_image,
+                'categorie': recette_categorie,
+                'nb_personnes': recette_nbpersonne,
+            }
+        )
         
         recette.delete()
         messages.success(request, f'Recette "{recette_titre}" supprimée avec succès!')
@@ -543,6 +637,17 @@ def ingredients_add(request):
                 ingredient.image = image_path
                 ingredient.save()  # Sauvegarder à nouveau avec l'image
             
+            # Logger l'activité de création
+            log_ingredient_activity(
+                user=request.user,
+                action='CREATE',
+                ingredient=ingredient,
+                request=request,
+                additional_details={
+                    'created_at': datetime.now().isoformat(),
+                }
+            )
+            
             messages.success(request, f'Ingrédient "{ingredient.nom}" créé avec succès!')
             return redirect('ingredients')
         else:
@@ -558,6 +663,11 @@ def ingredients_add(request):
 @user_passes_test(lambda u: is_admin(u) or is_superuser(u))
 def ingredients_edit(request, pk):
     ingredient = get_object_or_404(Ingredient, pk=pk)
+    
+    # Stocker les valeurs originales pour le log
+    original_nom = ingredient.nom
+    original_image = ingredient.image
+    
     if request.method == "POST":
         form = IngredientForm(request.POST, request.FILES, instance=ingredient) 
         if form.is_valid():
@@ -566,6 +676,7 @@ def ingredients_edit(request, pk):
             ingredient = form.save()
             
             # Gérer l'upload de l'image si une nouvelle image est fournie
+            image_updated = False
             if 'image' in request.FILES:
                 new_image_path = storage.update_image(
                     old_image, 
@@ -576,6 +687,28 @@ def ingredients_edit(request, pk):
                 )
                 ingredient.image = new_image_path
                 ingredient.save()
+                image_updated = True
+            
+            # Préparer les détails des modifications
+            modifications = []
+            if original_nom != ingredient.nom:
+                modifications.append(f"Nom: '{original_nom}' → '{ingredient.nom}'")
+            if image_updated:
+                modifications.append("Image mise à jour")
+            
+            # Logger l'activité de modification
+            log_ingredient_activity(
+                user=request.user,
+                action='UPDATE',
+                ingredient=ingredient,
+                request=request,
+                additional_details={
+                    'modifications': modifications,
+                    'original_nom': original_nom,
+                    'image_updated': image_updated,
+                    'modified_at': datetime.now().isoformat(),
+                }
+            )
             
             messages.success(request, f'Ingrédient "{ingredient.nom}" modifié avec succès!')
             return redirect('ingredients')
@@ -594,10 +727,27 @@ def ingredients_delete(request, pk):
     ingredient = get_object_or_404(Ingredient, pk=pk)
     if request.method == "POST":
         ingredient_nom = ingredient.nom
+        had_image = bool(ingredient.image)
+        
+        # Compter les recettes utilisant cet ingrédient
+        recettes_count = RecetteIngredient.objects.filter(ingredient=ingredient).count()
         
         # Supprimer l'image associée
         if ingredient.image:
             storage.delete_image(ingredient.image)
+        
+        # Logger l'activité de suppression avant de supprimer l'ingrédient
+        log_ingredient_activity(
+            user=request.user,
+            action='DELETE',
+            ingredient=ingredient,
+            request=request,
+            additional_details={
+                'deleted_at': datetime.now().isoformat(),
+                'had_image': had_image,
+                'used_in_recipes_count': recettes_count,
+            }
+        )
         
         ingredient.delete()
         messages.success(request, f'Ingrédient "{ingredient_nom}" supprimé avec succès!')
@@ -612,10 +762,10 @@ def search_recettes(request):
 
     if normalized_query:
         recettes = Recette.objects.filter(
-            Q(titre__icontains=normalized_query) | Q(categorie__name__icontains=normalized_query)
+            Q(titre__icontains=normalized_query) | Q(categorie__nom__icontains=normalized_query)
         )
         results = [
-            {"id": recette.id, "titre": recette.titre, "categorie": recette.categorie.name if recette.categorie else "Non défini"}
+            {"id": recette.id, "titre": recette.titre, "categorie": recette.categorie.nom if recette.categorie else "Non défini"}
             for recette in recettes
         ]
     else:
@@ -660,3 +810,4 @@ def show_cocktails(request):
 
 def loading_page(request):
     return render(request, 'index/loading.html')
+
