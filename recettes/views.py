@@ -312,7 +312,8 @@ def recettes_list(request):
         "order": order,
         "search_query": search_query
     })
-
+@login_required
+@user_passes_test(lambda u: is_contributor(u) or is_admin(u) or is_superuser(u))
 def recettes_details(request, recette_id):
     recette = get_object_or_404(Recette, id=recette_id)
     ingredients_originaux = RecetteIngredient.objects.filter(recette=recette)
