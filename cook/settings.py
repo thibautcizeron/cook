@@ -149,3 +149,16 @@ IMAGE_UPLOAD_SETTINGS = {
     'THUMBNAIL_SIZE': (800, 600),
     'QUALITY': 85,
 }
+
+# Configuration des sessions - Expiration après 8 heures
+SESSION_COOKIE_AGE = 28800  # 28800 secondes = 8 heures
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Session expire à la fermeture du navigateur
+SESSION_SAVE_EVERY_REQUEST = True  # Renouvelle la session à chaque requête
+
+# Configuration additionnelle pour la sécurité des sessions
+SESSION_COOKIE_SECURE = False  # True en production avec HTTPS
+SESSION_COOKIE_HTTPONLY = True  # Empêche l'accès via JavaScript
+SESSION_COOKIE_SAMESITE = 'Lax'  # Protection CSRF
+
+# Optionnel : Définir le nom du cookie de session
+SESSION_COOKIE_NAME = 'cook_sessionid'
