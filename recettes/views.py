@@ -1,4 +1,3 @@
-# recettes/views.py
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Recette, Ingredient, Categorie, Etape, RecetteIngredient, Note
 from .forms import RecetteForm, IngredientForm, CategorieForm, EtapeForm, RecetteIngredientForm
@@ -19,6 +18,8 @@ from .models import ActivityLog
 from .utils import log_recette_activity, log_ingredient_activity, log_categorie_activity
 import json
 from datetime import datetime
+from unidecode import unidecode
+
 
 def is_superuser(user):
     """Vérifie si l'utilisateur est un superutilisateur"""
