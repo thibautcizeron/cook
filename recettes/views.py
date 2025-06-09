@@ -19,8 +19,94 @@ from .utils import log_recette_activity, log_ingredient_activity, log_categorie_
 import json
 from datetime import datetime
 from unidecode import unidecode
+from django.core.mail import send_mail
+from django.conf import settings
 
 
+def send_account_deletion_email(user):
+    """
+    Envoie un email de confirmation de suppression de compte
+    """
+    try:
+        subject = 'Confirmation de suppression de votre compte CookFamily'
+        
+        # Contenu HTML de l'email
+        html_content = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 4px solid #dc3545;">
+                <h2 style="color: #dc3545; margin-top: 0;">Suppression de compte confirmée</h2>
+                
+                <p>Bonjour <strong>{user.first_name} {user.last_name}</strong>,</p>
+                
+                <p>Nous vous confirmons que votre compte CookFamily "<strong>{user.username}</strong>" a été définitivement supprimé le {user.date_joined.strftime('%d/%m/%Y à %H:%M')}.</p>
+                
+                <div style="background-color: #fff; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                    <h3 style="color: #495057; margin-top: 0;">Données supprimées :</h3>
+                    <ul style="color: #6c757d;">
+                        <li>Informations personnelles (nom, email, profil)</li>
+                        <li>Toutes vos recettes et leurs images</li>
+                        <li>Vos notes et commentaires</li>
+                        <li>Vos préférences et paramètres</li>
+                    </ul>
+                </div>
+                
+                <p>Cette action est <strong>irréversible</strong>. Aucune de vos données ne peut être récupérée.</p>
+                
+                <p>Si cette suppression n'a pas été effectuée par vous, veuillez contacter immédiatement notre support à l'adresse : <a href="mailto:contact@cookfamily.com">contact@cookfamily.com</a></p>
+                
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #dee2e6;">
+                    <p style="color: #6c757d; font-size: 14px;">
+                        Merci d'avoir utilisé CookFamily. Nous espérons vous revoir bientôt !<br>
+                        L'équipe CookFamily
+                    </p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        # Version texte de l'email
+        text_content = f"""
+        Suppression de compte confirmée
+        
+        Bonjour {user.first_name} {user.last_name},
+        
+        Nous vous confirmons que votre compte CookFamily "{user.username}" a été définitivement supprimé.
+        
+        Données supprimées :
+        - Informations personnelles (nom, email, profil)
+        - Toutes vos recettes et leurs images
+        - Vos notes et commentaires
+        - Vos préférences et paramètres
+        
+        Cette action est irréversible. Aucune de vos données ne peut être récupérée.
+        
+        Si cette suppression n'a pas été effectuée par vous, veuillez contacter immédiatement notre support à l'adresse : contact@cookfamily.com
+        
+        Merci d'avoir utilisé CookFamily. Nous espérons vous revoir bientôt !
+        L'équipe CookFamily
+        """
+        
+        # Envoyer l'email
+        send_mail(
+            subject=subject,
+            message=text_content,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            html_message=html_content,
+            fail_silently=False,
+        )
+        
+        return True
+        
+    except Exception as e:
+        # Log de l'erreur
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Erreur lors de l'envoi de l'email de confirmation de suppression pour {user.email}: {str(e)}")
+        return False
+    
 def is_superuser(user):
     """Vérifie si l'utilisateur est un superutilisateur"""
     return user.is_superuser

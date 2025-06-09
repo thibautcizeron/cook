@@ -10,6 +10,48 @@ from .forms import RegisterForm
 import re
 
 @login_required
+def user_account_delete(request):
+    """Vue pour supprimer le compte utilisateur avec confirmation"""
+    if request.method == "POST":
+        # Vérifier le mot de passe actuel pour sécuriser la suppression
+        password = request.POST.get('password')
+        confirm_delete = request.POST.get('confirm_delete')
+        
+        if not password:
+            messages.error(request, "Veuillez saisir votre mot de passe pour confirmer la suppression.")
+            return render(request, 'accounts/users_account_delete.html')
+        
+        if not confirm_delete:
+            messages.error(request, "Veuillez cocher la case de confirmation pour supprimer votre compte.")
+            return render(request, 'accounts/users_account_delete.html')
+        
+        # Vérifier le mot de passe
+        if not request.user.check_password(password):
+            messages.error(request, "Mot de passe incorrect.")
+            return render(request, 'accounts/users_account_delete.html')
+        
+        # Récupérer l'utilisateur avant suppression pour le message
+        username = request.user.username
+        
+        try:
+            # Supprimer le compte utilisateur
+            # Les recettes et autres contenus associés seront gérés par les contraintes de base de données
+            # ou par des signaux Django si nécessaire
+            user = request.user
+            logout(request)  # Déconnecter l'utilisateur avant la suppression
+            user.delete()
+            
+            # Message de confirmation et redirection
+            messages.success(request, f"Le compte '{username}' a été supprimé avec succès. Nous espérons vous revoir bientôt !")
+            return redirect('users_login')
+            
+        except Exception as e:
+            messages.error(request, "Une erreur est survenue lors de la suppression du compte. Veuillez réessayer ou contacter le support.")
+            return render(request, 'accounts/users_account_delete.html')
+    
+    return render(request, 'accounts/users_account_delete.html')
+
+@login_required
 def user_account_edit(request):
     """Vue pour modifier le profil de l'utilisateur avec vérifications renforcées pour le mot de passe"""
     if request.method == "POST":

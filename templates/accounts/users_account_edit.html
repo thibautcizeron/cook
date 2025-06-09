@@ -76,27 +76,17 @@
             <h2 class="text-2xl sm:text-3xl font-bold text-white text-center">Modifier Mon Compte</h2>
         </div>
 
-        <!-- Messages de confirmation/erreur -->
-        {% if messages %}
-        <div class="px-6 py-3">
-            {% for message in messages %}
-                <div class="{% if message.tags == 'error' %}bg-red-600{% else %}bg-green-600{% endif %} text-white px-4 py-3 rounded-lg shadow mb-2">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        </div>
-        {% endif %}
-
-        <!-- Onglets pour basculer entre l'affichage et la modification -->
         <div class="bg-gray-700 px-4 py-2 flex border-b border-gray-600">
             <a href="{% url 'users_account' %}" class="px-4 py-2 font-medium rounded-t-lg mr-2 text-gray-300 hover:text-green-400">
                 Afficher
             </a>
-            <a href="{% url 'users_account_edit' %}" class="px-4 py-2 font-medium rounded-t-lg bg-gray-800 text-green-400 border-b-2 border-green-500">
+            <a href="{% url 'users_account_edit' %}" class="px-4 py-2 font-medium rounded-t-lg mr-2 bg-gray-800 text-green-400 border-b-2 border-green-500">
                 Modifier
             </a>
+            <a href="{% url 'users_account_delete' %}" class="px-4 py-2 font-medium rounded-t-lg text-gray-300 hover:text-red-400">
+                Supprimer
+            </a>
         </div>
-
         <!-- Mode édition -->
         <div class="p-6 sm:p-8">
             <form method="post" action="{% url 'users_account_edit' %}" class="space-y-6">
