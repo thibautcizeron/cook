@@ -1,0 +1,183 @@
+<!-- templates/emails/welcome_email.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenue sur CookFamily</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #16a085, #2ecc71);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+        .content {
+            padding: 30px;
+        }
+        .welcome-message {
+            background-color: #e8f5e8;
+            border-left: 4px solid #16a085;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        .features {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+        }
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            background-color: #16a085;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: white;
+            font-size: 18px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background-color: #16a085;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 15px 5px;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #14947a;
+        }
+        .btn-secondary {
+            background-color: #3498db;
+        }
+        .btn-secondary:hover {
+            background-color: #2980b9;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-radius: 0 0 10px 10px;
+            border-top: 1px solid #dee2e6;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .emoji {
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🍽️ {{ site_name }}</h1>
+            <p>Bienvenue dans la communauté des passionnés de cuisine !</p>
+        </div>
+        
+        <div class="content">
+            <div class="welcome-message">
+                <h2>🎉 Bienvenue {{ user.first_name|default:user.username }} !</h2>
+                <p>Félicitations ! Votre compte <strong>{{ username }}</strong> a été créé avec succès. Vous faites maintenant partie de la famille {{ site_name }} !</p>
+            </div>
+            
+            <p>Nous sommes ravis de vous accueillir dans notre communauté de passionnés de cuisine. {{ site_name }} est votre nouvelle plateforme pour découvrir, partager et créer des recettes extraordinaires.</p>
+            
+            <div class="features">
+                <h3>✨ Découvrez tout ce que vous pouvez faire :</h3>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">📝</div>
+                    <div>
+                        <strong>Créer vos recettes</strong><br>
+                        Partagez vos créations culinaires avec photos et instructions détaillées
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">🔍</div>
+                    <div>
+                        <strong>Explorer des recettes</strong><br>
+                        Découvrez des milliers de recettes dans toutes les catégories
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">⭐</div>
+                    <div>
+                        <strong>Noter et commenter</strong><br>
+                        Partagez votre avis et aidez la communauté à trouver les meilleures recettes
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">💾</div>
+                    <div>
+                        <strong>Sauvegarder vos favoris</strong><br>
+                        Créez votre collection personnelle de recettes préférées
+                    </div>
+                </div>
+            </div>
+            
+            <h3>🚀 Prêt à commencer ?</h3>
+            <p>Voici quelques actions pour bien démarrer votre aventure culinaire :</p>
+            
+            <div class="text-center">
+                <a href="https://cookfamily.fr/" class="btn">🏠 Découvrir l'accueil</a>
+            </div>
+            
+            <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 5px; padding: 15px; margin: 20px 0;">
+                <p><strong>💡 Conseil :</strong> Commencez par explorer les recettes populaires pour vous inspirer, puis partagez votre première création !</p>
+            </div>
+            
+            <h3>📧 Restons en contact</h3>
+            <p>Vous recevrez de temps en temps des actualités sur les nouvelles fonctionnalités et les meilleures recettes de la communauté. Vous pouvez modifier vos préférences de notification à tout moment dans votre profil.</p>
+            
+            <p>Si vous avez des questions ou besoin d'aide, n'hésitez pas à nous contacter. Notre équipe est là pour vous accompagner !</p>
+        </div>
+        
+        <div class="footer">
+            <p><strong>🍴 L'équipe {{ site_name }}</strong></p>
+            <p>Des questions ? Contactez-nous à : <a href="mailto:{{ contact_email }}">{{ contact_email }}</a></p>
+            <hr style="border: none; border-top: 1px solid #dee2e6; margin: 20px 0;">
+            <div style="margin-top: 20px;">
+            </div>
+            <p style="font-size: 12px; color: #6c757d; margin-top: 20px;">
+                Cet email a été envoyé automatiquement. Merci de ne pas y répondre.<br>
+                {{ site_name }} - Votre plateforme de partage de recettes
+            </p>
+        </div>
+    </div>
+</body>
+</html>

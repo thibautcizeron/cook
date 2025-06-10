@@ -9,9 +9,21 @@ from unidecode import unidecode
 from .forms import RegisterForm
 import re
 
+# Importer les utilitaires d'email
+try:
+    from utils.email_utils import send_account_deletion_notification, send_admin_deletion_notification, send_welcome_email
+except ImportError:
+    # Fonctions de fallback si le module n'existe pas
+    def send_account_deletion_notification(user):
+        return False
+    def send_admin_deletion_notification(user):
+        return False
+    def send_welcome_email(user):
+        return False
+
 @login_required
 def user_account_delete(request):
-    """Vue pour supprimer le compte utilisateur avec confirmation"""
+    """Vue pour supprimer le compte utilisateur avec confirmation et envoi d'email"""
     if request.method == "POST":
         # Vérifier le mot de passe actuel pour sécuriser la suppression
         password = request.POST.get('password')
@@ -30,22 +42,51 @@ def user_account_delete(request):
             messages.error(request, "Mot de passe incorrect.")
             return render(request, 'accounts/users_account_delete.html')
         
-        # Récupérer l'utilisateur avant suppression pour le message
-        username = request.user.username
+        # Récupérer l'utilisateur avant suppression pour le message et l'email
+        user = request.user
+        username = user.username
+        user_email = user.email
         
         try:
+            # Envoyer l'email de confirmation AVANT la suppression
+            email_sent = False
+            if user_email:
+                try:
+                    email_sent = send_account_deletion_notification(user)
+                    if email_sent:
+                        messages.info(request, f"Un email de confirmation a été envoyé à {user_email}")
+                except Exception as e:
+                    # Log l'erreur mais continue la suppression
+                    print(f"Erreur lors de l'envoi de l'email de confirmation: {e}")
+            
+            # Envoyer la notification aux administrateurs
+            try:
+                send_admin_deletion_notification(user)
+            except Exception as e:
+                print(f"Erreur lors de l'envoi de la notification admin: {e}")
+            
+            # Déconnecter l'utilisateur avant la suppression
+            logout(request)
+            
             # Supprimer le compte utilisateur
-            # Les recettes et autres contenus associés seront gérés par les contraintes de base de données
-            # ou par des signaux Django si nécessaire
-            user = request.user
-            logout(request)  # Déconnecter l'utilisateur avant la suppression
+            # Les recettes et autres contenus associés seront gérés par les signaux Django
             user.delete()
             
-            # Message de confirmation et redirection
-            messages.success(request, f"Le compte '{username}' a été supprimé avec succès. Nous espérons vous revoir bientôt !")
+            # Message de confirmation
+            success_message = f"Le compte '{username}' a été supprimé avec succès."
+            if email_sent:
+                success_message += f" Un email de confirmation a été envoyé à {user_email}."
+            success_message += " Nous espérons vous revoir bientôt !"
+            
+            messages.success(request, success_message)
             return redirect('users_login')
             
         except Exception as e:
+            # En cas d'erreur, reconnecter l'utilisateur si possible
+            try:
+                login(request, user)
+            except:
+                pass
             messages.error(request, "Une erreur est survenue lors de la suppression du compte. Veuillez réessayer ou contacter le support.")
             return render(request, 'accounts/users_account_delete.html')
     
@@ -188,6 +229,7 @@ def contains_personal_info(password, user):
             return True
     
     return False
+
 @login_required
 def user_account(request):
     """Vue pour afficher le profil de l'utilisateur"""
@@ -212,6 +254,14 @@ def register(request):
         form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
+            
+            # Envoyer l'email de bienvenue
+            try:
+                send_welcome_email(user)
+            except Exception as e:
+                # Log l'erreur mais ne pas empêcher l'inscription
+                print(f"Erreur lors de l'envoi de l'email de bienvenue: {e}")
+            
             login(request, user)  
             return redirect('home')  
     else:

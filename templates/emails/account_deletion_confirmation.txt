@@ -1,0 +1,30 @@
+{{ site_name }} - Confirmation de suppression de compte
+
+Bonjour {{ user.first_name|default:user.username }},
+
+Nous vous confirmons que votre compte "{{ username }}" a été supprimé avec succès de notre plateforme {{ site_name }}.
+
+⚠️ SUPPRESSION DÉFINITIVE
+Toutes vos données personnelles, recettes et contenus associés à votre compte ont été définitivement supprimés de nos serveurs.
+
+Ce qui a été supprimé :
+- Vos informations personnelles (nom, email, etc.)
+- Toutes vos recettes publiées
+- Vos commentaires et évaluations
+- Votre historique de navigation
+- Vos préférences et paramètres
+
+📧 IMPORTANT : Cette adresse email ne recevra plus aucune communication de notre part. Si vous aviez des abonnements à notre newsletter, ils ont également été supprimés.
+
+NOUS ESPÉRONS VOUS REVOIR !
+Si vous changez d'avis, vous pouvez toujours créer un nouveau compte à tout moment en visitant notre site : https://cookfamily.com/
+
+Merci d'avoir fait partie de la communauté {{ site_name }}. Nous vous souhaitons le meilleur pour vos futurs projets culinaires !
+
+---
+L'équipe {{ site_name }}
+
+Si vous avez des questions, contactez-nous à : {{ contact_email }}
+
+Cet email a été envoyé automatiquement. Merci de ne pas y répondre.
+{{ site_name }} - Votre plateforme de partage de recettes

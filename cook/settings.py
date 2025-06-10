@@ -162,3 +162,5 @@ SESSION_COOKIE_SAMESITE = 'Lax'  # Protection CSRF
 
 # Optionnel : Définir le nom du cookie de session
 SESSION_COOKIE_NAME = 'cook_sessionid'
+
+ADMIN_EMAIL = os.getenv('ADMIN_EMAIL', 'support@cookfamily.com')

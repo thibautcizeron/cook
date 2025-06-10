@@ -25,7 +25,8 @@ def handle_user_deletion(sender, instance, **kwargs):
             storage = StaticImageStorage()
             
             # 1. Récupérer toutes les recettes de l'utilisateur
-            user_recipes = Recette.objects.filter(utilisateur=user)
+            # CORRECTION: Utiliser le bon nom de champ (probablement 'user' au lieu de 'utilisateur')
+            user_recipes = Recette.objects.filter(user=user)
             
             for recipe in user_recipes:
                 # Supprimer les images des recettes
@@ -37,7 +38,8 @@ def handle_user_deletion(sender, instance, **kwargs):
                         logger.error(f"Erreur lors de la suppression de l'image {recipe.image}: {e}")
             
             # 2. Supprimer les notes de l'utilisateur
-            user_notes = Note.objects.filter(utilisateur=user)
+            # CORRECTION: Utiliser le bon nom de champ
+            user_notes = Note.objects.filter(user=user)
             notes_count = user_notes.count()
             
             logger.info(f"Suppression de {notes_count} notes")
@@ -69,8 +71,8 @@ def delete_recipe_image(sender, instance, **kwargs):
     Signal pour supprimer l'image d'une recette lors de sa suppression
     Utilise un signal générique pour éviter les erreurs d'import
     """
-    # Vérifier si c'est un modèle Recette
-    if hasattr(instance, 'image') and hasattr(instance, 'titre') and hasattr(instance, 'utilisateur'):
+    # Vérifier si c'est un modèle Recette en vérifiant les attributs nécessaires
+    if hasattr(instance, 'image') and hasattr(instance, 'titre') and hasattr(instance, 'user'):
         if instance.image:
             try:
                 from utils.storage import StaticImageStorage

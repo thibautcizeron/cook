@@ -1,0 +1,126 @@
+<!-- templates/emails/account_deletion_confirmation.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmation de suppression de compte</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #16a085, #2ecc71);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .content {
+            padding: 30px;
+        }
+        .alert {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .info-box {
+            background-color: #e1f5fe;
+            border-left: 4px solid #03a9f4;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-radius: 0 0 10px 10px;
+            border-top: 1px solid #dee2e6;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #16a085;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .text-center {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>{{ site_name }}</h1>
+            <p>Confirmation de suppression de compte</p>
+        </div>
+        
+        <div class="content">
+            <h2>Bonjour {{ user.first_name|default:user.username }},</h2>
+            
+            <p>Nous vous confirmons que votre compte <strong>{{ username }}</strong> a été supprimé avec succès de notre plateforme {{ site_name }}.</p>
+            
+            <div class="alert">
+                <strong>⚠️ Suppression définitive</strong><br>
+                Toutes vos données personnelles, recettes et contenus associés à votre compte ont été définitivement supprimés de nos serveurs.
+            </div>
+            
+            <h3>Ce qui a été supprimé :</h3>
+            <ul>
+                <li>Vos informations personnelles (nom, email, etc.)</li>
+                <li>Toutes vos recettes publiées</li>
+                <li>Vos commentaires et évaluations</li>
+                <li>Votre historique de navigation</li>
+                <li>Vos préférences et paramètres</li>
+            </ul>
+            
+            <div class="info-box">
+                <strong>📧 Important :</strong> Cette adresse email ne recevra plus aucune communication de notre part. Si vous aviez des abonnements à notre newsletter, ils ont également été supprimés.
+            </div>
+            
+            <h3>Nous espérons vous revoir !</h3>
+            <p>Si vous changez d'avis, vous pouvez toujours créer un nouveau compte à tout moment en visitant notre site.</p>
+            
+            <div class="text-center">
+                <a href="https://cookfamily.com/" class="btn">Visiter {{ site_name }}</a>
+            </div>
+            
+            <p>Merci d'avoir fait partie de la communauté {{ site_name }}. Nous vous souhaitons le meilleur pour vos futurs projets culinaires !</p>
+        </div>
+        
+        <div class="footer">
+            <p><strong>L'équipe {{ site_name }}</strong></p>
+            <p>Si vous avez des questions, contactez-nous à : <a href="mailto:{{ contact_email }}">{{ contact_email }}</a></p>
+            <hr style="border: none; border-top: 1px solid #dee2e6; margin: 20px 0;">
+            <p style="font-size: 12px; color: #6c757d;">
+                Cet email a été envoyé automatiquement. Merci de ne pas y répondre.<br>
+                {{ site_name }} - Votre plateforme de partage de recettes
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+
+

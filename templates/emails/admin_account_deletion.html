@@ -1,0 +1,95 @@
+
+<!-- templates/emails/admin_account_deletion.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notification suppression compte utilisateur</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        .content {
+            padding: 30px;
+        }
+        .user-info {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-radius: 0 0 10px 10px;
+            border-top: 1px solid #dee2e6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗑️ {{ site_name }} - Administration</h1>
+            <p>Notification de suppression de compte</p>
+        </div>
+        
+        <div class="content">
+            <h2>Suppression de compte utilisateur</h2>
+            
+            <p>Un utilisateur vient de supprimer son compte sur la plateforme {{ site_name }}.</p>
+            
+            <div class="user-info">
+                <h3>Informations de l'utilisateur supprimé :</h3>
+                <ul>
+                    <li><strong>Nom d'utilisateur :</strong> {{ username }}</li>
+                    <li><strong>Email :</strong> {{ email }}</li>
+                    <li><strong>Nom complet :</strong> {{ first_name }} {{ last_name }}</li>
+                    <li><strong>Date d'inscription :</strong> {{ date_joined|date:"d/m/Y à H:i" }}</li>
+                    <li><strong>Date de suppression :</strong> {{ "now"|date:"d/m/Y à H:i" }}</li>
+                </ul>
+            </div>
+            
+            <p><strong>Actions automatiques effectuées :</strong></p>
+            <ul>
+                <li>✅ Suppression des données personnelles</li>
+                <li>✅ Suppression des recettes publiées</li>
+                <li>✅ Suppression des images associées</li>
+                <li>✅ Suppression des commentaires et évaluations</li>
+                <li>✅ Email de confirmation envoyé à l'utilisateur</li>
+            </ul>
+            
+            <p>Cette suppression a été effectuée à la demande de l'utilisateur conformément au RGPD et à notre politique de confidentialité.</p>
+        </div>
+        
+        <div class="footer">
+            <p>Notification automatique du système {{ site_name }}</p>
+            <p style="font-size: 12px; color: #6c757d;">
+                Cet email est généré automatiquement lors de chaque suppression de compte.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+

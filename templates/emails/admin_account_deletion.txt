@@ -1,0 +1,26 @@
+<!-- templates/emails/admin_account_deletion.txt -->
+{{ site_name }} - Notification de suppression de compte
+
+SUPPRESSION DE COMPTE UTILISATEUR
+
+Un utilisateur vient de supprimer son compte sur la plateforme {{ site_name }}.
+
+INFORMATIONS DE L'UTILISATEUR SUPPRIMÉ :
+- Nom d'utilisateur : {{ username }}
+- Email : {{ email }}
+- Nom complet : {{ first_name }} {{ last_name }}
+- Date d'inscription : {{ date_joined|date:"d/m/Y à H:i" }}
+- Date de suppression : {{ "now"|date:"d/m/Y à H:i" }}
+
+ACTIONS AUTOMATIQUES EFFECTUÉES :
+✅ Suppression des données personnelles
+✅ Suppression des recettes publiées
+✅ Suppression des images associées
+✅ Suppression des commentaires et évaluations
+✅ Email de confirmation envoyé à l'utilisateur
+
+Cette suppression a été effectuée à la demande de l'utilisateur conformément au RGPD et à notre politique de confidentialité.
+
+---
+Notification automatique du système {{ site_name }}
+Cet email est généré automatiquement lors de chaque suppression de compte.

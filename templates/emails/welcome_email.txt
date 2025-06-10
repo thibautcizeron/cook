@@ -1,0 +1,44 @@
+
+<!-- templates/emails/welcome_email.txt -->
+🍽️ {{ site_name }} - Bienvenue !
+
+Bonjour {{ user.first_name|default:user.username }},
+
+🎉 BIENVENUE DANS LA FAMILLE {{ site_name|upper }} !
+
+Félicitations ! Votre compte "{{ username }}" a été créé avec succès. Vous faites maintenant partie de notre communauté de passionnés de cuisine !
+
+Nous sommes ravis de vous accueillir dans notre plateforme pour découvrir, partager et créer des recettes extraordinaires.
+
+✨ DÉCOUVREZ TOUT CE QUE VOUS POUVEZ FAIRE :
+
+📝 Créer vos recettes
+Partagez vos créations culinaires avec photos et instructions détaillées
+
+🔍 Explorer des recettes  
+Découvrez des milliers de recettes dans toutes les catégories
+
+⭐ Noter et commenter
+Partagez votre avis et aidez la communauté à trouver les meilleures recettes
+
+💾 Sauvegarder vos favoris
+Créez votre collection personnelle de recettes préférées
+
+🚀 PRÊT À COMMENCER ?
+
+Voici quelques actions pour bien démarrer :
+- Explorez l'accueil : https://cookfamily.com/
+- Créez votre première recette : https://cookfamily.com/recettes/add/
+
+💡 CONSEIL : Commencez par explorer les recettes populaires pour vous inspirer, puis partagez votre première création !
+
+📧 RESTONS EN CONTACT
+Vous recevrez de temps en temps des actualités sur les nouvelles fonctionnalités et les meilleures recettes de la communauté. Vous pouvez modifier vos préférences de notification à tout moment dans votre profil.
+
+Si vous avez des questions ou besoin d'aide, n'hésitez pas à nous contacter à {{ contact_email }}.
+
+---
+🍴 L'équipe {{ site_name }}
+
+Cet email a été envoyé automatiquement. Merci de ne pas y répondre.
+{{ site_name }} - Votre plateforme de partage de recettes
