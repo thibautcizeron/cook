@@ -1,0 +1,6 @@
+# Exclusions Django communes
+*/migrations/
+*/admin.py
+*/apps.py
+manage.py
+venv/

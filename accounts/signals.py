@@ -8,7 +8,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 @receiver(pre_delete, sender=User)
-def handle_user_deletion(sender, instance, **kwargs):
+def handle_user_deletion(sender, instance, **_):
     """
     Signal appelé avant la suppression d'un utilisateur
     Gère la suppression ou l'anonymisation des contenus liés
@@ -57,7 +57,7 @@ def handle_user_deletion(sender, instance, **kwargs):
         logger.error(f"Erreur lors de la gestion de la suppression de l'utilisateur {instance.username}: {e}")
 
 @receiver(post_delete, sender=User)
-def user_deletion_complete(sender, instance, **kwargs):
+def user_deletion_complete(sender, instance, **_):
     """
     Signal appelé après la suppression d'un utilisateur
     Log de confirmation
@@ -66,7 +66,7 @@ def user_deletion_complete(sender, instance, **kwargs):
 
 # Signal pour la suppression des images lors de la suppression d'une recette
 @receiver(pre_delete)
-def delete_recipe_image(sender, instance, **kwargs):
+def delete_recipe_image(sender, instance, **_):
     """
     Signal pour supprimer l'image d'une recette lors de sa suppression
     Utilise un signal générique pour éviter les erreurs d'import

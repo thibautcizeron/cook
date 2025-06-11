@@ -3,7 +3,90 @@ from django.contrib.auth.models import User, Group
 from django.contrib.auth.forms import UserCreationForm
 import re
 
+# accounts/forms.py (ajouter cette classe au fichier existant)
 
+class ContactForm(forms.Form):
+    nom = forms.CharField(
+        max_length=50,
+        label="Nom",
+        widget=forms.TextInput(attrs={
+            'class': 'mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 form-control',
+            'placeholder': 'Votre nom'
+        })
+    )
+    
+    prenom = forms.CharField(
+        max_length=50,
+        label="Prénom",
+        widget=forms.TextInput(attrs={
+            'class': 'mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 form-control',
+            'placeholder': 'Votre prénom'
+        })
+    )
+    
+    email = forms.EmailField(
+        label="Email",
+        widget=forms.EmailInput(attrs={
+            'class': 'mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 form-control',
+            'placeholder': 'votre@email.com'
+        })
+    )
+    
+    telephone = forms.CharField(
+        max_length=20,
+        required=False,
+        label="Téléphone",
+        widget=forms.TextInput(attrs={
+            'class': 'mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 form-control',
+            'placeholder': '+33 6 12 34 56 78'
+        })
+    )
+    
+    sujet = forms.CharField(
+        max_length=100,
+        label="Sujet",
+        widget=forms.TextInput(attrs={
+            'class': 'mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 form-control',
+            'placeholder': 'Objet de votre message'
+        })
+    )
+    
+    message = forms.CharField(
+        label="Message",
+        widget=forms.Textarea(attrs={
+            'class': 'mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 form-control',
+            'placeholder': 'Votre message...',
+            'rows': 6,
+            'maxlength': 2000
+        }),
+        max_length=2000,
+        min_length=10
+    )
+    
+    newsletter = forms.BooleanField(
+        required=False,
+        label="Je souhaite recevoir la newsletter",
+        widget=forms.CheckboxInput(attrs={
+            'class': 'h-4 w-4 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2 form-check-input',
+        })
+    )
+    
+    def clean_message(self):
+        message = self.cleaned_data.get('message')
+        if message and len(message.strip()) < 10:
+            raise forms.ValidationError("Le message doit contenir au moins 10 caractères.")
+        return message
+    
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email:
+            # Validation basique de l'email
+            import re
+            email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+            if not re.match(email_pattern, email):
+                raise forms.ValidationError("Veuillez entrer une adresse email valide.")
+        return email
+    
 class RegisterForm(UserCreationForm):
     first_name = forms.CharField(max_length=30, required=True, label="Prénom")
     last_name = forms.CharField(max_length=30, required=True, label="Nom")

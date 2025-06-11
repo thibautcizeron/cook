@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Recette, Ingredient, Categorie, Etape, RecetteIngredient, Note
-from .forms import RecetteForm, IngredientForm, CategorieForm, EtapeForm, RecetteIngredientForm
+from .forms import RecetteForm, IngredientForm, EtapeForm, RecetteIngredientForm
 from django.forms import formset_factory, inlineformset_factory
 from unidecode import unidecode
 from django.http import JsonResponse
@@ -10,12 +10,11 @@ from django.contrib import messages
 from django.conf import settings
 import os
 import uuid
-import re
 from PIL import Image
 from django.utils.text import slugify
 from django.core.paginator import Paginator
 from .models import ActivityLog
-from .utils import log_recette_activity, log_ingredient_activity, log_categorie_activity
+from .utils import log_recette_activity, log_ingredient_activity
 import json
 from datetime import datetime
 from unidecode import unidecode

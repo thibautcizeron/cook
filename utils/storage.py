@@ -3,9 +3,7 @@ import os
 import uuid
 import re
 from django.conf import settings
-from django.core.files.storage import FileSystemStorage
 from PIL import Image
-import shutil
 
 class StaticImageStorage:
     """

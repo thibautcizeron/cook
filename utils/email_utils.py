@@ -2,7 +2,6 @@
 from django.core.mail import send_mail, EmailMessage
 from django.template.loader import render_to_string
 from django.template import TemplateDoesNotExist
-from django.utils.html import strip_tags
 from django.conf import settings
 import logging
 import os
@@ -178,7 +177,6 @@ def send_welcome_email(user):
             'contact_email': settings.DEFAULT_FROM_EMAIL or 'contact@cookfamily.com',
         }
         
-        # Templates avec fallback
         try:
             html_message = render_to_string('emails/welcome_email.html', context)
         except TemplateDoesNotExist:
@@ -245,4 +243,226 @@ def test_email_configuration():
         return True
     except Exception as e:
         logger.error(f"Erreur lors du test de configuration: {e}")
+        return False
+    
+def send_contact_email(form_data):
+    """
+    Envoie un email de contact à l'équipe
+    """
+    try:
+        # Données du formulaire
+        nom = form_data.get('nom', '')
+        prenom = form_data.get('prenom', '')
+        email = form_data.get('email', '')
+        telephone = form_data.get('telephone', '')
+        sujet = form_data.get('sujet', '')
+        message = form_data.get('message', '')
+        newsletter = form_data.get('newsletter', False)
+        
+        # Email de destination (équipe)
+        admin_email = getattr(settings, 'ADMIN_EMAIL', 'contact@cookfamily.com')
+        
+        # Sujet de l'email
+        subject = f"Contact CookFamily - {sujet}"
+        
+        # Contenu HTML
+        html_message = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f4f4f4;">
+            <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <div style="background: linear-gradient(135deg, #16a085, #2ecc71); color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <h2 style="margin: 0; font-size: 24px;">Nouveau message de contact</h2>
+                    <p style="margin: 5px 0 0 0; opacity: 0.9;">CookFamily</p>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: #16a085; border-bottom: 2px solid #16a085; padding-bottom: 5px;">Informations du contact</h3>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <td style="padding: 8px 0; font-weight: bold; color: #333; width: 120px;">Nom :</td>
+                            <td style="padding: 8px 0; color: #555;">{nom}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 0; font-weight: bold; color: #333;">Prénom :</td>
+                            <td style="padding: 8px 0; color: #555;">{prenom}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 0; font-weight: bold; color: #333;">Email :</td>
+                            <td style="padding: 8px 0; color: #555;"><a href="mailto:{email}" style="color: #16a085;">{email}</a></td>
+                        </tr>
+                        {f'<tr><td style="padding: 8px 0; font-weight: bold; color: #333;">Téléphone :</td><td style="padding: 8px 0; color: #555;">{telephone}</td></tr>' if telephone else ''}
+                        <tr>
+                            <td style="padding: 8px 0; font-weight: bold; color: #333;">Sujet :</td>
+                            <td style="padding: 8px 0; color: #555;">{sujet}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 0; font-weight: bold; color: #333;">Newsletter :</td>
+                            <td style="padding: 8px 0; color: #555;">{'Oui' if newsletter else 'Non'}</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: #16a085; border-bottom: 2px solid #16a085; padding-bottom: 5px;">Message</h3>
+                    <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; border-left: 4px solid #16a085;">
+                        <p style="margin: 0; color: #333; line-height: 1.6; white-space: pre-wrap;">{message}</p>
+                    </div>
+                </div>
+                
+                <div style="background-color: #e8f5e8; padding: 15px; border-radius: 5px; margin-top: 20px;">
+                    <p style="margin: 0; color: #2c5530; font-size: 14px;">
+                        <strong>📧 Répondre au contact :</strong> Vous pouvez répondre directement à ce message à l'adresse {email}
+                    </p>
+                </div>
+                
+                <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+                    <p style="color: #666; font-size: 12px; margin: 0;">
+                        Message envoyé automatiquement depuis le formulaire de contact de CookFamily
+                    </p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        # Contenu texte
+        text_message = f"""
+NOUVEAU MESSAGE DE CONTACT - CookFamily
+
+INFORMATIONS DU CONTACT:
+- Nom: {nom}
+- Prénom: {prenom}
+- Email: {email}
+{f'- Téléphone: {telephone}' if telephone else ''}
+- Sujet: {sujet}
+- Newsletter: {'Oui' if newsletter else 'Non'}
+
+MESSAGE:
+{message}
+
+---
+Répondre à: {email}
+Message envoyé depuis le formulaire de contact CookFamily
+        """
+        
+        # Envoyer l'email
+        email_message = EmailMessage(
+            subject=subject,
+            body=text_message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[admin_email],
+            reply_to=[email],  # Permet de répondre directement au contact
+        )
+        email_message.content_subtype = "html"
+        email_message.body = html_message
+        
+        result = email_message.send()
+        
+        if result:
+            logger.info(f"Email de contact envoyé avec succès depuis {email}")
+            return True
+        else:
+            logger.error(f"Échec de l'envoi de l'email de contact depuis {email}")
+            return False
+        
+    except Exception as e:
+        logger.error(f"Erreur lors de l'envoi de l'email de contact: {e}")
+        import traceback
+        logger.error(f"Traceback complet: {traceback.format_exc()}")
+        return False
+
+def send_contact_confirmation_email(form_data):
+    """
+    Envoie un email de confirmation à la personne qui a envoyé le message
+    """
+    try:
+        nom = form_data.get('nom', '')
+        prenom = form_data.get('prenom', '')
+        email = form_data.get('email', '')
+        sujet = form_data.get('sujet', '')
+        
+        subject = "Confirmation de réception de votre message - CookFamily"
+        
+        # Contenu HTML
+        html_message = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f4f4f4;">
+            <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <div style="background: linear-gradient(135deg, #16a085, #2ecc71); color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <h2 style="margin: 0; font-size: 24px;">Merci pour votre message !</h2>
+                    <p style="margin: 5px 0 0 0; opacity: 0.9;">CookFamily</p>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <p style="color: #333; font-size: 16px; line-height: 1.6;">
+                        Bonjour {prenom} {nom},
+                    </p>
+                    <p style="color: #333; font-size: 16px; line-height: 1.6;">
+                        Nous avons bien reçu votre message concernant "<strong>{sujet}</strong>".
+                    </p>
+                    <p style="color: #333; font-size: 16px; line-height: 1.6;">
+                        Notre équipe vous répondra dans les plus brefs délais, généralement sous 24 à 48 heures ouvrées.
+                    </p>
+                </div>
+                
+                <div style="background-color: #e8f5e8; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                    <p style="margin: 0; color: #2c5530; font-size: 14px;">
+                        <strong>💡 En attendant notre réponse :</strong><br>
+                        N'hésitez pas à explorer nos recettes et à rejoindre notre communauté de passionnés de cuisine !
+                    </p>
+                </div>
+                
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="https://cookfamily.com" style="display: inline-block; background: linear-gradient(135deg, #16a085, #2ecc71); color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                        Découvrir CookFamily
+                    </a>
+                </div>
+                
+                <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+                    <p style="color: #666; font-size: 12px; margin: 0;">
+                        L'équipe CookFamily<br>
+                        <a href="mailto:contact@cookfamily.com" style="color: #16a085;">contact@cookfamily.com</a>
+                    </p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        # Contenu texte
+        text_message = f"""
+Merci pour votre message ! - CookFamily
+
+Bonjour {prenom} {nom},
+
+Nous avons bien reçu votre message concernant "{sujet}".
+
+Notre équipe vous répondra dans les plus brefs délais, généralement sous 24 à 48 heures ouvrées.
+
+En attendant notre réponse, n'hésitez pas à explorer nos recettes sur https://cookfamily.com
+
+Cordialement,
+L'équipe CookFamily
+contact@cookfamily.com
+        """
+        
+        # Envoyer l'email
+        result = send_mail(
+            subject=subject,
+            message=text_message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[email],
+            html_message=html_message,
+            fail_silently=True,
+        )
+        
+        if result:
+            logger.info(f"Email de confirmation envoyé avec succès à {email}")
+            return True
+        else:
+            logger.warning(f"Échec de l'envoi de l'email de confirmation à {email}")
+            return False
+        
+    except Exception as e:
+        logger.error(f"Erreur lors de l'envoi de l'email de confirmation: {e}")
         return False

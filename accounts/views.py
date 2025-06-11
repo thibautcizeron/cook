@@ -8,10 +8,11 @@ from django.db.models import Q
 from unidecode import unidecode
 from .forms import RegisterForm
 import re
+from .forms import ContactForm
+import logging
 
-# Importer les utilitaires d'email
 try:
-    from utils.email_utils import send_account_deletion_notification, send_admin_deletion_notification, send_welcome_email
+    from utils.email_utils import send_account_deletion_notification, send_admin_deletion_notification, send_welcome_email, send_contact_confirmation_email, send_contact_email
 except ImportError:
     # Fonctions de fallback si le module n'existe pas
     def send_account_deletion_notification(user):
@@ -20,6 +21,67 @@ except ImportError:
         return False
     def send_welcome_email(user):
         return False
+    def send_contact_email(user):
+        return False
+    def send_contact_confirmation_email(user):
+        return False
+
+logger = logging.getLogger(__name__)
+
+def contact(request):
+    """Vue pour la page de contact"""
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            try:
+                # Récupérer les données du formulaire
+                form_data = form.cleaned_data
+                
+                # Envoyer l'email à l'équipe
+                email_sent = send_contact_email(form_data)
+                
+                # Envoyer l'email de confirmation à l'utilisateur
+                confirmation_sent = False
+                if email_sent:
+                    confirmation_sent = send_contact_confirmation_email(form_data)
+                
+                if email_sent:
+                    messages.success(
+                        request, 
+                        f"Merci {form_data['prenom']} ! Votre message a été envoyé avec succès. "
+                        f"Nous vous répondrons sous 24-48h ouvrées."
+                        f"{' Un email de confirmation vous a été envoyé.' if confirmation_sent else ''}"
+                    )
+                    
+                    # Rediriger pour éviter la resoumission du formulaire
+                    return redirect('contact')
+                else:
+                    messages.error(
+                        request, 
+                        "Une erreur est survenue lors de l'envoi de votre message. "
+                        "Veuillez réessayer ou nous contacter directement à contact@cookfamily.com"
+                    )
+                    
+            except Exception as e:
+                logger.error(f"Erreur lors du traitement du formulaire de contact: {e}")
+                messages.error(
+                    request, 
+                    "Une erreur inattendue est survenue. Veuillez réessayer."
+                )
+        else:
+            # Le formulaire contient des erreurs
+            messages.error(
+                request, 
+                "Veuillez corriger les erreurs dans le formulaire ci-dessous."
+            )
+    else:
+        form = ContactForm()
+    
+    context = {
+        'form': form,
+    }
+    
+    return render(request, 'accounts/contact.html', context)
 
 @login_required
 def user_account_delete(request):

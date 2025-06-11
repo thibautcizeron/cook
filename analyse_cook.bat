@@ -1,0 +1,13 @@
+@echo off
+echo 🔍 Analyse du projet Cook - Code non utilisé...
+vulture . --min-confidence 80
+
+echo 🛡️ Analyse de sécurité du projet Cook...
+bandit -r . -ll --exclude ./venv,./migrations
+
+echo 📦 Vérification des dépendances...
+safety check
+
+echo ⚙️ Vérifications Django spécifiques...
+python manage.py check --deploy
+pause

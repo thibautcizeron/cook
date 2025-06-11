@@ -44,4 +44,6 @@ urlpatterns = [
 
     path('politique/', views.show_politique, name='politique'),
     path('mentions/', views.show_mentions, name='mentions'),
+    path('contact/', views.contact, name='contact'),
+
 ]
