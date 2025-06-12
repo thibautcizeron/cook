@@ -1,0 +1,252 @@
+{% extends "base/base.html" %}
+
+{% block title %}Logs d'activité{% endblock %}
+
+{% block content %}
+<div class="bg-gradient-to-b from-gray-900 to-gray-800 min-h-screen pt-10 pb-8">
+    <div class="max-w-7xl mx-auto mt-0 md:mt-6 p-5 bg-white shadow-lg rounded-xl mx-3 sm:mx-6 lg:mx-auto">
+        <div class="mb-8">
+            <h2 class="text-3xl font-bold text-gray-800 mb-2 text-center relative">
+                <span class="inline-block relative">
+                    Logs d'Activité
+                    <span class="absolute bottom-0 left-0 w-full h-1 bg-blue-500 rounded-full"></span>
+                </span>
+            </h2>
+            <p class="text-gray-600 text-center">Suivi des modifications des recettes et ingrédients</p>
+        </div>
+
+        <!-- Statistiques rapides -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <div class="text-2xl font-bold text-blue-600">{{ stats.total_logs }}</div>
+                <div class="text-sm text-blue-700">Total logs</div>
+            </div>
+            <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                <div class="text-2xl font-bold text-green-600">{{ stats.total_creates }}</div>
+                <div class="text-sm text-green-700">Ajouts</div>
+            </div>
+            <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                <div class="text-2xl font-bold text-yellow-600">{{ stats.total_updates }}</div>
+                <div class="text-sm text-yellow-700">Modifications</div>
+            </div>
+            <div class="bg-red-50 p-4 rounded-lg border border-red-200">
+                <div class="text-2xl font-bold text-red-600">{{ stats.total_deletes }}</div>
+                <div class="text-sm text-red-700">Suppressions</div>
+            </div>
+        </div>
+
+        <!-- Filtres -->
+        <div class="bg-gray-50 p-4 rounded-lg mb-6">
+            <form method="GET" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <!-- Recherche -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Recherche</label>
+                    <input type="text" name="search" value="{{ search_query }}" 
+                           placeholder="Nom de l'objet..."
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <!-- Filtre Action -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Action</label>
+                    <select name="action" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Toutes</option>
+                        {% for value, label in action_choices %}
+                        <option value="{{ value }}" {% if action_filter == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Filtre Type -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                    <select name="model" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Tous</option>
+                        {% for value, label in model_choices %}
+                        <option value="{{ value }}" {% if model_filter == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Filtre Utilisateur -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Utilisateur</label>
+                    <input type="text" name="user" value="{{ user_filter }}" 
+                           placeholder="Nom d'utilisateur..."
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <!-- Boutons -->
+                <div class="flex space-x-2">
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm">
+                        Filtrer
+                    </button>
+                    <a href="{% url 'activity_logs' %}" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 text-sm">
+                        Reset
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Table des logs -->
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Date/Heure
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Utilisateur
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Action
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Type
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Objet
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                IP
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for log in page_obj %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {{ log.timestamp|date:"d/m/Y H:i:s" }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
+                                        <span class="text-xs font-medium text-blue-600">
+                                            {{ log.user.username|slice:":2"|upper }}
+                                        </span>
+                                    </div>
+                                    <div class="ml-3">
+                                        <div class="text-sm font-medium text-gray-900">{{ log.user.username }}</div>
+                                        <div class="text-sm text-gray-500">{{ log.user.get_full_name|default:"-" }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% if log.action == 'CREATE' %}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        {{ log.get_action_display }}
+                                    </span>
+                                {% elif log.action == 'UPDATE' %}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                        {{ log.get_action_display }}
+                                    </span>
+                                {% elif log.action == 'DELETE' %}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                        {{ log.get_action_display }}
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                <span class="font-medium">{{ log.get_model_type_display }}</span>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900">
+                                <div class="max-w-xs truncate" title="{{ log.object_name }}">
+                                    {{ log.object_name }}
+                                </div>
+                                {% if log.object_id %}
+                                    <div class="text-xs text-gray-500">ID: {{ log.object_id }}</div>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ log.ip_address|default:"-" }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <a href="{% url 'activity_log_detail' log.id %}" 
+                                   class="text-blue-600 hover:text-blue-900">
+                                    Détails
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                                <div class="text-lg mb-2">Aucun log trouvé</div>
+                                <div class="text-sm">Essayez de modifier vos filtres de recherche</div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 mt-4">
+            <div class="flex-1 flex justify-between sm:hidden">
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if action_filter %}&action={{ action_filter }}{% endif %}{% if model_filter %}&model={{ model_filter }}{% endif %}{% if user_filter %}&user={{ user_filter }}{% endif %}" 
+                       class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        Précédent
+                    </a>
+                {% endif %}
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if action_filter %}&action={{ action_filter }}{% endif %}{% if model_filter %}&model={{ model_filter }}{% endif %}{% if user_filter %}&user={{ user_filter }}{% endif %}" 
+                       class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        Suivant
+                    </a>
+                {% endif %}
+            </div>
+            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                <div>
+                    <p class="text-sm text-gray-700">
+                        Affichage de 
+                        <span class="font-medium">{{ page_obj.start_index }}</span>
+                        à 
+                        <span class="font-medium">{{ page_obj.end_index }}</span>
+                        sur 
+                        <span class="font-medium">{{ page_obj.paginator.count }}</span>
+                        résultats
+                    </p>
+                </div>
+                <div>
+                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                        {% if page_obj.has_previous %}
+                            <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if action_filter %}&action={{ action_filter }}{% endif %}{% if model_filter %}&model={{ model_filter }}{% endif %}{% if user_filter %}&user={{ user_filter }}{% endif %}" 
+                               class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                Première
+                            </a>
+                        {% endif %}
+                        
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-blue-50 text-sm font-medium text-blue-600">
+                                    {{ num }}
+                                </span>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <a href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if action_filter %}&action={{ action_filter }}{% endif %}{% if model_filter %}&model={{ model_filter }}{% endif %}{% if user_filter %}&user={{ user_filter }}{% endif %}" 
+                                   class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                    {{ num }}
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if action_filter %}&action={{ action_filter }}{% endif %}{% if model_filter %}&model={{ model_filter }}{% endif %}{% if user_filter %}&user={{ user_filter }}{% endif %}" 
+                               class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                Dernière
+                            </a>
+                        {% endif %}
+                    </nav>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

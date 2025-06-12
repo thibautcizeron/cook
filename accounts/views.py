@@ -81,7 +81,7 @@ def contact(request):
         'form': form,
     }
     
-    return render(request, 'accounts/contact.html', context)
+    return render(request, 'public/legal/contact.html', context)
 
 @login_required
 def user_account_delete(request):
@@ -93,16 +93,16 @@ def user_account_delete(request):
         
         if not password:
             messages.error(request, "Veuillez saisir votre mot de passe pour confirmer la suppression.")
-            return render(request, 'accounts/users_account_delete.html')
+            return render(request, 'auth/profile/account_delete.html')
         
         if not confirm_delete:
             messages.error(request, "Veuillez cocher la case de confirmation pour supprimer votre compte.")
-            return render(request, 'accounts/users_account_delete.html')
+            return render(request, 'auth/profile/account_delete.html')
         
         # Vérifier le mot de passe
         if not request.user.check_password(password):
             messages.error(request, "Mot de passe incorrect.")
-            return render(request, 'accounts/users_account_delete.html')
+            return render(request, 'auth/profile/account_delete.html')
         
         # Récupérer l'utilisateur avant suppression pour le message et l'email
         user = request.user
@@ -141,7 +141,7 @@ def user_account_delete(request):
             success_message += " Nous espérons vous revoir bientôt !"
             
             messages.success(request, success_message)
-            return redirect('users_login')
+            return redirect('login')
             
         except Exception as e:
             # En cas d'erreur, reconnecter l'utilisateur si possible
@@ -150,9 +150,9 @@ def user_account_delete(request):
             except:
                 pass
             messages.error(request, "Une erreur est survenue lors de la suppression du compte. Veuillez réessayer ou contacter le support.")
-            return render(request, 'accounts/users_account_delete.html')
+            return render(request, 'auth/profile/account_delete.html')
     
-    return render(request, 'accounts/users_account_delete.html')
+    return render(request, 'auth/profile/account_delete.html')
 
 @login_required
 def user_account_edit(request):
@@ -237,9 +237,9 @@ def user_account_edit(request):
             
             user.save()
             messages.success(request, "Votre profil a été mis à jour avec succès.")
-            return redirect('users_account')
+            return redirect('account')
             
-    return render(request, 'accounts/users_account_edit.html')
+    return render(request, 'auth/profile/account_edit.html')
 
 def is_password_valid(password, previous_passwords=None):
     """Vérifie si le mot de passe répond aux critères de complexité et s'il est différent des 5 derniers."""
@@ -295,7 +295,7 @@ def contains_personal_info(password, user):
 @login_required
 def user_account(request):
     """Vue pour afficher le profil de l'utilisateur"""
-    return render(request, 'accounts/users_account.html')
+    return render(request, 'auth/profile/account.html')
 
 
 def user_login(request):
@@ -309,7 +309,7 @@ def user_login(request):
         else:
             messages.error(request, "Nom d'utilisateur ou mot de passe incorrect.")
     
-    return render(request, 'accounts/users_login.html')
+    return render(request, 'auth/login.html')
 
 def register(request):
     if request.method == "POST":
@@ -329,12 +329,12 @@ def register(request):
     else:
         form = RegisterForm()
 
-    return render(request, 'accounts/users_register.html', {'form': form})
+    return render(request, 'auth/register.html', {'form': form})
 
 def user_logout(request):
     logout(request)
     messages.success(request, "Vous avez été déconnecté.")
-    return redirect('users_login')
+    return redirect('login')
 
 def is_superadmin(user):
     return user.is_superuser
@@ -364,9 +364,9 @@ def user_list(request):
         user.groups.clear()
         user.groups.add(group)
 
-        return redirect("users")
+        return redirect("users_list")
 
-    return render(request, "accounts/users.html", {
+    return render(request, "admin/users/users_list.html", {
         "users": users,
         "groups": groups,
         "order": order,
@@ -389,7 +389,7 @@ def search_users(request):
     return JsonResponse(results, safe=False)
 
 def show_politique(request):
-    return render(request, 'index/politique.html')
+    return render(request, 'public/legal/politique.html')
 
 def show_mentions(request):
-    return render(request, 'index/mentions.html')
+    return render(request, 'public/legal/mentions.html')

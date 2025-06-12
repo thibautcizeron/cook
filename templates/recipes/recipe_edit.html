@@ -1,0 +1,473 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="bg-gray-800 py-8 min-h-screen">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6">
+        <div class="bg-white shadow-2xl rounded-xl overflow-hidden">
+            <!-- Header -->
+            <div class="bg-blue-600 py-5">
+                <h2 class="text-center text-xl sm:text-2xl md:text-3xl font-bold text-white">Modifier la recette</h2>
+            </div>
+            
+            <!-- Form -->
+            <form method="post" enctype="multipart/form-data" class="p-4 sm:p-6 md:p-8">
+                {% csrf_token %}
+                
+                <!-- Basic Info -->
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <!-- Left column -->
+                    <div class="space-y-5">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nom de la recette</label>
+                            <input type="text" name="titre" value="{{ recette.titre }}" 
+                                class="border border-gray-300 p-2 sm:p-3 rounded-lg w-full text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre de personnes</label>
+                            <input type="number" name="nbpersonne" value="{{ recette.nbpersonne }}" 
+                                class="border border-gray-300 p-2 sm:p-3 rounded-lg w-full text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+                        </div>
+                        
+                        <div>
+                            <label for="id_categorie" class="block text-sm font-medium text-gray-700 mb-1">Catégorie</label>
+                            <div class="relative">
+                                <select id="id_categorie" name="categorie" 
+                                    class="appearance-none block w-full p-2 sm:p-3 border border-gray-300 rounded-lg 
+                                    focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-700 pr-8 transition">
+                                    <option value="">Sélectionner une catégorie</option>
+                                    {% for categorie in categories %}
+                                        <option value="{{ categorie.id }}" {% if categorie.id == recette.categorie.id %}selected{% endif %}>{{ categorie.nom }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Right column - Image Section -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Image de la recette</label>
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                            <!-- Affichage de l'image existante -->
+                            {% if recette.image %}
+                                <div class="mb-4 image-preview">
+                                    <img src="{% static recette.image %}" alt="{{ recette.titre }}" class="mx-auto h-32 sm:h-48 object-cover rounded-lg shadow-md">
+                                    <p class="text-sm text-gray-600 mt-2">Image actuelle</p>
+                                </div>
+                                <p class="text-sm text-gray-500 mb-2">Choisir une nouvelle image pour remplacer l'actuelle</p>
+                            {% else %}
+                                <div class="mb-4 image-preview" style="display: none;">
+                                    <img src="" alt="Aperçu" class="mx-auto h-32 sm:h-48 object-cover rounded-lg shadow-md">
+                                    <p class="text-sm text-gray-600 mt-2">Nouvelle image</p>
+                                </div>
+                                <div class="mb-4 flex justify-center items-center h-32 sm:h-48 no-image-placeholder">
+                                    <div class="text-center">
+                                        <svg class="h-12 w-12 text-gray-400 mx-auto mb-2" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                        <p class="text-sm text-gray-500">Aucune image</p>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            
+                            <!-- Input file personnalisé -->
+                            <div class="custom-file-input">
+                                <input type="file" name="image" id="id_image" class="hidden-file-input" accept="image/*">
+                            </div>
+                            <p class="text-xs text-gray-500 mt-2">
+                                {% if recette.image %}
+                                    Laisser vide pour conserver l'image actuelle
+                                {% else %}
+                                    Formats acceptés: JPG, PNG, WEBP (Max: 5MB)
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Ingredients Section -->
+                <div class="mb-8">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg sm:text-xl font-semibold text-gray-800 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                            </svg>
+                            Ingrédients
+                        </h3>
+                        <button type="button" id="add-ingredient" class="flex items-center bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 sm:px-4 sm:py-2 rounded-lg text-sm font-medium transition">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            Ajouter
+                        </button>
+                    </div>
+                    
+                    <div id="ingredient-formset" class="space-y-3 bg-gray-50 p-3 sm:p-4 rounded-xl">
+                        {{ ingredient_formset.management_form }}
+                        {% for form in ingredient_formset %}
+                            <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-2 sm:space-y-0 ingredient-form bg-white p-3 rounded-lg shadow-sm">
+                                {{ form.id }}
+                                {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
+                                <div class="w-full sm:w-1/2">
+                                    <label class="block text-xs font-medium text-gray-500 mb-1">Ingrédient</label>
+                                    <select name="{{ form.prefix }}-ingredient" class="border border-gray-300 p-2 rounded-lg w-full text-gray-700 focus:ring-blue-500 focus:border-transparent">
+                                        <option value="">Sélectionner</option>
+                                        {% for ingredient in ingredients %}
+                                            <option value="{{ ingredient.id }}" {% if form.instance.ingredient_id == ingredient.id %}selected{% endif %}>{{ ingredient.nom }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="w-full sm:w-1/3">
+                                    <label class="block text-xs font-medium text-gray-500 mb-1">Quantité</label>
+                                    <input type="text" name="{{ form.prefix }}-quantite" value="{{ form.instance.quantite|default:'' }}" class="border border-gray-300 p-2 rounded-lg w-full text-gray-700 focus:ring-blue-500 focus:border-transparent">
+                                </div>
+                                <div class="flex justify-end sm:w-auto sm:flex-none sm:flex-shrink-0 sm:items-end">
+                                    {% if form.instance.pk %}
+                                        <div class="flex space-x-2">
+                                            <label class="text-sm text-gray-500">
+                                                <input type="checkbox" name="{{ form.prefix }}-DELETE" id="{{ form.prefix }}-DELETE" class="delete-checkbox">
+                                            </label>
+                                            <button type="button" class="bg-red-100 hover:bg-red-200 text-red-700 w-8 h-8 rounded-full flex items-center justify-center remove-ingredient transition">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    {% else %}
+                                        <button type="button" class="bg-red-100 hover:bg-red-200 text-red-700 w-8 h-8 rounded-full flex items-center justify-center remove-ingredient transition">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                            </svg>
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Steps Section -->
+                <div class="mb-8">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg sm:text-xl font-semibold text-gray-800 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                            </svg>
+                            Étapes de préparation
+                        </h3>
+                        <button type="button" id="add-etape" class="flex items-center bg-blue-500 hover:bg-blue-700 text-white px-3 py-1 sm:px-4 sm:py-2 rounded-lg text-sm font-medium transition">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            Ajouter
+                        </button>
+                    </div>
+                    
+                    <div id="etape-formset" class="space-y-4 bg-gray-50 p-3 sm:p-4 rounded-xl">
+                        {{ etape_formset.management_form }}
+                        {% for form in etape_formset %}
+                            <div class="etape-form bg-white p-3 sm:p-4 rounded-lg shadow-sm">
+                                {{ form.id }}
+                                {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
+                                <div class="flex justify-between items-center mb-2">
+                                    <label class="block text-sm font-medium text-gray-700 bg-blue-100 px-3 py-1 rounded-full">Étape {{ forloop.counter }}</label>
+                                    {% if form.instance.pk %}
+                                        <div class="flex items-center space-x-2">
+                                            <label class="text-sm text-gray-500">
+                                                <input type="checkbox" name="{{ form.prefix }}-DELETE" id="{{ form.prefix }}-DELETE" class="delete-checkbox">
+                                            </label>
+                                            <button type="button" class="bg-red-100 hover:bg-red-200 text-red-700 w-8 h-8 rounded-full flex items-center justify-center remove-etape transition">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    {% else %}
+                                        <button type="button" class="bg-red-100 hover:bg-red-200 text-red-700 w-8 h-8 rounded-full flex items-center justify-center remove-etape transition">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                            </svg>
+                                        </button>
+                                    {% endif %}
+                                </div>
+                                <textarea name="{{ form.prefix }}-description" class="border border-gray-300 p-2 sm:p-3 rounded-lg w-full text-gray-700 focus:ring-blue-500 focus:border-transparent min-h-24">{{ form.instance.description|default:'' }}</textarea>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-3 sm:space-y-0 pt-4 border-t border-gray-200">
+                    <button type="submit" class="w-full sm:flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium transition flex items-center justify-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Enregistrer
+                    </button>
+                    <a href="{% url 'recipes_list' %}" class="w-full sm:flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-lg font-medium transition flex items-center justify-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                        Annuler
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Style amélioré pour input file */
+    .custom-file-input {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+    }
+    
+    .hidden-file-input {
+        opacity: 0;
+        width: 0.1px;
+        height: 0.1px;
+        position: absolute;
+        z-index: -1;
+    }
+    
+    .custom-file-input:after {
+        content: 'Choisir une nouvelle image';
+        display: inline-block;
+        padding: 0.5rem 1.5rem;
+        border-radius: 9999px;
+        background-color: #ebf5ff;
+        color: #1d4ed8;
+        font-weight: 600;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    
+    .custom-file-input:hover:after {
+        background-color: #dbeafe;
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Configuration du sélecteur de fichier personnalisé
+        document.querySelectorAll('.custom-file-input').forEach(wrapper => {
+            wrapper.addEventListener('click', function() {
+                this.querySelector('.hidden-file-input').click();
+            });
+        });
+        
+        // Prévisualisation d'image
+        document.getElementById('id_image').addEventListener('change', function() {
+            const file = this.files[0];
+            const imagePreview = document.querySelector('.image-preview');
+            const noImagePlaceholder = document.querySelector('.no-image-placeholder');
+            const previewImg = imagePreview.querySelector('img');
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    previewImg.alt = "Aperçu de la nouvelle image";
+                    imagePreview.style.display = 'block';
+                    if (noImagePlaceholder) {
+                        noImagePlaceholder.style.display = 'none';
+                    }
+                    
+                    // Mettre à jour le texte d'aide
+                    const helpText = document.querySelector('.custom-file-input').parentElement.querySelector('.text-xs');
+                    if (helpText) {
+                        helpText.textContent = "Nouvelle image sélectionnée - " + file.name;
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Masquer les champs DELETE pour qu'ils ne soient pas visibles mais fonctionnels
+        document.querySelectorAll('input[name$="-DELETE"]').forEach(checkbox => {
+            checkbox.style.display = 'none';
+        });
+
+        // Gestion des ingrédients
+        let ingredientFormset = document.getElementById("ingredient-formset");
+        let ingredientTotalForms = document.querySelector("[name='ingredients-TOTAL_FORMS']");
+        let ingredientFormCount = parseInt(ingredientTotalForms.value);
+
+        document.getElementById("add-ingredient").addEventListener("click", function () {
+            let formIdx = ingredientFormCount;
+            let newForm = ingredientFormset.querySelector(".ingredient-form").cloneNode(true);
+            
+            // Mettre à jour les indices des champs dans le clone
+            newForm.innerHTML = newForm.innerHTML.replace(/-\d+-/g, `-${formIdx}-`);
+            
+            // Réinitialiser les valeurs
+            let selectElement = newForm.querySelector("select");
+            if (selectElement) selectElement.selectedIndex = 0;
+            
+            let inputElement = newForm.querySelector("input[name$='-quantite']");
+            if (inputElement) inputElement.value = "";
+            
+            // Supprimer les éléments de suppression existants pour les instances existantes
+            let deleteCheckbox = newForm.querySelector("input[name$='-DELETE']");
+            if (deleteCheckbox) {
+                let parentDiv = deleteCheckbox.closest('div.flex.space-x-2');
+                if (parentDiv) parentDiv.remove();
+            }
+            
+            // Ajouter le nouveau formulaire et mettre à jour le compteur
+            ingredientFormset.appendChild(newForm);
+            ingredientFormCount++;
+            ingredientTotalForms.value = ingredientFormCount;
+            
+            // Attacher l'event listener de suppression au nouveau bouton
+            newForm.querySelector(".remove-ingredient").addEventListener("click", function () {
+                newForm.remove();
+                ingredientFormCount--;
+                ingredientTotalForms.value = ingredientFormCount;
+            });
+            
+            // Ajouter une animation simple
+            newForm.classList.add('opacity-0');
+            setTimeout(() => {
+                newForm.classList.add('transition-opacity', 'duration-300');
+                newForm.classList.remove('opacity-0');
+            }, 10);
+        });
+
+        // Attacher les event listeners de suppression aux boutons existants
+        document.querySelectorAll(".remove-ingredient").forEach(button => {
+            button.addEventListener("click", function () {
+                const form = this.closest(".ingredient-form");
+                const deleteCheckbox = form.querySelector("input[name$='-DELETE']");
+                
+                if (deleteCheckbox) {
+                    // Pour les instances existantes, cocher la case DELETE au lieu de supprimer
+                    deleteCheckbox.checked = true;
+                    
+                    // Ajouter une animation de suppression
+                    form.classList.add('transition-all', 'duration-300');
+                    form.style.opacity = '0';
+                    setTimeout(() => {
+                        form.style.display = "none";
+                    }, 300);
+                } else {
+                    // Pour les nouvelles instances, supprimer du DOM avec animation
+                    form.classList.add('transition-all', 'duration-300');
+                    form.style.opacity = '0';
+                    setTimeout(() => {
+                        form.remove();
+                        ingredientFormCount--;
+                        ingredientTotalForms.value = ingredientFormCount;
+                    }, 300);
+                }
+            });
+        });
+
+        // Gestion des étapes
+        let etapeFormset = document.getElementById("etape-formset");
+        let etapeTotalForms = document.querySelector("[name='etapes-TOTAL_FORMS']");
+        let etapeFormCount = parseInt(etapeTotalForms.value);
+
+        document.getElementById("add-etape").addEventListener("click", function () {
+            let formIdx = etapeFormCount;
+            let newForm = etapeFormset.querySelector(".etape-form").cloneNode(true);
+            
+            // Mettre à jour les indices
+            newForm.innerHTML = newForm.innerHTML.replace(/-\d+-/g, `-${formIdx}-`);
+            
+            // Réinitialiser la valeur
+            let textareaElement = newForm.querySelector("textarea");
+            if (textareaElement) textareaElement.value = "";
+            
+            // Supprimer les éléments de suppression existants pour les instances existantes
+            let deleteCheckbox = newForm.querySelector("input[name$='-DELETE']");
+            if (deleteCheckbox) {
+                let parentDiv = deleteCheckbox.closest('div.flex.items-center.space-x-2');
+                if (parentDiv) parentDiv.remove();
+            }
+            
+            // Mettre à jour le label de l'étape
+            let labelElement = newForm.querySelector("label.block.text-sm.font-medium");
+            if (labelElement) labelElement.textContent = `Étape ${etapeFormCount + 1}`;
+            
+            // Ajouter le nouveau formulaire et mettre à jour le compteur
+            etapeFormset.appendChild(newForm);
+            etapeFormCount++;
+            etapeTotalForms.value = etapeFormCount;
+            
+            // Attacher l'event listener de suppression au nouveau bouton
+            newForm.querySelector(".remove-etape").addEventListener("click", function () {
+                newForm.remove();
+                etapeFormCount--;
+                etapeTotalForms.value = etapeFormCount;
+                
+                // Mettre à jour les numéros d'étapes
+                updateEtapeNumbers();
+            });
+            
+            // Ajouter une animation simple
+            newForm.classList.add('opacity-0');
+            setTimeout(() => {
+                newForm.classList.add('transition-opacity', 'duration-300');
+                newForm.classList.remove('opacity-0');
+            }, 10);
+        });
+
+        // Attacher les event listeners de suppression aux boutons existants
+        document.querySelectorAll(".remove-etape").forEach(button => {
+            button.addEventListener("click", function () {
+                const form = this.closest(".etape-form");
+                const deleteCheckbox = form.querySelector("input[name$='-DELETE']");
+                
+                if (deleteCheckbox) {
+                    // Pour les instances existantes, cocher la case DELETE au lieu de supprimer
+                    deleteCheckbox.checked = true;
+                    
+                    // Ajouter une animation de suppression
+                    form.classList.add('transition-all', 'duration-300');
+                    form.style.opacity = '0';
+                    setTimeout(() => {
+                        form.style.display = "none";
+                        updateEtapeNumbers();
+                    }, 300);
+                } else {
+                    // Pour les nouvelles instances, supprimer du DOM avec animation
+                    form.classList.add('transition-all', 'duration-300');
+                    form.style.opacity = '0';
+                    setTimeout(() => {
+                        form.remove();
+                        etapeFormCount--;
+                        etapeTotalForms.value = etapeFormCount;
+                        updateEtapeNumbers();
+                    }, 300);
+                }
+            });
+        });
+
+        // Fonction pour mettre à jour les numéros d'étapes
+        function updateEtapeNumbers() {
+            let visibleEtapes = Array.from(etapeFormset.querySelectorAll(".etape-form")).filter(form => {
+                return form.style.display !== "none";
+            });
+            
+            visibleEtapes.forEach((etape, index) => {
+                let label = etape.querySelector("label.block.text-sm.font-medium");
+                if (label) {
+                    label.textContent = `Étape ${index + 1}`;
+                }
+            });
+        }
+    });
+</script>
+
+{% endblock %}

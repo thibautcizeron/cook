@@ -10,7 +10,7 @@ class LoadingPageMiddleware:
             # Marquer que l'utilisateur a vu la page de chargement
             request.session['page_loaded'] = True
             # Afficher la page de chargement pour la première visite
-            return render(request, 'index/loading.html')
+            return render(request, 'base/loading.html')
         
         # Pour les requêtes suivantes, continuer normalement
         response = self.get_response(request)

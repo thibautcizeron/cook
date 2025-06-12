@@ -1,0 +1,702 @@
+{% extends "base/base.html" %}
+
+{% block title %}Inscription{% endblock %}
+
+{% block content %}
+<!-- Style pour les tooltips d'erreur -->
+<style>
+    .field-wrapper {
+        position: relative;
+    }
+    
+    .tooltip-error {
+        position: absolute;
+        top: -8px;
+        right: 0;
+        transform: translateY(-100%);
+        background-color: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #f87171;
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.375rem;
+        font-size: 0.75rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        width: max-content;
+        max-width: calc(100% - 20px);
+        z-index: 50;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.2s ease, visibility 0.2s ease;
+    }
+    
+    .tooltip-error::before {
+        content: "";
+        position: absolute;
+        left: 15px;
+        bottom: -6px;
+        top: auto;
+        transform: none;
+        border-width: 6px 6px 0 6px;
+        border-style: solid;
+        border-color: #f87171 transparent transparent transparent;
+    }
+    
+    .field-wrapper:hover .tooltip-error.has-error {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .invalid-input {
+        border-color: #f87171 !important;
+    }
+    
+    .error-icon {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #ef4444;
+        z-index: 5;
+    }
+    
+    @media (max-width: 768px) {
+        .tooltip-error.has-error {
+            opacity: 1;
+            visibility: visible;
+        }
+    }
+</style>
+
+<div class="h-screen flex justify-center items-center">
+    <div class="max-w-md w-full bg-gray-800 shadow-2xl rounded-lg p-6">
+        <h2 class="text-2xl font-semibold text-center text-gray-300 mb-4">Inscription</h2>
+
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            
+            <!-- Nom d'utilisateur -->
+            <div class="field-wrapper">
+                <label for="id_username" class="block text-gray-300 font-medium">{{ form.username.label }}</label>
+                <div class="relative">
+                    <input 
+                        type="text" 
+                        name="username" 
+                        id="id_username" 
+                        {% if form.username.value %}value="{{ form.username.value }}"{% endif %}
+                        class="mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm focus:outline-none focus:ring-green-400 focus:border-green-400 {% if form.username.errors %}invalid-input{% endif %}"
+                        required
+                    >
+                    <div class="error-icon {% if not form.username.errors %}hidden{% endif %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="tooltip-error {% if form.username.errors %}has-error{% endif %}" id="username-error">
+                        {% if form.username.errors %}{{ form.username.errors.0 }}{% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Email -->
+            <div class="field-wrapper">
+                <label for="id_email" class="block text-gray-300 font-medium">{{ form.email.label }}</label>
+                <div class="relative">
+                    <input 
+                        type="email" 
+                        name="email" 
+                        id="id_email" 
+                        {% if form.email.value %}value="{{ form.email.value }}"{% endif %}
+                        class="mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm focus:outline-none focus:ring-green-400 focus:border-green-400 {% if form.email.errors %}invalid-input{% endif %}"
+                        {% if form.email.field.required %}required{% endif %}
+                    >
+                    <div class="error-icon {% if not form.email.errors %}hidden{% endif %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="tooltip-error {% if form.email.errors %}has-error{% endif %}" id="email-error">
+                        {% if form.email.errors %}{{ form.email.errors.0 }}{% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Prénom -->
+            <div class="field-wrapper">
+                <label for="id_first_name" class="block text-gray-300 font-medium">{{ form.first_name.label }}</label>
+                <div class="relative">
+                    <input 
+                        type="text" 
+                        name="first_name" 
+                        id="id_first_name" 
+                        {% if form.first_name.value %}value="{{ form.first_name.value }}"{% endif %}
+                        class="mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm focus:outline-none focus:ring-green-400 focus:border-green-400 {% if form.first_name.errors %}invalid-input{% endif %}"
+                        required
+                    >
+                    <div class="error-icon {% if not form.first_name.errors %}hidden{% endif %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="tooltip-error {% if form.first_name.errors %}has-error{% endif %}" id="first-name-error">
+                        {% if form.first_name.errors %}{{ form.first_name.errors.0 }}{% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Nom -->
+            <div class="field-wrapper">
+                <label for="id_last_name" class="block text-gray-300 font-medium">{{ form.last_name.label }}</label>
+                <div class="relative">
+                    <input 
+                        type="text" 
+                        name="last_name" 
+                        id="id_last_name" 
+                        {% if form.last_name.value %}value="{{ form.last_name.value }}"{% endif %}
+                        class="mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm focus:outline-none focus:ring-green-400 focus:border-green-400 {% if form.last_name.errors %}invalid-input{% endif %}"
+                        required
+                    >
+                    <div class="error-icon {% if not form.last_name.errors %}hidden{% endif %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="tooltip-error {% if form.last_name.errors %}has-error{% endif %}" id="last-name-error">
+                        {% if form.last_name.errors %}{{ form.last_name.errors.0 }}{% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Mot de passe -->
+            <div class="field-wrapper">
+                <label for="id_password1" class="block text-gray-300 font-medium">{{ form.password1.label }}</label>
+                <div class="relative">
+                    <input 
+                        type="password" 
+                        name="password1" 
+                        id="id_password1" 
+                        class="mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm focus:outline-none focus:ring-green-400 focus:border-green-400 {% if form.password1.errors %}invalid-input{% endif %}"
+                        required
+                    >
+                    <div class="error-icon {% if not form.password1.errors %}hidden{% endif %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="tooltip-error {% if form.password1.errors %}has-error{% endif %}" id="password-error">
+                        {% if form.password1.errors %}{{ form.password1.errors.0 }}{% endif %}
+                    </div>
+                </div>
+                
+                <!-- Barre de force du mot de passe -->
+                <div class="mt-2">
+                    <div class="flex justify-between text-xs text-gray-400">
+                        <span>Faible</span>
+                        <span>Moyen</span>
+                        <span>Fort</span>
+                    </div>
+                    <div class="w-full h-2 bg-gray-600 rounded-full mt-1 overflow-hidden relative">
+                        <div class="absolute inset-0 bg-gradient-to-r from-red-500 via-orange-500 to-green-500"></div>
+                        <div id="password-strength-mask" class="absolute right-0 top-0 bottom-0 bg-gray-600 transition-all duration-300" style="left: 0%"></div>
+                    </div>
+                </div>
+                
+                <!-- Critères de validation du mot de passe - initialement cachés -->
+                <div class="mt-2 text-xs text-gray-400 hidden" id="password-criteria-section">
+                    <p>Votre mot de passe doit respecter les critères suivants :</p>
+                    <ul class="mt-1 space-y-1">
+                        <li id="length-criteria" class="flex items-center">
+                            <svg id="length-icon" class="h-4 w-4 mr-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Au moins 8 caractères
+                        </li>
+                        <li id="uppercase-criteria" class="flex items-center">
+                            <svg id="uppercase-icon" class="h-4 w-4 mr-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Au moins une lettre majuscule
+                        </li>
+                        <li id="lowercase-criteria" class="flex items-center">
+                            <svg id="lowercase-icon" class="h-4 w-4 mr-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Au moins une lettre minuscule
+                        </li>
+                        <li id="number-criteria" class="flex items-center">
+                            <svg id="number-icon" class="h-4 w-4 mr-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Au moins un chiffre (0-9)
+                        </li>
+                        <li id="special-criteria" class="flex items-center">
+                            <svg id="special-icon" class="h-4 w-4 mr-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Au moins un caractère spécial (!@#$%^&*(),.?":{}|<>-_=+[])
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Confirmer mot de passe -->
+            <div class="field-wrapper">
+                <label for="id_password2" class="block text-gray-300 font-medium">{{ form.password2.label }}</label>
+                <div class="relative">
+                    <input 
+                        type="password" 
+                        name="password2" 
+                        id="id_password2" 
+                        class="mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm focus:outline-none focus:ring-green-400 focus:border-green-400 {% if form.password2.errors %}invalid-input{% endif %}"
+                        required
+                    >
+                    <div class="error-icon {% if not form.password2.errors %}hidden{% endif %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="tooltip-error {% if form.password2.errors %}has-error{% endif %}" id="confirm-password-error">
+                        {% if form.password2.errors %}{{ form.password2.errors.0 }}{% endif %}
+                    </div>
+                </div>
+                <p id="password-match-message" class="mt-1 text-xs text-gray-400 hidden">Les mots de passe ne correspondent pas</p>
+            </div>
+            
+            <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded shadow-lg hover:shadow-xl transition-all">
+                S'inscrire
+            </button>
+        </form>
+
+        <p class="text-center text-gray-400 mt-4">
+            Déjà un compte ? 
+            <a href="{% url 'login' %}" class="text-green-400 hover:text-green-500 hover:underline">Connectez-vous ici</a>
+        </p>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Éléments pour la validation du mot de passe
+        const password = document.getElementById('id_password1');
+        const confirmPassword = document.getElementById('id_password2');
+        const passwordMatchMessage = document.getElementById('password-match-message');
+        const strengthMask = document.getElementById('password-strength-mask');
+        const passwordCriteriaSection = document.getElementById('password-criteria-section');
+        
+        // Éléments pour les critères
+        const lengthCriteria = document.getElementById('length-criteria');
+        const lengthIcon = document.getElementById('length-icon');
+        const uppercaseCriteria = document.getElementById('uppercase-criteria');
+        const uppercaseIcon = document.getElementById('uppercase-icon');
+        const lowercaseCriteria = document.getElementById('lowercase-criteria');
+        const lowercaseIcon = document.getElementById('lowercase-icon');
+        const numberCriteria = document.getElementById('number-criteria');
+        const numberIcon = document.getElementById('number-icon');
+        const specialCriteria = document.getElementById('special-criteria');
+        const specialIcon = document.getElementById('special-icon');
+        
+        // Éléments pour les tooltips d'erreur
+        const usernameInput = document.getElementById('id_username');
+        const emailInput = document.getElementById('id_email');
+        const firstNameInput = document.getElementById('id_first_name');
+        const lastNameInput = document.getElementById('id_last_name');
+        const usernameError = document.getElementById('username-error');
+        const emailError = document.getElementById('email-error');
+        const passwordError = document.getElementById('password-error');
+        const confirmPasswordError = document.getElementById('confirm-password-error');
+        
+        let formSubmitted = false; // Variable pour suivre si le formulaire a été soumis
+        
+        // Fonction pour afficher une erreur
+        function showError(input, errorElement, message) {
+            // Ajouter la classe d'erreur à l'input
+            input.classList.add('invalid-input');
+            // Afficher l'icône d'erreur
+            input.parentElement.querySelector('.error-icon').classList.remove('hidden');
+            // Définir le message d'erreur
+            errorElement.textContent = message;
+            // Rendre le tooltip visible
+            errorElement.classList.add('has-error');
+        }
+        
+        // Fonction pour effacer une erreur
+        function clearError(input, errorElement) {
+            // Supprimer la classe d'erreur
+            input.classList.remove('invalid-input');
+            // Masquer l'icône d'erreur
+            input.parentElement.querySelector('.error-icon').classList.add('hidden');
+            // Effacer le message d'erreur
+            errorElement.textContent = '';
+            // Masquer le tooltip
+            errorElement.classList.remove('has-error');
+        }
+        
+        // Fonction pour vérifier si le mot de passe est valide
+        function isPasswordValid(password) {
+            // Au moins 8 caractères
+            if (password.length < 8) {
+                return false;
+            }
+            
+            // Au moins une lettre majuscule
+            if (!/[A-Z]/.test(password)) {
+                return false;
+            }
+            
+            // Au moins une lettre minuscule
+            if (!/[a-z]/.test(password)) {
+                return false;
+            }
+            
+            // Au moins un chiffre
+            if (!/[0-9]/.test(password)) {
+                return false;
+            }
+            
+            // Au moins un caractère spécial
+            if (!/[!@#$%^&*(),.?":{}|<>\-_=+[\];:'"`~]/.test(password)) {
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // Fonction pour vérifier si le mot de passe contient des informations personnelles
+        function containsPersonalInfo(password, user) {
+            const passwordLower = password.toLowerCase();
+            
+            // Liste des informations personnelles à vérifier
+            const personalInfo = [
+                user.username.toLowerCase(),
+                user.email.toLowerCase().split('@')[0],  // Partie locale de l'email
+                user.firstName.toLowerCase(),
+                user.lastName.toLowerCase()
+            ];
+            
+            // Vérifier si le mot de passe contient l'une de ces informations
+            for (const info of personalInfo) {
+                if (info && info.length > 2 && passwordLower.includes(info)) {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+        
+        // Validation du nom d'utilisateur
+        usernameInput.addEventListener('input', function() {
+            if (formSubmitted && this.value.length < 3) {
+                showError(this, usernameError, "Le nom d'utilisateur doit contenir au moins 3 caractères");
+            } else if (formSubmitted) {
+                clearError(this, usernameError);
+            }
+        });
+        
+        // Validation de l'email
+        emailInput.addEventListener('input', function() {
+            if (formSubmitted) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(this.value)) {
+                    showError(this, emailError, "Veuillez entrer une adresse email valide");
+                } else {
+                    clearError(this, emailError);
+                }
+            }
+        });
+        
+        // Fonction pour mettre à jour les critères visuels du mot de passe
+        function updatePasswordCriteria(passwordValue) {
+            // Ne mettre à jour les critères visuels que si le formulaire a été soumis
+            if (!formSubmitted) {
+                // Mettre à jour uniquement la barre de force
+                let strength = 0;
+                if (passwordValue.length >= 8) strength += 20;
+                if (/[A-Z]/.test(passwordValue)) strength += 20;
+                if (/[a-z]/.test(passwordValue)) strength += 20;
+                if (/[0-9]/.test(passwordValue)) strength += 20;
+                if (/[!@#$%^&*(),.?":{}|<>\-_=+[\];:'"`~]/.test(passwordValue)) strength += 20;
+                
+                // Mise à jour de la barre de force
+                strengthMask.style.left = strength + '%';
+                
+                return isPasswordValid(passwordValue);
+            }
+            
+            // Afficher la section des critères après la soumission
+            passwordCriteriaSection.classList.remove('hidden');
+            
+            // Vérification de la longueur
+            const hasLength = passwordValue.length >= 8;
+            if (hasLength) {
+                lengthIcon.classList.remove('text-gray-500');
+                lengthIcon.classList.add('text-green-500');
+                lengthCriteria.classList.add('text-green-400');
+            } else {
+                lengthIcon.classList.remove('text-green-500');
+                lengthIcon.classList.add('text-gray-500');
+                lengthCriteria.classList.remove('text-green-400');
+            }
+            
+            // Vérification des majuscules
+            const hasUppercase = /[A-Z]/.test(passwordValue);
+            if (hasUppercase) {
+                uppercaseIcon.classList.remove('text-gray-500');
+                uppercaseIcon.classList.add('text-green-500');
+                uppercaseCriteria.classList.add('text-green-400');
+            } else {
+                uppercaseIcon.classList.remove('text-green-500');
+                uppercaseIcon.classList.add('text-gray-500');
+                uppercaseCriteria.classList.remove('text-green-400');
+            }
+            
+            // Vérification des minuscules
+            const hasLowercase = /[a-z]/.test(passwordValue);
+            if (hasLowercase) {
+                lowercaseIcon.classList.remove('text-gray-500');
+                lowercaseIcon.classList.add('text-green-500');
+                lowercaseCriteria.classList.add('text-green-400');
+            } else {
+                lowercaseIcon.classList.remove('text-green-500');
+                lowercaseIcon.classList.add('text-gray-500');
+                lowercaseCriteria.classList.remove('text-green-400');
+            }
+            
+            // Vérification des chiffres
+            const hasNumber = /[0-9]/.test(passwordValue);
+            if (hasNumber) {
+                numberIcon.classList.remove('text-gray-500');
+                numberIcon.classList.add('text-green-500');
+                numberCriteria.classList.add('text-green-400');
+            } else {
+                numberIcon.classList.remove('text-green-500');
+                numberIcon.classList.add('text-gray-500');
+                numberCriteria.classList.remove('text-green-400');
+            }
+            
+            // Vérification des caractères spéciaux
+            const hasSpecial = /[!@#$%^&*(),.?":{}|<>\-_=+[\];:'"`~]/.test(passwordValue);
+            if (hasSpecial) {
+                specialIcon.classList.remove('text-gray-500');
+                specialIcon.classList.add('text-green-500');
+                specialCriteria.classList.add('text-green-400');
+            } else {
+                specialIcon.classList.remove('text-green-500');
+                specialIcon.classList.add('text-gray-500');
+                specialCriteria.classList.remove('text-green-400');
+            }
+            
+            // Calcul de la force du mot de passe (pourcentage)
+            let strength = 0;
+            if (hasLength) strength += 20;
+            if (hasUppercase) strength += 20;
+            if (hasLowercase) strength += 20;
+            if (hasNumber) strength += 20;
+            if (hasSpecial) strength += 20;
+            
+            // Mise à jour de la barre de force
+            strengthMask.style.left = strength + '%';
+            
+            // Vérifier si le mot de passe contient des informations personnelles
+            if (passwordValue.length > 0) {
+                const user = {
+                    username: usernameInput.value,
+                    email: emailInput.value,
+                    firstName: firstNameInput.value,
+                    lastName: lastNameInput.value
+                };
+                
+                if (containsPersonalInfo(passwordValue, user)) {
+                    showError(password, passwordError, "Le mot de passe ne doit pas contenir votre nom d'utilisateur, prénom, nom ou email");
+                    return false;
+                }
+            }
+            
+            return isPasswordValid(passwordValue);
+        }
+        
+        // Fonction pour vérifier la validité du mot de passe
+        function validatePassword() {
+            const passwordValue = password.value;
+            
+            if (passwordValue.length > 0) {
+                const isValid = updatePasswordCriteria(passwordValue);
+                
+                if (!isValid && formSubmitted) {
+                    const currentErrors = [];
+                    
+                    if (passwordValue.length < 8) currentErrors.push("Au moins 8 caractères");
+                    if (!/[A-Z]/.test(passwordValue)) currentErrors.push("Au moins une majuscule");
+                    if (!/[a-z]/.test(passwordValue)) currentErrors.push("Au moins une minuscule");
+                    if (!/[0-9]/.test(passwordValue)) currentErrors.push("Au moins un chiffre");
+                    if (!/[!@#$%^&*(),.?":{}|<>\-_=+[\];:'"`~]/.test(passwordValue)) currentErrors.push("Au moins un caractère spécial");
+                    
+                    if (currentErrors.length > 0) {
+                        showError(password, passwordError, "Requis: " + currentErrors.join(", "));
+                    }
+                    
+                    return false;
+                } else if (formSubmitted) {
+                    clearError(password, passwordError);
+                }
+                
+                return isValid;
+            } else {
+                // Réinitialiser les critères si le champ est vide
+                if (formSubmitted) {
+                    lengthIcon.classList.remove('text-green-500');
+                    lengthIcon.classList.add('text-gray-500');
+                    lengthCriteria.classList.remove('text-green-400');
+                    
+                    uppercaseIcon.classList.remove('text-green-500');
+                    uppercaseIcon.classList.add('text-gray-500');
+                    uppercaseCriteria.classList.remove('text-green-400');
+                    
+                    lowercaseIcon.classList.remove('text-green-500');
+                    lowercaseIcon.classList.add('text-gray-500');
+                    lowercaseCriteria.classList.remove('text-green-400');
+                    
+                    numberIcon.classList.remove('text-green-500');
+                    numberIcon.classList.add('text-gray-500');
+                    numberCriteria.classList.remove('text-green-400');
+                    
+                    specialIcon.classList.remove('text-green-500');
+                    specialIcon.classList.add('text-gray-500');
+                    specialCriteria.classList.remove('text-green-400');
+                }
+                
+                // Réinitialiser la barre de force
+                strengthMask.style.left = '0%';
+                
+                if (formSubmitted) {
+                    showError(password, passwordError, "Veuillez saisir un mot de passe");
+                    return false;
+                }
+                
+                return true;
+            }
+        }
+        
+        // Fonction pour vérifier la correspondance des mots de passe
+        function validatePasswordMatch() {
+            if (!formSubmitted) {
+                return true;
+            }
+            
+            if (confirmPassword.value.length === 0) {
+                showError(confirmPassword, confirmPasswordError, "Veuillez confirmer votre mot de passe");
+                passwordMatchMessage.classList.add('hidden');
+                return false;
+            }
+            
+            if (password.value !== confirmPassword.value) {
+                showError(confirmPassword, confirmPasswordError, "Les mots de passe ne correspondent pas");
+                passwordMatchMessage.classList.remove('hidden', 'text-green-400');
+                passwordMatchMessage.classList.add('text-red-400');
+                passwordMatchMessage.textContent = "Les mots de passe ne correspondent pas";
+                return false;
+            } else {
+                clearError(confirmPassword, confirmPasswordError);
+                passwordMatchMessage.classList.remove('hidden', 'text-red-400');
+                passwordMatchMessage.classList.add('text-green-400');
+                passwordMatchMessage.textContent = "Les mots de passe correspondent";
+                return true;
+            }
+        }
+        
+        // Ajouter les écouteurs d'événements
+        password.addEventListener('input', function() {
+            // Toujours mettre à jour la barre de force, mais pas les critères
+            let strength = 0;
+            if (this.value.length >= 8) strength += 20;
+            if (/[A-Z]/.test(this.value)) strength += 20;
+            if (/[a-z]/.test(this.value)) strength += 20;
+            if (/[0-9]/.test(this.value)) strength += 20;
+            if (/[!@#$%^&*(),.?":{}|<>\-_=+[\];:'"`~]/.test(this.value)) strength += 20;
+            
+            strengthMask.style.left = strength + '%';
+            
+            // Si le formulaire a été soumis, mettre à jour les critères et vérifier les erreurs
+            if (formSubmitted) {
+                validatePassword();
+                validatePasswordMatch();
+            }
+        });
+        
+        confirmPassword.addEventListener('input', function() {
+            if (formSubmitted) {
+                validatePasswordMatch();
+            }
+        });
+        
+        // Réagir aux changements des informations personnelles uniquement si le formulaire a été soumis
+        usernameInput.addEventListener('change', function() {
+            if (formSubmitted && password.value) validatePassword();
+        });
+        
+        emailInput.addEventListener('change', function() {
+            if (formSubmitted && password.value) validatePassword();
+        });
+        
+        firstNameInput.addEventListener('change', function() {
+            if (formSubmitted && password.value) validatePassword();
+        });
+        
+        lastNameInput.addEventListener('change', function() {
+            if (formSubmitted && password.value) validatePassword();
+        });
+        
+        // Validation du formulaire avant soumission
+        document.querySelector('form').addEventListener('submit', function(event) {
+            // Marquer le formulaire comme soumis pour déclencher l'affichage des critères et erreurs
+            formSubmitted = true;
+            
+            // Afficher la section des critères si nécessaire
+            if (password.value.length > 0) {
+                passwordCriteriaSection.classList.remove('hidden');
+            }
+            
+            // Vérifier tous les champs
+            let isValid = true;
+            
+            // Validation du nom d'utilisateur
+            if (usernameInput.value.length < 3) {
+                showError(usernameInput, usernameError, "Le nom d'utilisateur doit contenir au moins 3 caractères");
+                isValid = false;
+            } else {
+                clearError(usernameInput, usernameError);
+            }
+            
+            // Validation de l'email
+            if (emailInput.required) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(emailInput.value)) {
+                    showError(emailInput, emailError, "Veuillez entrer une adresse email valide");
+                    isValid = false;
+                } else {
+                    clearError(emailInput, emailError);
+                }
+            }
+            
+            // Validation du mot de passe
+            if (!validatePassword()) {
+                isValid = false;
+            }
+            
+            // Validation de la confirmation du mot de passe
+            if (!validatePasswordMatch()) {
+                isValid = false;
+            }
+            
+            // Empêcher la soumission si le formulaire n'est pas valide
+            if (!isValid) {
+                event.preventDefault();
+            }
+        });
+        
+        // Vérifier s'il y a des erreurs de validation du serveur
+        if (document.querySelector('.invalid-input')) {
+            passwordCriteriaSection.classList.remove('hidden');
+            formSubmitted = true;
+        }
+    });
+</script>
+{% endblock %}

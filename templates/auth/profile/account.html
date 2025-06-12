@@ -1,0 +1,98 @@
+{% extends "base/base.html" %}
+
+{% block title %}Mon Compte{% endblock %}
+
+{% block content %}
+<!-- Fond sombre pour correspondre à la page de connexion -->
+<div class="bg-gray-800 min-h-screen py-8 px-4 sm:px-6 md:py-12">
+    <div class="max-w-lg mx-auto bg-gray-800 rounded-xl shadow-2xl overflow-hidden">
+        <!-- En-tête stylisé -->
+        <div class="bg-green-600 px-6 py-4">
+            <h2 class="text-2xl sm:text-3xl font-bold text-white text-center">Mon Compte</h2>
+        </div>
+
+        <!-- Onglets pour basculer entre l'affichage et la modification -->
+        <div class="bg-gray-700 px-4 py-2 flex border-b border-gray-600">
+            <a href="{% url 'account' %}" class="px-4 py-2 font-medium rounded-t-lg mr-2 bg-gray-800 text-green-400 border-b-2 border-green-500">
+                Afficher
+            </a>
+            <a href="{% url 'account_edit' %}" class="px-4 py-2 font-medium rounded-t-lg text-gray-300 hover:text-green-400">
+                Modifier
+            </a>
+        </div>
+
+        <!-- Mode affichage -->
+        <div class="p-6 sm:p-8">
+            <div class="grid grid-cols-1 gap-4 sm:gap-6">
+                <!-- Information utilisateur avec cards individuelles pour chaque élément -->
+                <div class="bg-gray-700 rounded-lg p-4 shadow-sm border border-gray-600">
+                    <p class="text-gray-400 text-sm">Nom d'utilisateur</p>
+                    <p class="text-gray-200 font-semibold text-lg">{{ user.username }}</p>
+                </div>
+                
+                <div class="bg-gray-700 rounded-lg p-4 shadow-sm border border-gray-600">
+                    <p class="text-gray-400 text-sm">Email</p>
+                    <p class="text-gray-200 font-semibold text-lg break-all">{{ user.email }}</p>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="bg-gray-700 rounded-lg p-4 shadow-sm border border-gray-600">
+                        <p class="text-gray-400 text-sm">Prénom</p>
+                        <p class="text-gray-200 font-semibold text-lg">{{ user.first_name }}</p>
+                    </div>
+                    
+                    <div class="bg-gray-700 rounded-lg p-4 shadow-sm border border-gray-600">
+                        <p class="text-gray-400 text-sm">Nom</p>
+                        <p class="text-gray-200 font-semibold text-lg">{{ user.last_name }}</p>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-700 rounded-lg p-4 shadow-sm border border-gray-600">
+                    <p class="text-gray-400 text-sm">Date d'inscription</p>
+                    <p class="text-gray-200 font-semibold text-lg">{{ user.date_joined|date:"d/m/Y H:i" }}</p>
+                </div>
+            </div>
+
+            <!-- Boutons d'action avec design amélioré -->
+            <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">              
+                <a href="{% url 'home' %}" class="flex justify-center items-center bg-gray-600 hover:bg-gray-500 text-gray-200 font-medium py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Retour
+                </a>
+                <a href="{% url 'account_edit' %}" class="flex justify-center items-center bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
+                    Modifier mon profil
+                </a>
+            </div>
+
+            <!-- Zone de danger pour la suppression du compte -->
+            <div class="mt-8 bg-red-50 border border-red-200 rounded-lg p-4">
+                <h3 class="text-lg font-medium text-red-800 mb-2 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    Zone de danger
+                </h3>
+                <p class="text-sm text-red-700 mb-3">
+                    Une fois que vous supprimez votre compte, il n'y a pas de retour en arrière. Soyez certain de votre choix.
+                </p>
+                <a href="{% url 'account_delete' %}" class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md shadow-sm hover:shadow-md transition-all duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    Supprimer mon compte
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Information de dernière connexion -->
+    <div class="max-w-lg mx-auto mt-4 text-center text-gray-500 text-sm">
+        Dernière connexion : {{ user.last_login|date:"d/m/Y H:i"|default:"Première connexion" }}
+    </div>
+</div>
+{% endblock %}

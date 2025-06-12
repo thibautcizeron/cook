@@ -1,0 +1,16 @@
+{% autoescape off %}
+Bonjour,
+
+Vous recevez cet email car vous avez demandé la réinitialisation du mot de passe pour votre compte sur {{ site_name }}.
+
+Veuillez suivre ce lien pour définir un nouveau mot de passe :
+{{ protocol }}://{{ domain }}{% url 'reset_confirm' uidb64=uid token=token %}
+
+Si cliquer sur le lien ne fonctionne pas, copiez-le et collez-le dans la barre d'adresse de votre navigateur.
+
+Votre nom d'utilisateur, en cas d'oubli : {{ user.username }}
+
+Merci d'utiliser notre site !
+
+L'équipe CookFamily
+{% endautoescape %}

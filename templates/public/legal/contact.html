@@ -1,0 +1,476 @@
+{% extends "base/base.html" %}
+
+{% block title %}Nous contacter - CookFamily{% endblock %}
+
+{% block content %}
+<div class="bg-gray-800 min-h-screen py-8 px-4 sm:px-6 md:py-12">
+    <div class="max-w-6xl mx-auto">
+        <!-- En-tête -->
+        <div class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-4">Nous contacter</h1>
+            <p class="text-xl text-gray-300 max-w-3xl mx-auto">
+                Une question, une suggestion ou besoin d'aide ? Notre équipe est là pour vous accompagner.
+                Nous vous répondons généralement sous 24-48 heures ouvrées.
+            </p>
+        </div>
+
+        <div class="grid lg:grid-cols-3 gap-8">
+            <!-- Informations de contact -->
+            <div class="lg:col-span-1">
+                <div class="bg-gray-900 rounded-xl shadow-2xl p-6 h-fit">
+                    <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        Informations de contact
+                    </h2>
+
+                    <div class="space-y-6">
+                        <!-- Email -->
+                        <div class="flex items-start space-x-4">
+                            <div class="flex-shrink-0 w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-white">Email</h3>
+                                <a href="mailto:contact@cookfamily.fr" class="text-green-400 hover:text-green-300 transition-colors">
+                                    contact@cookfamily.fr
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Horaires -->
+                        <div class="flex items-start space-x-4">
+                            <div class="flex-shrink-0 w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-white">Horaires de réponse</h3>
+                                <div class="text-gray-300 text-sm">
+                                    <p>Lun - Ven : 9h00 - 18h00</p>
+                                    <p>Samedi : 10h00 - 16h00</p>
+                                    <p>Dimanche : Fermé</p>
+                                    <p class="mt-2 text-green-400 font-medium">Réponse sous 24-48h ouvrées</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulaire de contact -->
+            <div class="lg:col-span-2">
+                <div class="bg-gray-900 rounded-xl shadow-2xl p-6 md:p-8">
+                    <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
+                        Envoyez-nous un message
+                    </h2>
+
+                    <!-- Messages Flash -->
+                    {% if messages %}
+                    <div class="mb-6">
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} {% if message.tags == 'error' %}bg-red-600{% else %}bg-green-600{% endif %} text-white px-4 py-3 rounded-lg mb-3 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                {% if message.tags == 'error' %}
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                {% else %}
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                {% endif %}
+                            </svg>
+                            {{ message }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <form method="post" id="contactForm" class="space-y-6">
+                        {% csrf_token %}
+                        
+                        <!-- Nom et Prénom -->
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <label for="{{ form.nom.id_for_label }}" class="block text-sm font-medium text-gray-300">
+                                    {{ form.nom.label }} <span class="text-red-400">*</span>
+                                </label>
+                                {{ form.nom }}
+                                {% if form.nom.errors %}
+                                    <div class="text-red-400 text-sm">
+                                        {% for error in form.nom.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="space-y-2">
+                                <label for="{{ form.prenom.id_for_label }}" class="block text-sm font-medium text-gray-300">
+                                    {{ form.prenom.label }} <span class="text-red-400">*</span>
+                                </label>
+                                {{ form.prenom }}
+                                {% if form.prenom.errors %}
+                                    <div class="text-red-400 text-sm">
+                                        {% for error in form.prenom.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Email et Téléphone -->
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-300">
+                                    {{ form.email.label }} <span class="text-red-400">*</span>
+                                </label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                    <div class="text-red-400 text-sm">
+                                        {% for error in form.email.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="space-y-2">
+                                <label for="{{ form.telephone.id_for_label }}" class="block text-sm font-medium text-gray-300">
+                                    {{ form.telephone.label }}
+                                </label>
+                                {{ form.telephone }}
+                                {% if form.telephone.errors %}
+                                    <div class="text-red-400 text-sm">
+                                        {% for error in form.telephone.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Sujet -->
+                        <div class="space-y-2">
+                            <label for="{{ form.sujet.id_for_label }}" class="block text-sm font-medium text-gray-300">
+                                {{ form.sujet.label }} <span class="text-red-400">*</span>
+                            </label>
+                            {{ form.sujet }}
+                            {% if form.sujet.errors %}
+                                <div class="text-red-400 text-sm">
+                                    {% for error in form.sujet.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Message -->
+                        <div class="space-y-2">
+                            <label for="{{ form.message.id_for_label }}" class="block text-sm font-medium text-gray-300">
+                                {{ form.message.label }} <span class="text-red-400">*</span>
+                            </label>
+                            {{ form.message }}
+                            <div class="text-xs text-gray-400 flex justify-between">
+                                <span>Minimum 10 caractères</span>
+                                <span id="charCount">0/2000</span>
+                            </div>
+                            {% if form.message.errors %}
+                                <div class="text-red-400 text-sm">
+                                    {% for error in form.message.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Bouton d'envoi -->
+                        <div class="pt-4">
+                            <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center">
+                                <span id="btnText">Envoyer le message</span>
+                                <svg id="loadingIcon" class="hidden animate-spin ml-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <svg id="sendIcon" class="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Note de confidentialité -->
+                        <div class="bg-gray-700 rounded-lg p-4 text-sm text-gray-300">
+                            <div class="flex items-start space-x-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                </svg>
+                                <div>
+                                    <p class="font-medium text-green-400 mb-1">Confidentialité et protection des données</p>
+                                    <p>Vos données personnelles sont traitées conformément à notre <a href="{% url 'politique' %}" class="text-green-400 hover:text-green-300 underline">politique de confidentialité</a>. Elles ne seront utilisées que pour répondre à votre demande et ne seront jamais partagées avec des tiers.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section FAQ rapide -->
+        <div class="mt-12">
+            <div class="bg-gray-900 rounded-xl shadow-2xl p-6 md:p-8">
+                <h2 class="text-2xl font-bold text-white mb-6 text-center">Questions fréquentes</h2>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <div class="bg-gray-800 rounded-lg p-4">
+                            <h3 class="text-lg font-semibold text-green-400 mb-2">Comment créer un compte ?</h3>
+                            <p class="text-gray-300 text-sm">Cliquez sur "Connexion" en haut à droite de la page et remplissez le formulaire avec vos informations.</p>
+                        </div>
+                        <div class="bg-gray-800 rounded-lg p-4">
+                            <h3 class="text-lg font-semibold text-green-400 mb-2">Puis-je modifier mes recettes ?</h3>
+                            <p class="text-gray-300 text-sm">Oui, vous pouvez modifier ou supprimer vos recettes à tout moment depuis votre profil à conditon d'être administrateur.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="bg-gray-800 rounded-lg p-4">
+                            <h3 class="text-lg font-semibold text-green-400 mb-2">Comment partager une recette ?</h3>
+                            <p class="text-gray-300 text-sm">Connectez-vous, si vous avez le rôle contributeur vous pouvez cliquez sur "Ajouter une recette" et remplissez le formulaire avec les détails de votre recette.</p>
+                        </div>
+                        
+                        <div class="bg-gray-800 rounded-lg p-4">
+                            <h3 class="text-lg font-semibold text-green-400 mb-2">Changement du rôle de l'utilisateur</h3>
+                            <p class="text-gray-300 text-sm">Pour changer de rôle vous devez faire votre demande via le formulaire de contact, un administrateur vous répondras dans les plus brefs délais.</p>
+                            
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-6">
+                    <p class="text-gray-400">Vous ne trouvez pas la réponse à votre question ? <span class="text-green-400">Contactez-nous !</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript pour l'interactivité -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('contactForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    const loadingIcon = document.getElementById('loadingIcon');
+    const sendIcon = document.getElementById('sendIcon');
+    const messageField = document.querySelector('textarea[name="message"]');
+    const charCount = document.getElementById('charCount');
+
+    // Compteur de caractères pour le message
+    if (messageField && charCount) {
+        function updateCharCount() {
+            const currentLength = messageField.value.length;
+            charCount.textContent = `${currentLength}/2000`;
+            
+            if (currentLength > 2000) {
+                charCount.classList.add('text-red-400');
+                charCount.classList.remove('text-gray-400');
+            } else if (currentLength < 10) {
+                charCount.classList.add('text-yellow-400');
+                charCount.classList.remove('text-gray-400', 'text-red-400');
+            } else {
+                charCount.classList.add('text-green-400');
+                charCount.classList.remove('text-gray-400', 'text-yellow-400', 'text-red-400');
+            }
+        }
+        
+        messageField.addEventListener('input', updateCharCount);
+        updateCharCount(); // Initialiser le compteur
+    }
+
+    // Gestion de l'envoi du formulaire
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            // Désactiver le bouton et afficher le loading
+            submitBtn.disabled = true;
+            btnText.textContent = 'Envoi en cours...';
+            loadingIcon.classList.remove('hidden');
+            sendIcon.classList.add('hidden');
+            
+            // Le formulaire sera soumis normalement
+            // Si vous voulez utiliser AJAX, décommentez le code ci-dessous
+            /*
+            e.preventDefault();
+            
+            const formData = new FormData(form);
+            
+            fetch(form.action || window.location.pathname, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Succès
+                    btnText.textContent = 'Message envoyé !';
+                    form.reset();
+                    updateCharCount();
+                    
+                    // Afficher un message de succès
+                    showMessage(data.message, 'success');
+                    
+                    setTimeout(() => {
+                        resetButton();
+                    }, 3000);
+                } else {
+                    // Erreur
+                    if (data.errors) {
+                        // Afficher les erreurs de validation
+                        for (const [field, errors] of Object.entries(data.errors)) {
+                            showFieldError(field, errors[0]);
+                        }
+                    } else {
+                        showMessage(data.message || 'Une erreur est survenue', 'error');
+                    }
+                    resetButton();
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                showMessage('Une erreur est survenue lors de l\'envoi', 'error');
+                resetButton();
+            });
+            */
+        });
+    }
+
+    function resetButton() {
+        submitBtn.disabled = false;
+        btnText.textContent = 'Envoyer le message';
+        loadingIcon.classList.add('hidden');
+        sendIcon.classList.remove('hidden');
+    }
+
+    function showMessage(message, type) {
+        // Créer et afficher un message flash dynamique
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert ${type === 'success' ? 'bg-green-600' : 'bg-red-600'} text-white px-4 py-3 rounded-lg mb-3 flex items-center`;
+        alertDiv.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                ${type === 'success' 
+                    ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />'
+                    : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />'
+                }
+            </svg>
+            ${message}
+        `;
+        
+        // Insérer le message au début du formulaire
+        form.insertBefore(alertDiv, form.firstChild);
+        
+        // Supprimer le message après 5 secondes
+        setTimeout(() => {
+            alertDiv.remove();
+        }, 5000);
+    }
+
+    function showFieldError(fieldName, error) {
+        const field = document.querySelector(`[name="${fieldName}"]`);
+        if (field) {
+            // Supprimer les erreurs existantes
+            const existingError = field.parentElement.querySelector('.field-error');
+            if (existingError) {
+                existingError.remove();
+            }
+            
+            // Ajouter la nouvelle erreur
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'field-error text-red-400 text-sm mt-1';
+            errorDiv.textContent = error;
+            field.parentElement.appendChild(errorDiv);
+            
+            // Supprimer l'erreur après 5 secondes
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5000);
+        }
+    }
+
+    // Amélioration de l'UX : auto-resize du textarea
+    if (messageField) {
+        messageField.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+    }
+
+    // Validation en temps réel
+    const requiredFields = form.querySelectorAll('[required]');
+    requiredFields.forEach(field => {
+        field.addEventListener('blur', function() {
+            if (this.value.trim() === '') {
+                this.classList.add('border-red-500');
+                this.classList.remove('border-gray-600');
+            } else {
+                this.classList.remove('border-red-500');
+                this.classList.add('border-gray-600');
+            }
+        });
+        
+        field.addEventListener('input', function() {
+            if (this.value.trim() !== '') {
+                this.classList.remove('border-red-500');
+                this.classList.add('border-gray-600');
+            }
+        });
+    });
+});
+</script>
+
+<style>
+/* Styles pour les champs du formulaire */
+.form-control {
+    @apply mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors;
+}
+
+.form-control:focus {
+    @apply ring-2 ring-green-500 border-green-500;
+}
+
+.form-check-input {
+    @apply h-4 w-4 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2;
+}
+
+/* Animation pour les messages */
+.alert {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Styles pour le textarea auto-resize */
+textarea.form-control {
+    resize: vertical;
+    min-height: 120px;
+}
+</style>
+
+{% endblock %}

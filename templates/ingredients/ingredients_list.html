@@ -1,0 +1,403 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Liste des Ingrédients{% endblock %}
+
+{% block content %}
+<div class="bg-gray-800 min-h-screen pt-10 pb-12">
+    <div class="max-w-5xl mx-auto mt-8 p-8 bg-white shadow-xl rounded-xl">
+        <h2 class="text-3xl font-bold text-gray-800 mb-8 text-center relative">
+            <span class="inline-block relative">
+                Liste des Ingrédients
+                <span class="absolute bottom-0 left-0 w-full h-1 bg-blue-500 rounded-full"></span>
+            </span>
+        </h2>
+        
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+            <!-- Bouton Ajouter un ingrédient -->
+            <a href="{% url 'ingredient_add' %}" class="bg-green-500 hover:bg-green-600 text-white py-3 px-6 rounded-lg shadow-md transition duration-300 flex items-center gap-2 w-full md:w-auto justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+                </svg>
+                Ajouter un Ingrédient
+            </a>
+
+            <!-- Barre de recherche -->
+            <form method="GET" class="flex justify-center items-center gap-2 w-full md:w-2/3" id="search-form">
+                <div class="relative w-full">
+                    <input type="text" name="search" id="search-input" value="{{ search_query }}" 
+                           placeholder="Rechercher un ingrédient..." 
+                           class="w-full border border-gray-300 rounded-lg py-3 px-4 pl-10 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300 text-gray-700" autocomplete="off">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-md transition duration-300 whitespace-nowrap" id="search-button">
+                    Rechercher
+                </button>
+            </form>
+        </div>
+
+        <!-- Liste déroulante pour afficher les résultats de la recherche -->
+        <ul id="search-results" class="bg-white border border-gray-300 w-full md:w-2/3 mx-auto hidden absolute z-10 mt-1 rounded-lg shadow-md max-h-64 overflow-y-auto"></ul>
+
+        <!-- Tableau des ingrédients -->
+        <div class="overflow-x-auto rounded-lg shadow mb-6">
+            <table class="w-full border-collapse" id="ingredients-table">
+                <thead>
+                    <tr class="bg-gray-200">
+                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Nom</th>
+                        <th class="px-6 py-4 text-center text-sm font-semibold text-gray-700">Image</th>
+                        <th class="px-6 py-4 text-center text-sm font-semibold text-gray-700">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="ingredients-tbody" class="text-gray-800 divide-y divide-gray-200">
+                    {% for ingredient in ingredients %}
+                    <tr class="hover:bg-gray-50 transition-all duration-200 group">
+                        <td class="px-6 py-5 text-left font-medium">{{ ingredient.nom }}</td>
+                        <td class="px-6 py-5 text-center">
+                            {% if ingredient.image %}
+                                <img src="{% static ingredient.image %}" class="w-16 h-16 object-cover rounded-lg shadow mx-auto hover:scale-105 transition-transform duration-200" alt="{{ ingredient.nom }}">
+                            {% else %}
+                                <div class="w-16 h-16 bg-gray-100 flex items-center justify-center rounded-lg mx-auto text-gray-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-5 text-center">
+                            <div class="flex flex-col sm:flex-row justify-center items-center gap-2 opacity-90 group-hover:opacity-100 transition-opacity duration-200">
+                                <a href="{% url 'ingredient_edit' ingredient.id %}" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg transition duration-200 flex items-center gap-1 w-full sm:w-auto justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                    </svg>
+                                    Modifier
+                                </a>
+                                <button onclick="openModal('{{ ingredient.id }}')" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition duration-200 flex items-center gap-1 w-full sm:w-auto justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                    </svg>
+                                    Supprimer
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Modal de confirmation de suppression amélioré -->
+                    <div id="modal-{{ ingredient.id }}" class="hidden fixed inset-0 bg-gray-600 bg-opacity-75 backdrop-blur-sm flex justify-center items-center z-50 transition-opacity duration-300">
+                        <div class="bg-white p-8 rounded-xl shadow-2xl w-11/12 max-w-md transform transition-all duration-300 scale-95 opacity-0" id="modal-content-{{ ingredient.id }}">
+                            <div class="text-center mb-6">
+                                <div class="bg-red-100 p-3 rounded-full inline-flex items-center justify-center mb-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-800">Confirmer la suppression</h3>
+                                <p class="text-gray-600 mt-2">Voulez-vous vraiment supprimer l'ingrédient <span class="font-semibold text-red-600">{{ ingredient.nom }}</span> ?</p>
+                            </div>
+                            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                                <button onclick="closeModal('{{ ingredient.id }}')" class="bg-gray-500 hover:bg-gray-600 text-white px-5 py-3 rounded-lg transition duration-200 w-full">
+                                    Annuler
+                                </button>
+                                <form action="{% url 'ingredient_delete' ingredient.id %}" method="POST" class="w-full">
+                                    {% csrf_token %}
+                                    <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-5 py-3 rounded-lg transition duration-200 w-full">
+                                        Confirmer la suppression
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="px-6 py-8 text-center text-gray-500 italic">
+                            Aucun ingrédient trouvé. Commencez par en ajouter un !
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Conteneur pour les résultats de recherche AJAX -->
+        <ul id="results-container" class="space-y-2 mt-4"></ul>
+
+        <!-- Affichage du bouton Retour uniquement lors de la recherche -->
+        {% if search_query %}
+        <a href="{% url 'ingredients_list' %}" class="bg-gray-500 hover:bg-gray-600 text-white px-5 py-2 rounded-lg transition duration-200 inline-flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+            </svg>
+            Retour à tous les ingrédients
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const searchInput = document.getElementById('search-input');
+        const searchForm = document.getElementById('search-form');
+        const searchResults = document.getElementById('search-results');
+        const ingredientsTable = document.getElementById('ingredients-table');
+        const ingredientsTbody = document.getElementById('ingredients-tbody');
+        
+        // Animation d'entrée pour la page
+        document.querySelector('.max-w-5xl').classList.add('animate-fadeIn');
+        
+        // Fonction de recherche en temps réel
+        let debounceTimer;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(debounceTimer);
+            const query = this.value.trim();
+            
+            if (query.length < 2) {
+                searchResults.classList.add('hidden');
+                return;
+            }
+            
+            debounceTimer = setTimeout(() => {
+                fetch(`/ingredients/search/?q=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        searchResults.innerHTML = '';
+                        
+                        if (data.length > 0 || (data.ingredients && data.ingredients.length > 0)) {
+                            // Traitement des deux formats de réponse possibles
+                            const ingredients = data.ingredients || data;
+                            
+                            ingredients.forEach(ingredient => {
+                                const li = document.createElement('li');
+                                li.className = 'px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0';
+                                
+                                // Construire l'URL de l'image pour la recherche
+                                const imageUrl = ingredient.image ? `/static/${ingredient.image}` : null;
+                                
+                                li.innerHTML = `
+                                    <div class="flex items-center gap-3">
+                                        ${imageUrl ? 
+                                            `<img src="${imageUrl}" class="w-10 h-10 object-cover rounded-lg">` : 
+                                            `<div class="w-10 h-10 bg-gray-100 flex items-center justify-center rounded-lg text-gray-400">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                </svg>
+                                            </div>`
+                                        }
+                                        <span>${ingredient.nom}</span>
+                                    </div>
+                                `;
+                                li.addEventListener('click', () => {
+                                    window.location.href = `/ingredients/details/${ingredient.id}`;
+                                });
+                                searchResults.appendChild(li);
+                            });
+                            searchResults.classList.remove('hidden');
+                        } else {
+                            searchResults.innerHTML = '<li class="px-4 py-3 text-gray-500 italic">Aucun résultat trouvé</li>';
+                            searchResults.classList.remove('hidden');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erreur:', error);
+                        searchResults.innerHTML = '<li class="px-4 py-3 text-red-500">Erreur lors de la recherche</li>';
+                        searchResults.classList.remove('hidden');
+                    });
+            }, 300);
+        });
+        
+        // Cacher les résultats quand on clique ailleurs
+        document.addEventListener('click', function(e) {
+            if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                searchResults.classList.add('hidden');
+            }
+        });
+        
+        // Soumission du formulaire
+        searchForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const query = searchInput.value.trim();
+            
+            if (query === '') {
+                // Animation de secousse pour indiquer que le champ est vide
+                searchInput.classList.add('animate-shake');
+                setTimeout(() => searchInput.classList.remove('animate-shake'), 500);
+                return;
+            }
+            
+            window.location.href = `?search=${encodeURIComponent(query)}`;
+        });
+    });
+
+    // Fonctions pour les modales avec animations
+    function openModal(id) {
+        const modal = document.getElementById('modal-' + id);
+        const modalContent = document.getElementById('modal-content-' + id);
+        
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modalContent.classList.remove('scale-95', 'opacity-0');
+            modalContent.classList.add('scale-100', 'opacity-100');
+        }, 10);
+        
+        // Fermer la modale avec la touche Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeModal(id);
+        });
+        
+        // Fermer la modale en cliquant en dehors
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) closeModal(id);
+        });
+    }
+
+    function closeModal(id) {
+        const modal = document.getElementById('modal-' + id);
+        const modalContent = document.getElementById('modal-content-' + id);
+        
+        modalContent.classList.remove('scale-100', 'opacity-100');
+        modalContent.classList.add('scale-95', 'opacity-0');
+        
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
+    }
+    
+    // Support pour le code AJAX existant
+    const searchButton = document.getElementById('search-button');
+    if (searchButton) {
+        searchButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const searchQuery = document.getElementById('search-input').value.trim();
+            if (searchQuery === '') {
+                searchInput.classList.add('animate-shake');
+                setTimeout(() => searchInput.classList.remove('animate-shake'), 500);
+                return;
+            }
+
+            // Crée une requête AJAX
+            fetch(window.location.href + '?search=' + encodeURIComponent(searchQuery), {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'  // Signale que c'est une requête AJAX
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Vide les résultats existants
+                let resultsContainer = document.getElementById('results-container');
+                resultsContainer.innerHTML = '';  // Vider les anciens résultats
+
+                // Mettre à jour le tableau principal si supporté
+                if (ingredientsTbody) {
+                    ingredientsTbody.innerHTML = '';
+                    
+                    // Vérifier si des ingrédients sont renvoyés
+                    if (data.ingredients && data.ingredients.length > 0) {
+                        data.ingredients.forEach(ingredient => {
+                            const tr = document.createElement('tr');
+                            tr.classList.add('hover:bg-gray-50', 'transition-all', 'duration-200', 'group');
+                            
+                            // Construire l'URL de l'image pour AJAX
+                            const imageUrl = ingredient.image ? `/static/${ingredient.image}` : null;
+                            
+                            tr.innerHTML = `
+                                <td class="px-6 py-5 text-left font-medium">${ingredient.nom}</td>
+                                <td class="px-6 py-5 text-center">
+                                    ${imageUrl ? 
+                                        `<img src="${imageUrl}" class="w-16 h-16 object-cover rounded-lg shadow mx-auto hover:scale-105 transition-transform duration-200" alt="${ingredient.nom}">` : 
+                                        `<div class="w-16 h-16 bg-gray-100 flex items-center justify-center rounded-lg mx-auto text-gray-400">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                        </div>`
+                                    }
+                                </td>
+                                <td class="px-6 py-5 text-center">
+                                    <div class="flex flex-col sm:flex-row justify-center items-center gap-2 opacity-90 group-hover:opacity-100 transition-opacity duration-200">
+                                        <a href="/ingredients/edit/${ingredient.id}" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg transition duration-200 flex items-center gap-1 w-full sm:w-auto justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                            </svg>
+                                            Modifier
+                                        </a>
+                                        <button onclick="openModal('${ingredient.id}')" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition duration-200 flex items-center gap-1 w-full sm:w-auto justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                            </svg>
+                                            Supprimer
+                                        </button>
+                                    </div>
+                                </td>
+                            `;
+                            ingredientsTbody.appendChild(tr);
+                        });
+                    } else {
+                        ingredientsTbody.innerHTML = '<tr><td colspan="3" class="px-6 py-8 text-center text-gray-500 italic">Aucun ingrédient trouvé avec ce terme de recherche.</td></tr>';
+                    }
+                }
+                
+                // Support pour l'ancien format de résultats également
+                if (data.ingredients && data.ingredients.length > 0) {
+                    resultsContainer.classList.remove('hidden');
+                    data.ingredients.forEach(ingredient => {
+                        const ingredientItem = document.createElement('li');
+                        ingredientItem.classList.add('p-4', 'bg-gray-50', 'rounded-lg', 'shadow-sm', 'flex', 'items-center', 'gap-3');
+                        
+                        // Construire l'URL de l'image pour les résultats
+                        const imageUrl = ingredient.image ? `/static/${ingredient.image}` : null;
+                        
+                        ingredientItem.innerHTML = `
+                            ${imageUrl ? 
+                                `<img src="${imageUrl}" class="w-12 h-12 object-cover rounded-lg shadow">` : 
+                                `<div class="w-12 h-12 bg-gray-100 flex items-center justify-center rounded-lg text-gray-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                </div>`
+                            }
+                            <p class="font-medium">${ingredient.nom}</p>
+                        `;
+                        resultsContainer.appendChild(ingredientItem);
+                    });
+                } else if (resultsContainer.innerHTML === '') {
+                    resultsContainer.innerHTML = '<p class="text-center text-gray-500 italic py-4">Aucun ingrédient trouvé.</p>';
+                    resultsContainer.classList.remove('hidden');
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                let resultsContainer = document.getElementById('results-container');
+                resultsContainer.innerHTML = '<p class="text-center text-red-500 py-4">Une erreur est survenue lors de la recherche.</p>';
+                resultsContainer.classList.remove('hidden');
+            });
+        });
+    }
+    
+    // Ajout de styles CSS en ligne pour les animations
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+        
+        .animate-fadeIn {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        
+        .animate-shake {
+            animation: shake 0.4s ease-in-out;
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+{% endblock %}

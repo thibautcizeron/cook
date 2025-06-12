@@ -1,0 +1,169 @@
+{% extends "base/base.html" %}
+
+{% block title %}Détail du log{% endblock %}
+
+{% block content %}
+<div class="bg-gradient-to-b from-gray-900 to-gray-800 min-h-screen pt-10 pb-8">
+    <div class="max-w-4xl mx-auto mt-0 md:mt-6 p-5 bg-white shadow-lg rounded-xl mx-3 sm:mx-6 lg:mx-auto">
+        <div class="mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-3xl font-bold text-gray-800">
+                    Détail du Log #{{ log.id }}
+                </h2>
+                <a href="{% url 'activity_logs' %}" 
+                   class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                    ← Retour aux logs
+                </a>
+            </div>
+            <div class="h-1 bg-blue-500 rounded-full w-20"></div>
+        </div>
+
+        <!-- Informations générales -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="bg-gray-50 p-6 rounded-lg">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Action effectuée</h3>
+                <div class="space-y-3">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Action :</span>
+                        <span class="font-medium">
+                            {% if log.action == 'CREATE' %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    {{ log.get_action_display }}
+                                </span>
+                            {% elif log.action == 'UPDATE' %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    {{ log.get_action_display }}
+                                </span>
+                            {% elif log.action == 'DELETE' %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    {{ log.get_action_display }}
+                                </span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Type d'objet :</span>
+                        <span class="font-medium">{{ log.get_model_type_display }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Nom de l'objet :</span>
+                        <span class="font-medium">{{ log.object_name }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">ID de l'objet :</span>
+                        <span class="font-medium">{{ log.object_id|default:"-" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Détails techniques -->
+        {% if log.details %}
+        <div class="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Détails techniques</h3>
+            
+            {% if parsed_details %}
+                {% if parsed_details|length > 0 %}
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {% for key, value in parsed_details.items %}
+                            <div class="flex justify-between py-2 border-b border-gray-200 last:border-b-0">
+                                <span class="text-gray-600 capitalize">{{ key|title }}:</span>
+                                <span class="font-medium">
+                                    {% if value == True %}
+                                        <span class="text-green-600">Oui</span>
+                                    {% elif value == False %}
+                                        <span class="text-red-600">Non</span>
+                                    {% elif value == None %}
+                                        <span class="text-gray-400">-</span>
+                                    {% else %}
+                                        {{ value }}
+                                    {% endif %}
+                                </span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <pre class="text-sm text-gray-700 whitespace-pre-wrap">{{ log.details }}</pre>
+                </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Informations sur l'utilisateur -->
+        <div class="bg-white border border-gray-200 rounded-lg p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Informations utilisateur</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <div class="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center mr-4">
+                            <span class="text-lg font-medium text-blue-600">
+                                {{ log.user.username|slice:":2"|upper }}
+                            </span>
+                        </div>
+                        <div>
+                            <div class="font-medium text-gray-900">{{ log.user.username }}</div>
+                            <div class="text-sm text-gray-500">{{ log.user.email }}</div>
+                        </div>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Prénom :</span>
+                            <span class="font-medium">{{ log.user.first_name|default:"-" }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Nom :</span>
+                            <span class="font-medium">{{ log.user.last_name|default:"-" }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Superutilisateur :</span>
+                            <span class="font-medium">
+                                {% if log.user.is_superuser %}
+                                    <span class="text-green-600">Oui</span>
+                                {% else %}
+                                    <span class="text-red-600">Non</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Staff :</span>
+                            <span class="font-medium">
+                                {% if log.user.is_staff %}
+                                    <span class="text-green-600">Oui</span>
+                                {% else %}
+                                    <span class="text-red-600">Non</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Actif :</span>
+                            <span class="font-medium">
+                                {% if log.user.is_active %}
+                                    <span class="text-green-600">Oui</span>
+                                {% else %}
+                                    <span class="text-red-600">Non</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Date d'inscription :</span>
+                            <span class="font-medium">{{ log.user.date_joined|date:"d/m/Y" }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Dernière connexion :</span>
+                            <span class="font-medium">{{ log.user.last_login|date:"d/m/Y H:i"|default:"-" }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

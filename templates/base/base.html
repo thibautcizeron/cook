@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Gestion des Recettes{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
+    <!-- Ajout de Font Awesome pour l'icône de loupe -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+
+    <style>
+        #recipeResults, #userMenuModal {
+            position: absolute;
+            z-index: 1050;
+        }
+        
+        /* Animation pour le menu mobile */
+        .mobile-menu-enter {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        .mobile-menu-enter-active {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 300ms, transform 300ms;
+        }
+        .mobile-menu-exit {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .mobile-menu-exit-active {
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 300ms, transform 300ms;
+        }
+        
+        /* Animation pour les icônes du burger menu */
+        .burger-icon span {
+            display: block;
+            width: 100%;
+            height: 2px;
+            background-color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .burger-open .line1 {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        
+        .burger-open .line2 {
+            opacity: 0;
+        }
+        
+        .burger-open .line3 {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+        
+        /* Styles pour l'affichage tablette */
+        @media (min-width: 640px) and (max-width: 1023px) {
+            .tablet-nav-container {
+                display: grid;
+                grid-template-columns: auto 1fr auto;
+                align-items: center;
+            }
+            
+            .tablet-nav-title {
+                text-align: center;
+                margin: 0 auto;
+            }
+            
+            .tablet-search-container {
+                position: absolute;
+                top: 60px;
+                left: 0;
+                right: 0;
+                background-color: rgba(31, 41, 55, 0.95);
+                padding: 0.75rem;
+                border-bottom: 1px solid rgba(75, 85, 99, 0.5);
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                z-index: 40;
+                transition: all 0.3s ease;
+                transform-origin: top;
+                transform: scaleY(0);
+                opacity: 0;
+            }
+            
+            .tablet-search-container.active {
+                transform: scaleY(1);
+                opacity: 1;
+            }
+            
+            .search-icon {
+                transition: all 0.3s ease;
+            }
+            
+            .search-icon.active {
+                color: #10B981; /* text-green-500 en Tailwind */
+            }
+        }
+        
+        /* Ajoutez ces lignes à vos styles existants */
+       
+        
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        footer {
+            margin-top: auto;
+        }
+
+    </style>
+</head>
+<body class="bg-gray-100">
+    <nav class="bg-gray-900/90 backdrop-blur shadow-md py-4 fixed top-0 w-full z-50">
+        <div class="container mx-auto px-4 flex items-center justify-between lg:justify-start tablet-nav-container">
+            <!-- Logo/Title for all screen sizes -->
+            <h1 class="text-white text-3xl font-serif lg:absolute lg:left-1/2 lg:transform lg:-translate-x-1/2 tablet-nav-title order-2 lg:order-none transition-all duration-300 sm:ml-4 md:ml-0" style="font-family: 'DM Serif Display', serif;">
+                COOKFAMILY
+            </h1>
+            
+            <!-- Desktop navigation links -->
+            <div class="flex space-x-6 hidden lg:flex order-1">
+                <a class="text-gray-200 hover:text-white font-semibold transition-all duration-300 tracking-normal hover:tracking-tight" href="{% url 'layout' %}">Home</a>
+                <a class="text-gray-200 hover:text-white font-semibold transition-all duration-300 tracking-normal hover:tracking-tight" href="{% url 'layout_starts' %}">Entrées</a>
+                <a class="text-gray-200 hover:text-white font-semibold transition-all duration-300 tracking-normal hover:tracking-tight" href="{% url 'layout_dishes' %}">Plats</a>
+                <a class="text-gray-200 hover:text-white font-semibold transition-all duration-300 tracking-normal hover:tracking-tight" href="{% url 'layout_desserts' %}">Desserts</a>
+                <a class="text-gray-200 hover:text-white font-semibold transition-all duration-300 tracking-normal hover:tracking-tight" href="{% url 'layout_cocktails' %}">Cocktails</a>
+                {% if user.is_authenticated %}
+                    <div class="relative group inline-block">
+                        {% if is_admin or is_superuser %}
+                            <button class="text-gray-200 hover:text-white font-semibold focus:outline-none">
+                                Admin ▼
+                            </button>
+                            <div class="absolute hidden group-hover:block bg-gray-800 shadow-lg rounded-md w-48 z-50">
+                                <ul class="py-2">
+                                    {% if is_admin or is_superuser %}
+                                        <li><a class="block px-4 py-2 text-gray-300 hover:bg-gray-700" href="{% url 'recipes_list' %}">Recettes</a></li>
+                                        <li><a class="block px-4 py-2 text-gray-300 hover:bg-gray-700" href="{% url 'ingredients_list' %}">Ingrédients</a></li>
+                                    {% endif %}
+                                    {% if user.is_superuser %}
+                                        <li><a class="block px-4 py-2 text-gray-300 hover:bg-gray-700" href="{% url 'users_list' %}">Utilisateurs</a></li>
+                                        <li><a class="block px-4 py-2 text-gray-300 hover:bg-gray-700" href="{% url 'activity_logs' %}">Logs</a></li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Search and user menu for desktop -->
+            <div class="flex items-center space-x-4 ml-auto order-3">
+                <!-- Desktop search input -->
+                <div class="relative w-64 hidden lg:block">
+                    <input type="text" id="searchRecipe" placeholder="Rechercher une recette..."
+                        class="w-full border border-gray-600 bg-gray-800 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400">
+                    <ul id="recipeResults" class="absolute bg-gray-800 text-white shadow-md mt-2 w-full hidden rounded-lg max-h-40 overflow-y-auto border border-gray-700"></ul>
+                </div>
+
+                <!-- Tablet search icon -->
+                <button id="tabletSearchIcon" class="search-icon hidden sm:flex lg:hidden text-gray-200 hover:text-white focus:outline-none rounded-full w-10 h-10 items-center justify-center">
+                    <i class="fas fa-search text-xl"></i>
+                </button>
+
+                <!-- User menu for desktop and tablet -->
+                <div class="relative hidden sm:block">
+                    {% if user.is_authenticated %}
+                        <button id="userMenuBtn" class="bg-gray-800 text-white w-10 h-10 rounded-full flex items-center justify-center text-xl border border-gray-600 uppercase">
+                            {{ user.username|slice:":1" }}
+                        </button>
+                        <div id="userMenuModal" class="absolute right-0 mt-2 bg-gray-800 shadow-lg rounded-lg w-48 hidden">
+                            <ul class="py-2">
+                                <li>
+                                    <a href="{% url 'account' %}" class="block px-4 py-2 text-white hover:bg-gray-700">Voir mon compte</a>
+                                </li>
+                                <li>
+                                    <button id="openLogoutModal" class="block px-4 py-2 text-red-400 hover:bg-gray-700 w-full text-left">Déconnexion</button>
+                                </li>
+                            </ul>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
+                            Connexion
+                        </a>
+                    {% endif %}
+                </div>
+
+                <!-- Hamburger menu for mobile and tablet -->
+                <div class="lg:hidden flex items-center">
+                    <button id="burgerBtn" class="burger-icon text-gray-200 focus:outline-none h-6 w-8 flex flex-col justify-between">
+                        <span class="line1"></span>
+                        <span class="line2"></span>
+                        <span class="line3"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tablet-specific search bar that appears when loupe is clicked -->
+        <div id="tabletSearchContainer" class="hidden sm:hidden md:block lg:hidden tablet-search-container">
+            <div class="container mx-auto">
+                <div class="relative w-full">
+                    <div class="flex">
+                        <input type="text" id="searchRecipeTablet" placeholder="Rechercher une recette..."
+                            class="w-full border border-gray-600 bg-gray-800 text-white rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400">
+                        <button id="closeTabletSearch" class="bg-gray-700 text-gray-300 px-3 rounded-r-lg hover:bg-gray-600 transition-colors">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <ul id="recipeResultsTablet" class="absolute bg-gray-800 text-white shadow-md mt-2 w-full hidden rounded-lg max-h-40 overflow-y-auto border border-gray-700 z-50"></ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile and Tablet menu -->
+    <div id="mobileMenu" class="lg:hidden bg-gray-800 text-white py-4 hidden shadow-lg fixed w-full z-40 transition-all duration-300 ease-in-out" style="top: 60px;">
+        <div class="px-4 space-y-3">
+            <a href="{% url 'layout' %}" class="block py-2 border-b border-gray-700 hover:bg-gray-700 transition-colors px-2 rounded">Home</a>
+            <a href="{% url 'layout_starts' %}" class="block py-2 border-b border-gray-700 hover:bg-gray-700 transition-colors px-2 rounded">Entrées</a>
+            <a href="{% url 'layout_dishes' %}" class="block py-2 border-b border-gray-700 hover:bg-gray-700 transition-colors px-2 rounded">Plats</a>
+            <a href="{% url 'layout_desserts' %}" class="block py-2 border-b border-gray-700 hover:bg-gray-700 transition-colors px-2 rounded">Desserts</a>
+            <a href="{% url 'layout_cocktails' %}" class="block py-2 border-b border-gray-700 hover:bg-gray-700 transition-colors px-2 rounded">Cocktails</a>
+            
+            <!-- Search bar in mobile menu only - hidden for tablets since they have their own search bar -->
+            <div class="py-3 border-b border-gray-700 sm:hidden">
+                <input type="text" id="searchRecipeMobile" placeholder="Rechercher une recette..." 
+                    class="w-full border border-gray-600 bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400">
+                <ul id="recipeResultsMobile" class="bg-gray-700 text-white shadow-md mt-2 w-full hidden rounded-lg max-h-40 overflow-y-auto border border-gray-700"></ul>
+            </div>
+            
+            {% if user.is_authenticated %}
+                {% if is_admin or is_superuser %}
+                    <div class="pt-2">
+                        <p class="text-gray-400 text-sm font-semibold">Admin</p>
+                        <div class="pl-2 mt-1 space-y-2">
+                            <a href="{% url 'recipes_list' %}" class="block py-1 px-2 hover:bg-gray-700 rounded">Recettes</a>
+                            <a href="{% url 'ingredients_list' %}" class="block py-1 px-2 hover:bg-gray-700 rounded">Ingrédients</a>
+                            {% if user.is_superuser %}
+                                <a href="{% url 'users_list' %}" class="block py-1 px-2 hover:bg-gray-700 rounded">Utilisateurs</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+                <!-- User menu in mobile menu only - hidden for tablets as they have the user menu in the navbar -->
+                <div class="pt-3 flex flex-col space-y-2 sm:hidden">
+                    <a href="{% url 'account' %}" class="block py-2 hover:bg-gray-700 transition-colors px-2 rounded">
+                        <span class="flex items-center">
+                            <span class="bg-gray-700 text-white w-8 h-8 rounded-full flex items-center justify-center text-lg mr-2 uppercase">
+                                {{ user.username|slice:":1" }}
+                            </span>
+                            <span>Voir mon compte</span>
+                        </span>
+                    </a>
+                    <button id="openLogoutModalMobile" class="block text-left py-2 text-red-400 w-full hover:bg-gray-700 px-2 rounded">Déconnexion</button>
+                </div>
+            {% else %}
+                <!-- Login button in mobile menu only - hidden for tablets as they have the button in the navbar -->
+                <a href="{% url 'login' %}" class="block mt-3 bg-green-500 text-white px-3 py-2 rounded-md text-center sm:hidden">Connexion</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="w-full bg-gray-800 min-h-screen pt-16 pb-0">
+        {% block content %}{% endblock %}
+    </div>
+
+    <div id="logoutModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden flex justify-center items-center z-50">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-96 mx-4">
+            <h2 class="text-lg font-semibold mb-4">Déconnexion</h2>
+            <p class="mb-4">Etes-vous sûr de vouloir vous déconnecter ?</p>
+            <div class="flex justify-end space-x-4">
+                <button id="cancelLogout" class="bg-gray-300 px-4 py-2 rounded-lg hover:bg-gray-400">
+                    Annuler
+                </button>
+                <form id="logoutForm" action="{% url 'logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-700">
+                        Confirmer
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-gray-900 text-gray-300 py-8 mt-0">
+        <div class="container mx-auto px-6 lg:px-20">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h2 class="text-lg font-semibold text-white">A propos</h2>
+                    <p class="text-gray-400 text-sm mt-2">
+                        Découvrez et partagez des recettes inspirantes. Ce site est une plateforme dédiée aux passionnés de cuisine.
+                    </p>
+                </div>
+                <div>
+                    <h2 class="text-lg font-semibold text-white">Liens utiles</h2>
+                    <ul class="mt-2 space-y-2">
+                        <li><a href="{% url 'layout' %}" class="hover:text-white transition">Accueil</a></li>
+                        <li><a href="{% url 'layout' %}" class="hover:text-white transition">Toutes les recettes</a></li>
+                        <li><a href="{% url 'contact' %}" class="hover:text-white transition">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h2 class="text-lg font-semibold text-white">Mentions légales</h2>
+                    <ul class="mt-2 space-y-2">
+                        <li><a href="{% url 'mentions' %}" class="hover:text-white transition">Mentions légales</a></li>
+                        <li><a href="{% url 'politique' %}" class="hover:text-white transition">Politique de confidentialité</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 my-6"></div>
+            <div class="text-center text-sm">&copy; 2025 - CookFamily. Tous droits réservés.</div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Fonctions pour la recherche sur différents dispositifs
+            $("#searchRecipe").on("input", function() {
+                let query = $(this).val().trim();
+                handleSearch(query, "#recipeResults");
+            });
+            
+            $("#searchRecipeMobile").on("input", function() {
+                let query = $(this).val().trim();
+                handleSearch(query, "#recipeResultsMobile");
+            });
+            
+            // Fonction pour la recherche tablette
+            $("#searchRecipeTablet").on("input", function() {
+                let query = $(this).val().trim();
+                handleSearch(query, "#recipeResultsTablet");
+            });
+            
+            // Factoriser la fonction de recherche
+            function handleSearch(query, resultSelector) {
+                if (query.length > 0) {
+                    $.ajax({
+                        url: "{% url 'search_recipe' %}",
+                        data: { q: query },
+                        dataType: 'json',
+                        success: function(data) {
+                            let results = $(resultSelector);
+                            results.empty().removeClass("hidden");
+                            if (data.length > 0) {
+                                data.forEach(function(recette) {
+                                    results.append(`
+                                        <li><a href="/recettes/${recette.id}/" class="block px-4 py-2 hover:bg-gray-600">
+                                            ${recette.titre} ${recette.categorie ? `(${recette.categorie})` : ''}
+                                        </a></li>
+                                    `);
+                                });
+                            } else {
+                                results.append(`<li class="px-4 py-2 text-gray-500">Aucune recette trouvée.</li>`);
+                            }
+                        }
+                    });
+                } else {
+                    $(resultSelector).empty().addClass("hidden");
+                }
+            }
+
+            // Cacher les résultats quand on clique ailleurs
+            $(document).on("click", function(e) {
+                if (!$(e.target).closest("#searchRecipe, #recipeResults").length) {
+                    $("#recipeResults").addClass("hidden");
+                }
+                
+                if (!$(e.target).closest("#searchRecipeMobile, #recipeResultsMobile").length) {
+                    $("#recipeResultsMobile").addClass("hidden");
+                }
+                
+                if (!$(e.target).closest("#searchRecipeTablet, #recipeResultsTablet, #tabletSearchIcon").length) {
+                    $("#recipeResultsTablet").addClass("hidden");
+                }
+                
+                // Fermer le menu utilisateur quand on clique ailleurs
+                if (!$(e.target).closest("#userMenuBtn, #userMenuModal").length) {
+                    $("#userMenuModal").addClass("hidden");
+                }
+            });
+            
+            // Toggle du menu utilisateur
+            $("#userMenuBtn").on("click", function() {
+                $("#userMenuModal").toggleClass("hidden");
+            });
+            
+            // Toggle de la recherche tablette avec l'icône loupe
+            $("#tabletSearchIcon").on("click", function() {
+                const searchContainer = $("#tabletSearchContainer");
+                searchContainer.toggleClass("active");
+                $(this).toggleClass("active");
+                
+                // Si le conteneur de recherche est maintenant ouvert, focus sur l'input
+                if (searchContainer.hasClass("active")) {
+                    setTimeout(() => {
+                        $("#searchRecipeTablet").focus();
+                    }, 300); // Un délai pour attendre la fin de l'animation
+                }
+            });
+            
+            // Fermer la recherche tablette avec le bouton X
+            $("#closeTabletSearch").on("click", function() {
+                $("#tabletSearchContainer").removeClass("active");
+                $("#tabletSearchIcon").removeClass("active");
+                $("#searchRecipeTablet").val(""); // Vider l'input
+                $("#recipeResultsTablet").empty().addClass("hidden"); // Vider et cacher les résultats
+            });
+        });
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const burgerBtn = document.getElementById("burgerBtn");
+            const mobileMenu = document.getElementById("mobileMenu");
+            const logoutBtnMobile = document.getElementById("openLogoutModalMobile");
+            const logoutBtn = document.getElementById("openLogoutModal");
+            const cancelLogout = document.getElementById("cancelLogout");
+            const logoutModal = document.getElementById("logoutModal");
+
+            // Animation du menu burger
+            if (burgerBtn) {
+                burgerBtn.addEventListener("click", () => {
+                    burgerBtn.classList.toggle("burger-open");
+                    
+                    if (mobileMenu.classList.contains("hidden")) {
+                        // Ouvrir le menu
+                        mobileMenu.classList.remove("hidden");
+                        mobileMenu.classList.add("mobile-menu-enter");
+                        
+                        // Animation
+                        setTimeout(() => {
+                            mobileMenu.classList.remove("mobile-menu-enter");
+                            mobileMenu.classList.add("mobile-menu-enter-active");
+                        }, 10);
+                    } else {
+                        // Fermer le menu avec animation
+                        mobileMenu.classList.add("mobile-menu-exit");
+                        mobileMenu.classList.remove("mobile-menu-enter-active");
+                        
+                        setTimeout(() => {
+                            mobileMenu.classList.add("mobile-menu-exit-active");
+                        }, 10);
+                        
+                        setTimeout(() => {
+                            mobileMenu.classList.add("hidden");
+                            mobileMenu.classList.remove("mobile-menu-exit", "mobile-menu-exit-active");
+                        }, 300);
+                    }
+                });
+            }
+
+            // Gestion du modal de déconnexion
+            if (logoutBtnMobile) {
+                logoutBtnMobile.addEventListener("click", () => {
+                    logoutModal.classList.remove("hidden");
+                });
+            }
+
+            if (logoutBtn) {
+                logoutBtn.addEventListener("click", () => {
+                    logoutModal.classList.remove("hidden");
+                });
+            }
+
+            if (cancelLogout) {
+                cancelLogout.addEventListener("click", () => {
+                    logoutModal.classList.add("hidden");
+                });
+            }
+            
+            // Fermer le modal en cliquant en dehors
+            logoutModal.addEventListener("click", function(e) {
+                if (e.target === logoutModal) {
+                    logoutModal.classList.add("hidden");
+                }
+            });
+            
+            // Fermer le menu mobile lors d'un clic sur un lien
+            const mobileLinks = mobileMenu.querySelectorAll("a");
+            mobileLinks.forEach(link => {
+                link.addEventListener("click", () => {
+                    burgerBtn.classList.remove("burger-open");
+                    mobileMenu.classList.add("hidden");
+                });
+            });
+            
+            // Touche ESC pour fermer la recherche
+            document.addEventListener("keydown", function(e) {
+                if (e.key === "Escape") {
+                    const searchContainer = document.getElementById("tabletSearchContainer");
+                    const searchIcon = document.getElementById("tabletSearchIcon");
+                    
+                    if (searchContainer && searchContainer.classList.contains("active")) {
+                        searchContainer.classList.remove("active");
+                        if (searchIcon) searchIcon.classList.remove("active");
+                        
+                        // Vider le champ de recherche et les résultats
+                        const searchInput = document.getElementById("searchRecipeTablet");
+                        const searchResults = document.getElementById("recipeResultsTablet");
+                        
+                        if (searchInput) searchInput.value = "";
+                        if (searchResults) {
+                            searchResults.innerHTML = "";
+                            searchResults.classList.add("hidden");
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

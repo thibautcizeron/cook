@@ -160,7 +160,7 @@ def activity_logs(request):
         'model_choices': ActivityLog.MODEL_CHOICES,
     }
     
-    return render(request, 'recettes/activity_logs.html', context)
+    return render(request, 'admin/logs/activity_logs.html', context)
 
 @user_passes_test(is_superuser)
 def activity_log_detail(request, log_id):
@@ -180,7 +180,7 @@ def activity_log_detail(request, log_id):
         'parsed_details': parsed_details,
     }
     
-    return render(request, 'recettes/activity_log_detail.html', context)
+    return render(request, 'admin/logs/activity_log_detail.html', context)
 
 # Gestionnaire de stockage personnalisé pour les images
 class StaticImageStorage:
@@ -308,7 +308,7 @@ def noter_recette(request, recette_id):
         
         if valeur < 1 or valeur > 5:
             messages.error(request, 'La note doit être entre 1 et 5')
-            return redirect('recettes_details', recette_id=recette_id)
+            return redirect('recipe_details', recette_id=recette_id)
             
         # Créer ou mettre à jour la note
         note, created = Note.objects.update_or_create(
@@ -339,9 +339,9 @@ def noter_recette(request, recette_id):
         else:
             messages.success(request, 'Votre note a été mise à jour')
         
-        return redirect('recettes_details', recette_id=recette_id)
+        return redirect('recipe_details', recette_id=recette_id)
     
-    return redirect('recettes_details', recette_id=recette_id)
+    return redirect('recipe_details', recette_id=recette_id)
 
 def is_user(user):
     return user.groups.filter(name="Users").exists()
@@ -354,7 +354,7 @@ def is_admin(user):
 
 def home(request):
     recettes = Recette.objects.all()
-    return render(request, 'index/layout.html', {'recettes': recettes})
+    return render(request, 'public/home/layout.html', {'recettes': recettes})
 
 def search_recipe(request):
     query = request.GET.get('q', '').strip()  
@@ -391,7 +391,7 @@ def recettes_list(request):
 
     categories = Categorie.objects.all()
 
-    return render(request, "recettes/recettes.html", {
+    return render(request, "recipes/recipes_list.html", {
         "recettes": recettes,
         "categories": categories,
         "order": order,
@@ -450,7 +450,7 @@ def recettes_details(request, recette_id):
             'quantite_ajustee': quantite_ajustee
         })
     
-    return render(request, 'recettes/recettes_details.html', {
+    return render(request, 'recipes/recipe_details.html', {
         'recette': recette, 
         'ingredients': ingredients,
         'nb_personnes_souhaite': nb_personnes_souhaite,
@@ -522,7 +522,7 @@ def recettes_add(request):
             )
 
             messages.success(request, f'Recette "{recette.titre}" créée avec succès!')
-            return redirect('recettes')
+            return redirect('recipes_list')
         else:
             # Afficher les erreurs
             for field, errors in recette_form.errors.items():
@@ -536,7 +536,7 @@ def recettes_add(request):
 
     categories = Categorie.objects.all()  
     ingredients = Ingredient.objects.all()  
-    return render(request, 'recettes/recettes_add.html', {
+    return render(request, 'recipes/recipe_add.html', {
         'recette_form': recette_form,
         'ingredient_formset': ingredient_formset,
         'etape_formset': etape_formset,
@@ -618,7 +618,7 @@ def recettes_edit(request, pk):
             )
             
             messages.success(request, f'Recette "{recette.titre}" modifiée avec succès!')
-            return redirect('recettes')
+            return redirect('recipes_list')
         else:
             # Afficher les erreurs
             for field, errors in recette_form.errors.items():
@@ -632,7 +632,7 @@ def recettes_edit(request, pk):
     categories = Categorie.objects.all()
     ingredients = Ingredient.objects.all()
 
-    return render(request, 'recettes/recettes_edit.html', {
+    return render(request, 'recipes/recipe_edit.html', {
         'recette_form': recette_form,
         'ingredient_formset': ingredient_formset,
         'etape_formset': etape_formset,
@@ -675,8 +675,8 @@ def recettes_delete(request, pk):
         
         recette.delete()
         messages.success(request, f'Recette "{recette_titre}" supprimée avec succès!')
-        return redirect('recettes')
-    return render(request, 'recette/recettes.html', {'recette': recette})
+        return redirect('recipes_list')
+    return render(request, 'recipes/recipes_list.html', {'recette': recette})
 
 # VUES POUR LES INGRÉDIENTS
 
@@ -700,7 +700,7 @@ def ingredient_list(request):
             ingredients_data.append(data)
         return JsonResponse({'ingredients': ingredients_data})
 
-    return render(request, 'ingredients/ingredients.html', {
+    return render(request, 'ingredients/ingredients_list.html', {
         'ingredients': ingredients,
         'search_query': search_query,
     })
@@ -736,7 +736,7 @@ def ingredients_add(request):
             )
             
             messages.success(request, f'Ingrédient "{ingredient.nom}" créé avec succès!')
-            return redirect('ingredients')
+            return redirect('ingredients_list')
         else:
             # Afficher les erreurs
             for field, errors in form.errors.items():
@@ -744,7 +744,7 @@ def ingredients_add(request):
                     messages.error(request, f"Erreur dans {field}: {error}")
     else:
         form = IngredientForm()
-    return render(request, 'ingredients/ingredients_add.html', {'form': form})
+    return render(request, 'ingredients/ingredient_add.html', {'form': form})
 
 @login_required
 @user_passes_test(lambda u: is_admin(u) or is_superuser(u))
@@ -798,7 +798,7 @@ def ingredients_edit(request, pk):
             )
             
             messages.success(request, f'Ingrédient "{ingredient.nom}" modifié avec succès!')
-            return redirect('ingredients')
+            return redirect('ingredients_list')
         else:
             # Afficher les erreurs
             for field, errors in form.errors.items():
@@ -806,7 +806,7 @@ def ingredients_edit(request, pk):
                     messages.error(request, f"Erreur dans {field}: {error}")
     else:
         form = IngredientForm(instance=ingredient)  
-    return render(request, 'ingredients/ingredients_edit.html', {'form': form, 'ingredient': ingredient})
+    return render(request, 'ingredients/ingredient_edit.html', {'form': form, 'ingredient': ingredient})
 
 @login_required
 @user_passes_test(lambda u: is_admin(u) or is_superuser(u))
@@ -838,8 +838,8 @@ def ingredients_delete(request, pk):
         
         ingredient.delete()
         messages.success(request, f'Ingrédient "{ingredient_nom}" supprimé avec succès!')
-        return redirect('ingredients')
-    return render(request, 'recette/ingredients.html', {'ingredient': ingredient})
+        return redirect('ingredients_list')
+    return render(request, 'ingredients/ingredients_list.html', {'ingredient': ingredient})
 
 @login_required
 @user_passes_test(lambda u: is_admin(u) or is_superuser(u))
@@ -867,7 +867,7 @@ def show_starts(request):
     except Categorie.DoesNotExist:
         entrees = Recette.objects.none()  
 
-    return render(request, 'index/layout_starts.html', {'entrees': entrees})
+    return render(request, 'public/home/layout_starts.html', {'entrees': entrees})
 
 def show_dishes(request):
     try:
@@ -875,7 +875,7 @@ def show_dishes(request):
         plats = Recette.objects.filter(categorie=categorie_plat)  
     except Categorie.DoesNotExist:
         plats = Recette.objects.none()  
-    return render(request, 'index/layout_dishes.html', {'plats': plats})
+    return render(request, 'public/home/layout_dishes.html', {'plats': plats})
 
 def show_desserts(request):
     try:
@@ -884,7 +884,7 @@ def show_desserts(request):
     except Categorie.DoesNotExist:
         desserts = Recette.objects.none()  
 
-    return render(request, 'index/layout_desserts.html', {'desserts': desserts})
+    return render(request, 'public/home/layout_desserts.html', {'desserts': desserts})
 
 def show_cocktails(request):
     try:
@@ -893,8 +893,8 @@ def show_cocktails(request):
     except Categorie.DoesNotExist:
         cocktails = Recette.objects.none() 
 
-    return render(request, 'index/layout_cocktails.html', {'cocktails': cocktails})
+    return render(request, 'public/home/layout_cocktails.html', {'cocktails': cocktails})
 
 def loading_page(request):
-    return render(request, 'index/loading.html')
+    return render(request, 'base/loading.html')
 
