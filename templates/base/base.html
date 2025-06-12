@@ -243,6 +243,7 @@
                             <a href="{% url 'ingredients_list' %}" class="block py-1 px-2 hover:bg-gray-700 rounded">Ingrédients</a>
                             {% if user.is_superuser %}
                                 <a href="{% url 'users_list' %}" class="block py-1 px-2 hover:bg-gray-700 rounded">Utilisateurs</a>
+                                <a href="{% url 'activity_logs' %}" class="block py-1 px-2 hover:bg-gray-700 rounded">Logs</a>
                             {% endif %}
                         </div>
                     </div>
