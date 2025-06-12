@@ -16,9 +16,23 @@
 
             <div>
                 <label for="password" class="block text-sm font-medium text-gray-300">Mot de passe</label>
-                <input type="password" name="password" id="password" required 
-                    class="mt-1 block w-full px-3 py-2 border border-gray-600 bg-gray-700 text-gray-300 rounded-md shadow-lg focus:outline-none focus:ring-green-500 focus:border-green-500">
-            <!-- Dans votre template de connexion -->
+                <div class="relative">
+                    <input type="password" name="password" id="password" required 
+                        class="mt-1 block w-full px-3 py-2 pr-10 border border-gray-600 bg-gray-700 text-gray-300 rounded-md shadow-lg focus:outline-none focus:ring-green-500 focus:border-green-500">
+                    <button type="button" id="togglePassword" 
+                        class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-300 focus:outline-none">
+                        <!-- Icône œil fermé (masqué) -->
+                        <svg id="eyeOff" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"></path>
+                        </svg>
+                        <!-- Icône œil ouvert (visible) -->
+                        <svg id="eyeOn" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        </svg>
+                    </button>
+                </div>
+                
                 <div class="mt-4 text-center text-gray-400">
                     <a href="{% url 'reset' %}" class="text-green-400 hover:text-green-500 hover:underline">
                         Mot de passe oublié ?
@@ -40,10 +54,28 @@
 </div>
 
 <script>
+    // Fonction pour afficher/masquer le mot de passe
+    document.getElementById('togglePassword').addEventListener('click', function() {
+        const passwordField = document.getElementById('password');
+        const eyeOff = document.getElementById('eyeOff');
+        const eyeOn = document.getElementById('eyeOn');
+        
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            eyeOff.classList.add('hidden');
+            eyeOn.classList.remove('hidden');
+        } else {
+            passwordField.type = 'password';
+            eyeOff.classList.remove('hidden');
+            eyeOn.classList.add('hidden');
+        }
+    });
+
+    // Masquer les messages après 3 secondes
     setTimeout(function() {
         let messages = document.querySelectorAll(".messages");
         messages.forEach(msg => msg.style.display = "none");
-    }, 3000); // Disparaît après 3 secondes
+    }, 3000);
 </script>
 
 {% endblock %}

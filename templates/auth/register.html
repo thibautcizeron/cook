@@ -59,6 +59,25 @@
         z-index: 5;
     }
     
+    .password-toggle {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+        cursor: pointer;
+        z-index: 10;
+        transition: color 0.2s ease;
+    }
+    
+    .password-toggle:hover {
+        color: #d1d5db;
+    }
+    
+    .password-field-with-error .password-toggle {
+        right: 35px;
+    }
+    
     @media (max-width: 768px) {
         .tooltip-error.has-error {
             opacity: 1;
@@ -169,14 +188,24 @@
             <!-- Mot de passe -->
             <div class="field-wrapper">
                 <label for="id_password1" class="block text-gray-300 font-medium">{{ form.password1.label }}</label>
-                <div class="relative">
+                <div class="relative {% if form.password1.errors %}password-field-with-error{% endif %}">
                     <input 
                         type="password" 
                         name="password1" 
                         id="id_password1" 
-                        class="mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm focus:outline-none focus:ring-green-400 focus:border-green-400 {% if form.password1.errors %}invalid-input{% endif %}"
+                        class="mt-1 block w-full px-3 py-2 pr-12 bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm focus:outline-none focus:ring-green-400 focus:border-green-400 {% if form.password1.errors %}invalid-input{% endif %}"
                         required
                     >
+                    <!-- Icône pour afficher/masquer le mot de passe -->
+                    <div class="password-toggle" id="password-toggle-1">
+                        <svg id="eye-closed-1" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                        </svg>
+                        <svg id="eye-open-1" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                    </div>
                     <div class="error-icon {% if not form.password1.errors %}hidden{% endif %}">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
@@ -241,14 +270,24 @@
             <!-- Confirmer mot de passe -->
             <div class="field-wrapper">
                 <label for="id_password2" class="block text-gray-300 font-medium">{{ form.password2.label }}</label>
-                <div class="relative">
+                <div class="relative {% if form.password2.errors %}password-field-with-error{% endif %}">
                     <input 
                         type="password" 
                         name="password2" 
                         id="id_password2" 
-                        class="mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm focus:outline-none focus:ring-green-400 focus:border-green-400 {% if form.password2.errors %}invalid-input{% endif %}"
+                        class="mt-1 block w-full px-3 py-2 pr-12 bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm focus:outline-none focus:ring-green-400 focus:border-green-400 {% if form.password2.errors %}invalid-input{% endif %}"
                         required
                     >
+                    <!-- Icône pour afficher/masquer le mot de passe de confirmation -->
+                    <div class="password-toggle" id="password-toggle-2">
+                        <svg id="eye-closed-2" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                        </svg>
+                        <svg id="eye-open-2" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                    </div>
                     <div class="error-icon {% if not form.password2.errors %}hidden{% endif %}">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
@@ -282,6 +321,14 @@
         const strengthMask = document.getElementById('password-strength-mask');
         const passwordCriteriaSection = document.getElementById('password-criteria-section');
         
+        // Éléments pour les boutons de basculement des mots de passe
+        const passwordToggle1 = document.getElementById('password-toggle-1');
+        const passwordToggle2 = document.getElementById('password-toggle-2');
+        const eyeClosed1 = document.getElementById('eye-closed-1');
+        const eyeOpen1 = document.getElementById('eye-open-1');
+        const eyeClosed2 = document.getElementById('eye-closed-2');
+        const eyeOpen2 = document.getElementById('eye-open-2');
+        
         // Éléments pour les critères
         const lengthCriteria = document.getElementById('length-criteria');
         const lengthIcon = document.getElementById('length-icon');
@@ -306,6 +353,28 @@
         
         let formSubmitted = false; // Variable pour suivre si le formulaire a été soumis
         
+        // Fonction pour basculer la visibilité du mot de passe
+        function togglePasswordVisibility(passwordField, eyeClosed, eyeOpen) {
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                eyeClosed.classList.add('hidden');
+                eyeOpen.classList.remove('hidden');
+            } else {
+                passwordField.type = 'password';
+                eyeClosed.classList.remove('hidden');
+                eyeOpen.classList.add('hidden');
+            }
+        }
+        
+        // Gestionnaires d'événements pour les boutons de basculement
+        passwordToggle1.addEventListener('click', function() {
+            togglePasswordVisibility(password, eyeClosed1, eyeOpen1);
+        });
+        
+        passwordToggle2.addEventListener('click', function() {
+            togglePasswordVisibility(confirmPassword, eyeClosed2, eyeOpen2);
+        });
+        
         // Fonction pour afficher une erreur
         function showError(input, errorElement, message) {
             // Ajouter la classe d'erreur à l'input
@@ -316,6 +385,11 @@
             errorElement.textContent = message;
             // Rendre le tooltip visible
             errorElement.classList.add('has-error');
+            
+            // Ajuster la position du bouton de basculement si nécessaire
+            if (input === password || input === confirmPassword) {
+                input.parentElement.classList.add('password-field-with-error');
+            }
         }
         
         // Fonction pour effacer une erreur
@@ -328,6 +402,11 @@
             errorElement.textContent = '';
             // Masquer le tooltip
             errorElement.classList.remove('has-error');
+            
+            // Réajuster la position du bouton de basculement
+            if (input === password || input === confirmPassword) {
+                input.parentElement.classList.remove('password-field-with-error');
+            }
         }
         
         // Fonction pour vérifier si le mot de passe est valide
@@ -692,11 +771,6 @@
             }
         });
         
-        // Vérifier s'il y a des erreurs de validation du serveur
-        if (document.querySelector('.invalid-input')) {
-            passwordCriteriaSection.classList.remove('hidden');
-            formSubmitted = true;
-        }
     });
 </script>
 {% endblock %}
