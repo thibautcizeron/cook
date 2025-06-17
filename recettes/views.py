@@ -20,6 +20,8 @@ from datetime import datetime
 from unidecode import unidecode
 from django.core.mail import send_mail
 from django.conf import settings
+from django.core.paginator import Paginator
+
 
 
 def send_account_deletion_email(user):
@@ -841,24 +843,90 @@ def ingredients_delete(request, pk):
         return redirect('ingredients_list')
     return render(request, 'ingredients/ingredients_list.html', {'ingredient': ingredient})
 
-@login_required
-@user_passes_test(lambda u: is_admin(u) or is_superuser(u))
-def search_recettes(request):
-    query = request.GET.get("q", "").strip() 
-    normalized_query = unidecode(query).lower()  
-
-    if normalized_query:
-        recettes = Recette.objects.filter(
-            Q(titre__icontains=normalized_query) | Q(categorie__nom__icontains=normalized_query)
+def search_recipes(request):
+    """Vue pour la page de recherche avec résultats paginés"""
+    query = request.GET.get('q', '').strip()
+    category_filter = request.GET.get('category', '')
+    
+    recettes = Recette.objects.all()
+    
+    # Recherche textuelle
+    if query:
+        recettes = recettes.filter(
+            Q(titre__icontains=query) |
+            Q(categorie__nom__icontains=query)
         )
-        results = [
-            {"id": recette.id, "titre": recette.titre, "categorie": recette.categorie.nom if recette.categorie else "Non défini"}
-            for recette in recettes
-        ]
-    else:
-        results = []
+    
+    # Filtre par catégorie
+    if category_filter:
+        recettes = recettes.filter(categorie_id=category_filter)
+    
+    # Filtre par ingrédient
+    ingredient_ids = request.GET.getlist('ingredient')
+    if ingredient_ids:
+        # Filtrer les recettes qui contiennent TOUS les ingrédients sélectionnés
+        for ingredient_id in ingredient_ids:
+            recettes = recettes.filter(recette_ingredients__ingredient_id=ingredient_id)
+    
+    # Éviter les doublons et ordonner
+    recettes = recettes.distinct().order_by('titre')
+    
+    # Pagination
+    paginator = Paginator(recettes, 12)  # 12 recettes par page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    # Données pour les filtres
+    categories = Categorie.objects.all().order_by('nom')
+    ingredients = Ingredient.objects.all().order_by('nom')
+    
+    context = {
+        'page_obj': page_obj,
+        'recettes': page_obj,
+        'query': query,
+        'category_filter': category_filter,
+        'selected_ingredients': ingredient_ids,
+        'categories': categories,
+        'ingredients': ingredients,
+        'total_results': paginator.count,
+    }
+    
+    return render(request, 'recipes/search_results.html', context)
 
-    return JsonResponse(results, safe=False)
+def search_recipe_api(request):
+    """API pour l'autocomplétion de recherche (gardez l'existante mais modifiée)"""
+    query = request.GET.get('q', '').strip()
+    
+    if len(query) < 2:
+        return JsonResponse([], safe=False)
+    
+    recettes = Recette.objects.filter(
+        Q(titre__icontains=query) |
+        Q(categorie__nom__icontains=query)
+    )[:5]  # Limiter à 5 suggestions
+    
+    matching_recettes = [
+        {
+            "id": recette.id,
+            "titre": recette.titre,
+            "categorie": recette.categorie.nom if recette.categorie else "Sans catégorie",
+        }
+        for recette in recettes
+    ]
+    
+    return JsonResponse(matching_recettes, safe=False)
+
+def advanced_search(request):
+    """Vue pour la recherche avancée"""
+    categories = Categorie.objects.all().order_by('nom')
+    ingredients = Ingredient.objects.all().order_by('nom')
+    
+    context = {
+        'categories': categories,
+        'ingredients': ingredients,
+    }
+    
+    return render(request, 'recipes/advanced_search.html', context)
 
 def show_starts(request):
     try:

@@ -100,9 +100,6 @@
             }
         }
         
-        /* Ajoutez ces lignes à vos styles existants */
-       
-        
         body {
             display: flex;
             flex-direction: column;
@@ -155,17 +152,36 @@
 
             <!-- Search and user menu for desktop -->
             <div class="flex items-center space-x-4 ml-auto order-3">
-                <!-- Desktop search input -->
-                <div class="relative w-64 hidden lg:block">
-                    <input type="text" id="searchRecipe" placeholder="Rechercher une recette..."
-                        class="w-full border border-gray-600 bg-gray-800 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400">
-                    <ul id="recipeResults" class="absolute bg-gray-800 text-white shadow-md mt-2 w-full hidden rounded-lg max-h-40 overflow-y-auto border border-gray-700"></ul>
+                <!-- Desktop search input - MAINTENANT SÉPARÉ -->
+                <div class="relative w-80 lg:w-80 hidden lg:block">
+                    <form method="GET" action="{% url 'search_recipes' %}" class="flex">
+                        <input type="text" name="q" id="searchRecipe" placeholder="Rechercher une recette..."
+                            class="w-full border border-gray-600 bg-gray-800 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400">
+                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-3 ml-2 rounded-lg transition-colors">
+                            <i class="fas fa-search"></i>
+                        </button>
+                        <a href="{% url 'advanced_search' %}" class="bg-green-700 hover:bg-green-800 text-white px-1 py-2 ml-2 rounded-lg transition-colors flex items-center justify-center group" title="Recherche avancée">
+                            <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M2 4h20l-8 8v8l-4-2v-6L2 4z"/>
+                                <path d="M10 14v6l4 2v-8"/>
+                            </svg>
+                        </a>
+                    </form>
+                    <ul id="recipeResults" class="absolute bg-gray-800 text-white shadow-md mt-2 w-full hidden rounded-lg max-h-40 overflow-y-auto border border-gray-700 z-50"></ul>
                 </div>
-
                 <!-- Tablet search icon -->
-                <button id="tabletSearchIcon" class="search-icon hidden sm:flex lg:hidden text-gray-200 hover:text-white focus:outline-none rounded-full w-10 h-10 items-center justify-center">
-                    <i class="fas fa-search text-xl"></i>
-                </button>
+                <div class="hidden sm:flex lg:hidden items-center space-x-2">
+                    <button id="tabletSearchIcon" class="search-icon text-gray-200 hover:text-white focus:outline-none rounded-full w-10 h-10 flex items-center justify-center">
+                        <i class="fas fa-search text-xl"></i>
+                    </button>
+                    <!-- Bouton recherche avancée pour tablette -->
+                    <a href="{% url 'advanced_search' %}" class="text-gray-200 hover:text-white focus:outline-none rounded-full w-10 h-10 flex items-center justify-center group" title="Recherche avancée">
+                        <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M2 4h20l-8 8v8l-4-2v-6L2 4z"/>
+                            <path d="M10 14v6l4 2v-8"/>
+                        </svg>
+                    </a>
+                </div>
 
                 <!-- User menu for desktop and tablet -->
                 <div class="relative hidden sm:block">
@@ -204,16 +220,27 @@
         <!-- Tablet-specific search bar that appears when loupe is clicked -->
         <div id="tabletSearchContainer" class="hidden sm:hidden md:block lg:hidden tablet-search-container">
             <div class="container mx-auto">
-                <div class="relative w-full">
-                    <div class="flex">
-                        <input type="text" id="searchRecipeTablet" placeholder="Rechercher une recette..."
-                            class="w-full border border-gray-600 bg-gray-800 text-white rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400">
-                        <button id="closeTabletSearch" class="bg-gray-700 text-gray-300 px-3 rounded-r-lg hover:bg-gray-600 transition-colors">
+                <form method="GET" action="{% url 'search_recipes' %}" class="relative w-full">
+                    <div class="flex gap-2">
+                        <div class="flex flex-1">
+                            <input type="text" name="q" id="searchRecipeTablet" placeholder="Rechercher une recette..."
+                                class="w-full border border-gray-600 bg-gray-800 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400">
+                            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-3 ml-2 rounded-lg transition-colors">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                        <a href="{% url 'advanced_search' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors flex items-center justify-center" title="Recherche avancée">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M2 4h20l-8 8v8l-4-2v-6L2 4z"/>
+                                <path d="M10 14v6l4 2v-8"/>
+                            </svg>
+                        </a>
+                        <button type="button" id="closeTabletSearch" class="bg-gray-700 text-gray-300 px-3 py-2 rounded-lg hover:bg-gray-600 transition-colors">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
                     <ul id="recipeResultsTablet" class="absolute bg-gray-800 text-white shadow-md mt-2 w-full hidden rounded-lg max-h-40 overflow-y-auto border border-gray-700 z-50"></ul>
-                </div>
+                </form>
             </div>
         </div>
     </nav>
@@ -229,9 +256,26 @@
             
             <!-- Search bar in mobile menu only - hidden for tablets since they have their own search bar -->
             <div class="py-3 border-b border-gray-700 sm:hidden">
-                <input type="text" id="searchRecipeMobile" placeholder="Rechercher une recette..." 
-                    class="w-full border border-gray-600 bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400">
-                <ul id="recipeResultsMobile" class="bg-gray-700 text-white shadow-md mt-2 w-full hidden rounded-lg max-h-40 overflow-y-auto border border-gray-700"></ul>
+                <form method="GET" action="{% url 'search_recipes' %}" class="relative mb-3">
+                    <div class="flex gap-2">
+                        <input type="text" name="q" id="searchRecipeMobile" placeholder="Rechercher une recette..." 
+                            class="flex-1 border border-gray-600 bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400">
+                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg transition-colors">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                    <ul id="recipeResultsMobile" class="bg-gray-700 text-white shadow-md mt-2 w-full hidden rounded-lg max-h-40 overflow-y-auto border border-gray-700 z-50"></ul>
+                </form>
+                <!-- Bouton recherche avancée pour mobile - maintenant séparé -->
+                <div class="flex items-center justify-center mt-3">
+                    <a href="{% url 'advanced_search' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M2 4h20l-8 8v8l-4-2v-6L2 4z"/>
+                            <path d="M10 14v6l4 2v-8"/>
+                        </svg>
+                        <span class="text-sm">Recherche avancée</span>
+                    </a>
+                </div>
             </div>
             
             {% if user.is_authenticated %}
@@ -302,7 +346,7 @@
                     <h2 class="text-lg font-semibold text-white">Liens utiles</h2>
                     <ul class="mt-2 space-y-2">
                         <li><a href="{% url 'layout' %}" class="hover:text-white transition">Accueil</a></li>
-                        <li><a href="{% url 'layout' %}" class="hover:text-white transition">Toutes les recettes</a></li>
+                        <li><a href="{% url 'search_recipes' %}" class="hover:text-white transition">Toutes les recettes</a></li>
                         <li><a href="{% url 'contact' %}" class="hover:text-white transition">Contact</a></li>
                     </ul>
                 </div>
@@ -326,25 +370,25 @@
             // Fonctions pour la recherche sur différents dispositifs
             $("#searchRecipe").on("input", function() {
                 let query = $(this).val().trim();
-                handleSearch(query, "#recipeResults");
+                handleSearchSuggestions(query, "#recipeResults");
             });
             
             $("#searchRecipeMobile").on("input", function() {
                 let query = $(this).val().trim();
-                handleSearch(query, "#recipeResultsMobile");
+                handleSearchSuggestions(query, "#recipeResultsMobile");
             });
             
             // Fonction pour la recherche tablette
             $("#searchRecipeTablet").on("input", function() {
                 let query = $(this).val().trim();
-                handleSearch(query, "#recipeResultsTablet");
+                handleSearchSuggestions(query, "#recipeResultsTablet");
             });
             
-            // Factoriser la fonction de recherche
-            function handleSearch(query, resultSelector) {
-                if (query.length > 0) {
+            // Fonction pour les suggestions de recherche (autocomplétion)
+            function handleSearchSuggestions(query, resultSelector) {
+                if (query.length > 1) {
                     $.ajax({
-                        url: "{% url 'search_recipe' %}",
+                        url: "{% url 'search_recipe_api' %}",
                         data: { q: query },
                         dataType: 'json',
                         success: function(data) {
@@ -354,10 +398,25 @@
                                 data.forEach(function(recette) {
                                     results.append(`
                                         <li><a href="/recettes/${recette.id}/" class="block px-4 py-2 hover:bg-gray-600">
-                                            ${recette.titre} ${recette.categorie ? `(${recette.categorie})` : ''}
+                                            <div class="flex justify-between items-center">
+                                                <span>${recette.titre}</span>
+                                                <span class="text-sm text-gray-400">${recette.categorie}</span>
+                                            </div>
                                         </a></li>
                                     `);
                                 });
+                                
+                                // Ajouter un lien "Voir tous les résultats"
+                                results.append(`
+                                    <li class="border-t border-gray-700">
+                                        <a href="/search/?q=${encodeURIComponent(query)}" class="block px-4 py-2 hover:bg-gray-600 text-green-400 font-medium">
+                                            <div class="flex items-center">
+                                                <i class="fas fa-search mr-2"></i>
+                                                Voir tous les résultats
+                                            </div>
+                                        </a>
+                                    </li>
+                                `);
                             } else {
                                 results.append(`<li class="px-4 py-2 text-gray-500">Aucune recette trouvée.</li>`);
                             }

@@ -1,0 +1,461 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Recherche avancée{% endblock %}
+
+{% block content %}
+<div class="bg-gray-800 min-h-screen py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="bg-white rounded-xl shadow-2xl overflow-hidden">
+            <!-- Header -->
+            <div class="bg-green-600 p-6">
+                <h1 class="text-2xl lg:text-3xl font-bold text-white text-center">
+                    🔍 Recherche avancée
+                </h1>
+                <p class="text-green-100 text-center mt-2">Trouvez la recette parfaite grâce à nos filtres avancés</p>
+            </div>
+            
+            <!-- Formulaire -->
+            <form method="GET" action="{% url 'search_recipes' %}" class="p-6 lg:p-8">
+                <div class="space-y-8">
+                    
+                    <!-- Recherche textuelle -->
+                    <div class="bg-gray-50 rounded-xl p-6 border border-gray-100 hover:shadow-md transition-shadow duration-300">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <div class="bg-blue-100 p-2 rounded-lg mr-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                            Recherche par nom
+                        </h3>
+                        <input type="text" name="q" id="search-input" 
+                               placeholder="Nom de la recette..." 
+                               class="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition shadow-sm hover:shadow-md">
+                    </div>
+                    
+                    <!-- Filtre par catégorie -->
+                    <div class="bg-gray-50 rounded-xl p-6 border border-gray-100 hover:shadow-md transition-shadow duration-300">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <div class="bg-green-100 p-2 rounded-lg mr-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                </svg>
+                            </div>
+                            Catégorie
+                        </h3>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                            {% for categorie in categories %}
+                            <label class="flex items-center p-4 bg-white rounded-lg border border-gray-200 hover:border-green-300 hover:bg-green-50 cursor-pointer transition-all duration-200 group shadow-sm hover:shadow-md">
+                                <input type="radio" name="category" value="{{ categorie.id }}" class="sr-only peer">
+                                <div class="w-5 h-5 border-2 border-gray-300 rounded-full mr-3 peer-checked:border-green-500 peer-checked:bg-green-500 group-hover:border-green-400 transition-all duration-200 flex items-center justify-center">
+                                    <div class="w-2 h-2 bg-white rounded-full opacity-0 peer-checked:opacity-100 transition-opacity duration-200"></div>
+                                </div>
+                                <span class="text-sm font-medium text-gray-700 group-hover:text-green-700 transition-colors duration-200">{{ categorie.nom|capfirst }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                        <label class="flex items-center p-4 bg-white rounded-lg border border-gray-200 hover:border-gray-300 cursor-pointer transition-all duration-200 mt-3 shadow-sm hover:shadow-md">
+                            <input type="radio" name="category" value="" class="sr-only peer" checked>
+                            <div class="w-5 h-5 border-2 border-gray-300 rounded-full mr-3 peer-checked:border-gray-500 peer-checked:bg-gray-500 transition-all duration-200 flex items-center justify-center">
+                                <div class="w-2 h-2 bg-white rounded-full opacity-0 peer-checked:opacity-100 transition-opacity duration-200"></div>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700">Toutes les catégories</span>
+                        </label>
+                    </div>
+                    
+                    <!-- Filtre par ingrédients -->
+                    <div class="bg-gray-50 rounded-xl p-6 border border-gray-100 hover:shadow-md transition-shadow duration-300">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <div class="bg-purple-100 p-2 rounded-lg mr-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                                </svg>
+                            </div>
+                            Ingrédients requis
+                        </h3>
+                        <p class="text-sm text-gray-600 mb-4">Sélectionnez les ingrédients que la recette doit contenir</p>
+                        
+                        <!-- Barre de recherche d'ingrédients -->
+                        <div class="mb-4">
+                            <div class="relative">
+                                <input type="text" id="ingredient-search" placeholder="Rechercher un ingrédient..." 
+                                       class="w-full border border-gray-300 rounded-lg px-4 py-3 pl-10 text-gray-700 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition shadow-sm hover:shadow-md">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                        
+                        <!-- Ingrédients sélectionnés -->
+                        <div id="selected-ingredients" class="mb-4 min-h-[50px] p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
+                            <div class="text-sm text-gray-500 italic flex items-center justify-center h-full" id="no-ingredients-text">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                </svg>
+                                Aucun ingrédient sélectionné
+                            </div>
+                        </div>
+                        
+                        <!-- Liste des ingrédients -->
+                        <div class="max-h-64 overflow-y-auto bg-white rounded-lg border border-gray-200 shadow-sm">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1 p-3" id="ingredients-list">
+                                {% for ingredient in ingredients %}
+                                <label class="flex items-center p-3 hover:bg-purple-50 cursor-pointer transition-colors duration-200 ingredient-item rounded-lg" data-ingredient-name="{{ ingredient.nom|lower }}">
+                                    <input type="checkbox" name="ingredient" value="{{ ingredient.id }}" class="sr-only ingredient-checkbox" data-ingredient-name="{{ ingredient.nom }}" data-ingredient-id="{{ ingredient.id }}">
+                                    <div class="w-4 h-4 border border-gray-300 rounded mr-3 flex items-center justify-center checkbox-visual transition-all duration-200">
+                                        <svg class="w-3 h-3 text-purple-600 hidden checkmark" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                    <span class="text-sm text-gray-700 ingredient-name">{{ ingredient.nom }}</span>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Boutons d'action -->
+                    <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+                        <button type="submit" class="flex-1 bg-green-600 hover:bg-green-700  text-white font-semibold py-4 px-6 rounded-lg transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            Rechercher
+                        </button>
+                        
+                        <button type="button" id="reset-form" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            Réinitialiser
+                        </button>
+                        
+                        <a href="{% url 'layout' %}" class="flex-1 bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 hover:border-gray-400 font-semibold py-4 px-6 rounded-lg transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                            </svg>
+                            Toutes les recettes
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>document.addEventListener('DOMContentLoaded', function() {
+    const ingredientSearch = document.getElementById('ingredient-search');
+    const ingredientsList = document.getElementById('ingredients-list');
+    const selectedIngredientsContainer = document.getElementById('selected-ingredients');
+    const noIngredientsText = document.getElementById('no-ingredients-text');
+    const resetButton = document.getElementById('reset-form');
+    const form = document.querySelector('form');
+    
+    // Utiliser un Map au lieu d'un Set pour éviter les problèmes de comparaison d'objets
+    let selectedIngredients = new Map();
+    
+    // Fonction pour filtrer les ingrédients
+    function filterIngredients() {
+        const searchTerm = ingredientSearch.value.toLowerCase().trim();
+        const ingredients = ingredientsList.querySelectorAll('.ingredient-item');
+        
+        ingredients.forEach(ingredient => {
+            const name = ingredient.dataset.ingredientName;
+            if (name.includes(searchTerm)) {
+                ingredient.style.display = 'flex';
+                // Animation d'apparition
+                ingredient.style.animation = 'fadeIn 0.3s ease-out';
+            } else {
+                ingredient.style.display = 'none';
+            }
+        });
+    }
+    
+    // Fonction pour mettre à jour l'affichage des ingrédients sélectionnés
+    function updateSelectedIngredients() {
+        const container = selectedIngredientsContainer;
+        
+        if (selectedIngredients.size === 0) {
+            container.innerHTML = `
+                <div class="text-sm text-gray-500 italic flex items-center justify-center h-full" id="no-ingredients-text">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    Aucun ingrédient sélectionné
+                </div>
+            `;
+        } else {
+            let html = '<div class="flex flex-wrap gap-2">';
+            selectedIngredients.forEach((name, id) => {
+                html += `
+                    <span class="inline-flex items-center bg-gradient-to-r from-purple-100 to-purple-200 text-purple-800 px-4 py-2 rounded-full text-sm font-medium border border-purple-200 shadow-sm animate-fadeIn">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        ${name}
+                        <button type="button" class="ml-3 text-purple-600 hover:text-purple-800 hover:bg-purple-300 rounded-full p-1 transition-all duration-200" onclick="removeIngredient('${id}')">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    </span>
+                `;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+    }
+    
+    // Fonction pour ajouter un ingrédient
+    function addIngredient(id, name) {
+        // Vérifier si l'ingrédient n'est pas déjà sélectionné
+        if (!selectedIngredients.has(id)) {
+            selectedIngredients.set(id, name);
+            updateSelectedIngredients();
+            
+            // Cocher la checkbox correspondante
+            const checkbox = document.querySelector(`input[data-ingredient-id="${id}"]`);
+            if (checkbox) {
+                checkbox.checked = true;
+                const checkmark = checkbox.closest('label').querySelector('.checkmark');
+                const checkboxVisual = checkbox.closest('label').querySelector('.checkbox-visual');
+                checkmark.classList.remove('hidden');
+                checkboxVisual.classList.add('bg-purple-600', 'border-purple-600');
+            }
+        }
+    }
+    
+    // Fonction pour supprimer un ingrédient (accessible globalement)
+    window.removeIngredient = function(id) {
+        if (selectedIngredients.has(id)) {
+            selectedIngredients.delete(id);
+            updateSelectedIngredients();
+            
+            // Décocher la checkbox correspondante
+            const checkbox = document.querySelector(`input[data-ingredient-id="${id}"]`);
+            if (checkbox) {
+                checkbox.checked = false;
+                const checkmark = checkbox.closest('label').querySelector('.checkmark');
+                const checkboxVisual = checkbox.closest('label').querySelector('.checkbox-visual');
+                checkmark.classList.add('hidden');
+                checkboxVisual.classList.remove('bg-purple-600', 'border-purple-600');
+            }
+        }
+    };
+    
+    // Gestionnaire de recherche d'ingrédients avec debounce
+    let searchTimeout;
+    ingredientSearch.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(filterIngredients, 300);
+    });
+    
+    // Gestionnaire de clic sur les ingrédients - Version corrigée
+    ingredientsList.addEventListener('click', function(e) {
+        // Empêcher la propagation multiple
+        e.stopPropagation();
+        
+        const label = e.target.closest('.ingredient-item');
+        if (!label) return;
+        
+        const checkbox = label.querySelector('.ingredient-checkbox');
+        if (!checkbox) return;
+        
+        const id = checkbox.dataset.ingredientId;
+        const name = checkbox.dataset.ingredientName;
+        
+        // Toggle l'état de la checkbox
+        if (selectedIngredients.has(id)) {
+            // Déjà sélectionné, on le retire
+            removeIngredient(id);
+        } else {
+            // Pas sélectionné, on l'ajoute
+            addIngredient(id, name);
+        }
+    });
+    
+    // Empêcher le comportement par défaut des checkboxes
+    document.querySelectorAll('.ingredient-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+    });
+    
+    // Bouton de réinitialisation
+    resetButton.addEventListener('click', function() {
+        // Animation de réinitialisation
+        form.style.transition = 'all 0.3s ease';
+        form.style.opacity = '0.7';
+        
+        setTimeout(() => {
+            // Réinitialiser le formulaire
+            form.reset();
+            
+            // Réinitialiser les ingrédients sélectionnés
+            selectedIngredients.clear();
+            updateSelectedIngredients();
+            
+            // Réinitialiser l'affichage des checkboxes
+            const checkboxes = document.querySelectorAll('.ingredient-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+                const checkmark = checkbox.closest('label').querySelector('.checkmark');
+                const checkboxVisual = checkbox.closest('label').querySelector('.checkbox-visual');
+                if (checkmark) checkmark.classList.add('hidden');
+                if (checkboxVisual) checkboxVisual.classList.remove('bg-purple-600', 'border-purple-600');
+            });
+            
+            // Réinitialiser la recherche d'ingrédients
+            ingredientSearch.value = '';
+            filterIngredients();
+            
+            // Remettre l'opacité normale
+            form.style.opacity = '1';
+        }, 150);
+    });
+    
+    // Amélioration visuelle lors du focus
+    const inputs = document.querySelectorAll('input[type="text"]');
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            if (this.parentElement) {
+                this.parentElement.style.transform = 'translateY(-2px)';
+                this.parentElement.style.transition = 'all 0.3s ease';
+            }
+        });
+        
+        input.addEventListener('blur', function() {
+            if (this.parentElement) {
+                this.parentElement.style.transform = 'translateY(0)';
+            }
+        });
+    });
+    
+    // Initialisation : s'assurer que tous les états sont cohérents
+    updateSelectedIngredients();
+});
+</script>
+
+<style>
+/* Animations personnalisées */
+@keyframes fadeIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(-10px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.animate-fadeIn {
+    animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slideIn {
+    animation: slideIn 0.3s ease-out;
+}
+
+/* Styles pour les radio buttons personnalisés */
+.peer:checked ~ .w-5 {
+    border-color: currentColor;
+    background-color: currentColor;
+}
+
+/* Amélioration des transitions pour les éléments interactifs */
+.ingredient-item {
+    transition: all 0.2s ease;
+}
+
+.ingredient-item:hover {
+    transform: translateX(5px);
+    background-color: #f3f4f6;
+}
+
+.checkbox-visual {
+    transition: all 0.2s ease;
+}
+
+/* Scrollbar personnalisée améliorée */
+.max-h-64::-webkit-scrollbar {
+    width: 8px;
+}
+
+.max-h-64::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+
+.max-h-64::-webkit-scrollbar-thumb {
+    background: linear-gradient(to bottom, #cbd5e1, #94a3b8);
+    border-radius: 10px;
+    border: 2px solid #f1f5f9;
+}
+
+.max-h-64::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(to bottom, #94a3b8, #64748b);
+}
+
+/* Effet de brillance sur les boutons */
+button[type="submit"] {
+    position: relative;
+    overflow: hidden;
+}
+
+button[type="submit"]:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s;
+}
+
+button[type="submit"]:hover:before {
+    left: 100%;
+}
+
+/* Amélioration de la responsivité */
+@media (max-width: 640px) {
+    .grid-cols-2 {
+        grid-template-columns: 1fr;
+    }
+    
+    .flex-col {
+        gap: 1rem;
+    }
+}
+
+/* Styles pour les états de focus améliorés */
+input:focus, button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Animation pour les sections */
+.bg-gray-50 {
+    animation: slideIn 0.6s ease-out forwards;
+}
+
+.bg-gray-50:nth-child(1) { animation-delay: 0.1s; }
+.bg-gray-50:nth-child(2) { animation-delay: 0.2s; }
+.bg-gray-50:nth-child(3) { animation-delay: 0.3s; }
+</style>
+{% endblock content %}
