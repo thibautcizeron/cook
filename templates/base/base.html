@@ -11,8 +11,339 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
     <!-- Ajout de Font Awesome pour l'icône de loupe -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-    <link rel="stylesheet" href="{% static 'css/base/main.css' %}">
 
+    <style>
+        #recipeResults, #userMenuModal {
+            position: absolute;
+            z-index: 1050;
+        }
+        
+        /* Animation pour le menu mobile */
+        .mobile-menu-enter {
+            transform: translateY(-100%);
+            opacity: 0;
+        }
+        .mobile-menu-enter-active {
+            transform: translateY(0);
+            opacity: 1;
+            transition: transform 300ms cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 300ms ease;
+        }
+        .mobile-menu-exit {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .mobile-menu-exit-active {
+            transform: translateY(-100%);
+            opacity: 0;
+            transition: transform 300ms cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 300ms ease;
+        }
+        
+        /* Styles pour le menu mobile scrollable */
+        #mobileMenu {
+            /* Hauteur maximale : 100vh moins la hauteur de la navbar (60px) */
+            max-height: calc(100vh - 60px);
+            overflow-y: auto;
+            /* Smooth scrolling */
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+            /* Menu par-dessus le contenu */
+            position: fixed;
+            top: 60px;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            /* Animation d'entrée par glissement depuis le haut */
+            transform: translateY(-100%);
+            opacity: 0;
+        }
+        
+        #mobileMenu.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        /* Styles pour la scrollbar webkit (Chrome, Safari, Edge) */
+        #mobileMenu::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        #mobileMenu::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        #mobileMenu::-webkit-scrollbar-thumb {
+            background-color: rgba(156, 163, 175, 0.5);
+            border-radius: 3px;
+        }
+        
+        #mobileMenu::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(156, 163, 175, 0.7);
+        }
+        
+        /* Animation pour les icônes du burger menu */
+        .burger-icon span {
+            display: block;
+            width: 100%;
+            height: 2px;
+            background-color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .burger-open .line1 {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        
+        .burger-open .line2 {
+            opacity: 0;
+        }
+        
+        .burger-open .line3 {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+        
+        /* Styles pour l'affichage tablette */
+        @media (min-width: 640px) and (max-width: 1023px) {
+            .tablet-nav-container {
+                display: grid;
+                grid-template-columns: auto 1fr auto;
+                align-items: center;
+            }
+            
+            .tablet-nav-title {
+                text-align: center;
+                margin: 0 auto;
+            }
+            
+            .tablet-search-container {
+                position: absolute;
+                top: 60px;
+                left: 0;
+                right: 0;
+                background-color: rgba(31, 41, 55, 0.95);
+                padding: 0.75rem;
+                border-bottom: 1px solid rgba(75, 85, 99, 0.5);
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                z-index: 40;
+                transition: all 0.3s ease;
+                transform-origin: top;
+                transform: scaleY(0);
+                opacity: 0;
+            }
+            
+            .tablet-search-container.active {
+                transform: scaleY(1);
+                opacity: 1;
+            }
+            
+            .search-icon {
+                transition: all 0.3s ease;
+            }
+            
+            .search-icon.active {
+                color: #10B981; /* text-green-500 en Tailwind */
+            }
+        }
+        
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        footer {
+            margin-top: auto;
+        }
+
+        /* Styles modernisés pour les boutons */
+        .btn-modern {
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .btn-modern:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-modern:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        /* Style pour boutons glassmorphism */
+        .btn-glass {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .btn-glass:hover {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        /* ========================================= */
+        /* UNIFORMISATION DES BOUTONS DE RECHERCHE */
+        /* ========================================= */
+        
+        /* Classe commune pour tous les boutons de recherche - hauteur alignée sur les inputs */
+        .search-btn {
+            width: 44px;
+            height: 42px; /* Même hauteur que py-2 des inputs (padding 0.5rem top/bottom + hauteur du texte) */
+            min-width: 44px;
+            min-height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            padding: 0; /* Supprimer le padding par défaut pour contrôler la taille exacte */
+        }
+
+        /* Amélioration des focus states */
+        .btn-modern:focus {
+            outline: none;
+        }
+        
+        /* Suppression des focus states colorés */
+        button:focus, 
+        input:focus, 
+        select:focus, 
+        textarea:focus,
+        a:focus {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+        
+        /* Suppression des focus rings Tailwind */
+        .focus\:outline-none:focus {
+            outline: 2px solid transparent !important;
+            outline-offset: 2px !important;
+        }
+        
+        .focus\:ring-2:focus {
+            box-shadow: none !important;
+        }
+        
+        .focus\:ring-green-400:focus {
+            box-shadow: none !important;
+        }
+        
+        /* Suppression de tous les focus rings colorés */
+        *:focus {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+        
+        /* Indicateur de scroll pour mobile */
+        .scroll-indicator {
+            position: sticky;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 20px;
+            background: linear-gradient(to bottom, transparent, rgba(31, 41, 55, 0.8));
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .scroll-indicator.visible {
+            opacity: 1;
+        }
+        
+        /* Amélioration du padding pour mobile */
+        @media (max-width: 639px) {
+            #mobileMenu .menu-content {
+                padding-bottom: 2rem;
+            }
+        }
+
+        /* ========================================= */
+        /* STYLES POUR LE MODAL DE DÉCONNEXION MODERNISÉ */
+        /* ========================================= */
+
+        /* Animation du modal */
+        .modal-backdrop {
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        
+        .modal-enter {
+            opacity: 0;
+            transform: scale(0.95) translateY(-10px);
+        }
+        
+        .modal-enter-active {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .modal-exit {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+        
+        .modal-exit-active {
+            opacity: 0;
+            transform: scale(0.95) translateY(-10px);
+            transition: all 0.2s ease-in;
+        }
+        
+        /* Effet de brillance */
+        .btn-shine::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.6s ease;
+        }
+        
+        .btn-shine:hover::before {
+            left: 100%;
+        }
+        
+        /* Animation des particules */
+        @keyframes ping {
+            75%, 100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+        
+        .animate-ping {
+            animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+        
+        /* Effet de pulsation */
+        .pulse-ring {
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            animation: pulse-ring 1.5s infinite;
+        }
+        
+        @keyframes pulse-ring {
+            0% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+            }
+        }
+        
+        /* Grille d'arrière-plan */
+        .grid-bg {
+            background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), 
+                              linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+    </style>
 </head>
 <body class="bg-gray-100">
     <nav class="bg-gray-900/90 backdrop-blur shadow-md py-4 fixed top-0 w-full z-50">
@@ -59,14 +390,14 @@
                     <form method="GET" action="{% url 'search_recipes' %}" class="flex">
                         <input type="text" name="q" id="searchRecipe" placeholder="Rechercher une recette..."
                             class="w-full border border-gray-600 bg-gray-800 text-white rounded-lg px-4 py-2 outline-none">
-                        <!-- Bouton de recherche modernisé -->
-                        <button type="submit" class="group flex items-center justify-center bg-white/5 hover:bg-emerald-500/10 border border-white/10 hover:border-emerald-500/30 rounded-xl px-3 ml-2 transition-all duration-300 backdrop-blur-sm btn-modern">
+                        <!-- Bouton de recherche modernisé avec classe search-btn et même gris que l'input -->
+                        <button type="submit" class="search-btn group bg-gray-800 hover:bg-emerald-500/10 border border-gray-600 hover:border-emerald-500/30 rounded-xl ml-2 transition-all duration-300 backdrop-blur-sm btn-modern">
                             <div class="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center group-hover:bg-emerald-500/30 transition-colors">
                                 <i class="fas fa-search text-emerald-400 text-xs"></i>
                             </div>
                         </button>
-                        <!-- Bouton recherche avancée modernisé -->
-                        <a href="{% url 'advanced_search' %}" class="group flex items-center justify-center bg-white/5 hover:bg-blue-500/10 border border-white/10 hover:border-blue-500/30 rounded-xl px-3 ml-2 transition-all duration-300 backdrop-blur-sm btn-modern" title="Recherche avancée">
+                        <!-- Bouton recherche avancée modernisé avec classe search-btn et même gris que l'input -->
+                        <a href="{% url 'advanced_search' %}" class="search-btn group bg-gray-800 hover:bg-blue-500/10 border border-gray-600 hover:border-blue-500/30 rounded-xl ml-2 transition-all duration-300 backdrop-blur-sm btn-modern" title="Recherche avancée">
                             <div class="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center group-hover:bg-blue-500/30 transition-colors">
                                 <svg class="w-3 h-3 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M2 4h20l-8 8v8l-4-2v-6L2 4z"/>
@@ -135,15 +466,15 @@
                         <div class="flex flex-1">
                             <input type="text" name="q" id="searchRecipeTablet" placeholder="Rechercher une recette..."
                                 class="w-full border border-gray-600 bg-gray-800 text-white rounded-lg px-4 py-2 outline-none">
-                            <!-- Bouton recherche tablette modernisé -->
-                            <button type="submit" class="group flex items-center justify-center bg-white/5 hover:bg-emerald-500/10 border border-white/10 hover:border-emerald-500/30 rounded-xl px-3 ml-2 transition-all duration-300 backdrop-blur-sm btn-modern">
+                            <!-- Bouton recherche tablette modernisé avec classe search-btn et même gris que l'input -->
+                            <button type="submit" class="search-btn group bg-gray-800 hover:bg-emerald-500/10 border border-gray-600 hover:border-emerald-500/30 rounded-xl ml-2 transition-all duration-300 backdrop-blur-sm btn-modern">
                                 <div class="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center group-hover:bg-emerald-500/30 transition-colors">
                                     <i class="fas fa-search text-emerald-400 text-xs"></i>
                                 </div>
                             </button>
                         </div>
-                        <!-- Bouton recherche avancée tablette modernisé -->
-                        <a href="{% url 'advanced_search' %}" class="group flex items-center justify-center bg-white/5 hover:bg-blue-500/10 border border-white/10 hover:border-blue-500/30 rounded-xl px-3 py-2 transition-all duration-300 backdrop-blur-sm btn-modern" title="Recherche avancée">
+                        <!-- Bouton recherche avancée tablette modernisé avec classe search-btn et même gris que l'input -->
+                        <a href="{% url 'advanced_search' %}" class="search-btn group bg-gray-800 hover:bg-blue-500/10 border border-gray-600 hover:border-blue-500/30 rounded-xl transition-all duration-300 backdrop-blur-sm btn-modern" title="Recherche avancée">
                             <div class="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center group-hover:bg-blue-500/30 transition-colors">
                                 <svg class="w-3 h-3 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M2 4h20l-8 8v8l-4-2v-6L2 4z"/>
@@ -151,8 +482,8 @@
                                 </svg>
                             </div>
                         </a>
-                        <!-- Bouton fermer modernisé -->
-                        <button type="button" id="closeTabletSearch" class="group flex items-center justify-center bg-white/5 hover:bg-red-500/10 border border-white/10 hover:border-red-500/30 rounded-xl px-3 py-2 transition-all duration-300 backdrop-blur-sm btn-modern">
+                        <!-- Bouton fermer modernisé avec classe search-btn et même gris que l'input -->
+                        <button type="button" id="closeTabletSearch" class="search-btn group bg-gray-800 hover:bg-red-500/10 border border-gray-600 hover:border-red-500/30 rounded-xl transition-all duration-300 backdrop-blur-sm btn-modern">
                             <div class="w-6 h-6 rounded-full bg-red-500/20 flex items-center justify-center group-hover:bg-red-500/30 transition-colors">
                                 <i class="fas fa-times text-red-400 text-xs"></i>
                             </div>
@@ -179,8 +510,8 @@
                     <div class="flex gap-2">
                         <input type="text" name="q" id="searchRecipeMobile" placeholder="Rechercher une recette..." 
                             class="flex-1 border border-gray-600 bg-gray-700 text-white rounded-lg px-4 py-2 outline-none">
-                        <!-- Bouton recherche mobile modernisé -->
-                        <button type="submit" class="group flex items-center justify-center bg-white/5 hover:bg-emerald-500/10 border border-white/10 hover:border-emerald-500/30 rounded-xl px-3 py-2 transition-all duration-300 backdrop-blur-sm btn-modern">
+                        <!-- Bouton recherche mobile modernisé avec classe search-btn et même gris que l'input -->
+                        <button type="submit" class="search-btn group bg-gray-700 hover:bg-emerald-500/10 border border-gray-600 hover:border-emerald-500/30 rounded-xl transition-all duration-300 backdrop-blur-sm btn-modern">
                             <div class="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center group-hover:bg-emerald-500/30 transition-colors">
                                 <i class="fas fa-search text-emerald-400 text-xs"></i>
                             </div>
@@ -335,6 +666,325 @@
 
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
-    <script src="{% static 'js/base/main.js' %}"></script>
+    <script>
+        $(document).ready(function() {
+            // Fonctions pour la recherche sur différents dispositifs
+            $("#searchRecipe").on("input", function() {
+                let query = $(this).val().trim();
+                handleSearchSuggestions(query, "#recipeResults");
+            });
+            
+            $("#searchRecipeMobile").on("input", function() {
+                let query = $(this).val().trim();
+                handleSearchSuggestions(query, "#recipeResultsMobile");
+            });
+            
+            // Fonction pour la recherche tablette
+            $("#searchRecipeTablet").on("input", function() {
+                let query = $(this).val().trim();
+                handleSearchSuggestions(query, "#recipeResultsTablet");
+            });
+            
+            // Fonction pour les suggestions de recherche (autocomplétion)
+            function handleSearchSuggestions(query, resultSelector) {
+                if (query.length > 1) {
+                    $.ajax({
+                        url: "{% url 'search_recipe_api' %}",
+                        data: { q: query },
+                        dataType: 'json',
+                        success: function(data) {
+                            let results = $(resultSelector);
+                            results.empty().removeClass("hidden");
+                            if (data.length > 0) {
+                                data.forEach(function(recette) {
+                                    results.append(`
+                                        <li><a href="/recettes/${recette.id}/" class="block px-4 py-2 hover:bg-gray-600">
+                                            <div class="flex justify-between items-center">
+                                                <span>${recette.titre}</span>
+                                                <span class="text-sm text-gray-400">${recette.categorie}</span>
+                                            </div>
+                                        </a></li>
+                                    `);
+                                });
+                                
+                                // Ajouter un lien "Voir tous les résultats"
+                                results.append(`
+                                    <li class="border-t border-gray-700">
+                                        <a href="/search/?q=${encodeURIComponent(query)}" class="block px-4 py-2 hover:bg-gray-600 text-green-400 font-medium">
+                                            <div class="flex items-center">
+                                                <i class="fas fa-search mr-2"></i>
+                                                Voir tous les résultats
+                                            </div>
+                                        </a>
+                                    </li>
+                                `);
+                            } else {
+                                results.append(`<li class="px-4 py-2 text-gray-500">Aucune recette trouvée.</li>`);
+                            }
+                        }
+                    });
+                } else {
+                    $(resultSelector).empty().addClass("hidden");
+                }
+            }
+
+            // Cacher les résultats quand on clique ailleurs
+            $(document).on("click", function(e) {
+                if (!$(e.target).closest("#searchRecipe, #recipeResults").length) {
+                    $("#recipeResults").addClass("hidden");
+                }
+                
+                if (!$(e.target).closest("#searchRecipeMobile, #recipeResultsMobile").length) {
+                    $("#recipeResultsMobile").addClass("hidden");
+                }
+                
+                if (!$(e.target).closest("#searchRecipeTablet, #recipeResultsTablet, #tabletSearchIcon").length) {
+                    $("#recipeResultsTablet").addClass("hidden");
+                }
+                
+                // Fermer le menu utilisateur quand on clique ailleurs
+                if (!$(e.target).closest("#userMenuBtn, #userMenuModal").length) {
+                    $("#userMenuModal").addClass("hidden");
+                }
+            });
+            
+            // Toggle du menu utilisateur
+            $("#userMenuBtn").on("click", function() {
+                $("#userMenuModal").toggleClass("hidden");
+            });
+            
+            // Toggle de la recherche tablette avec l'icône loupe
+            $("#tabletSearchIcon").on("click", function() {
+                const searchContainer = $("#tabletSearchContainer");
+                searchContainer.toggleClass("active");
+                $(this).toggleClass("active");
+                
+                // Si le conteneur de recherche est maintenant ouvert, focus sur l'input
+                if (searchContainer.hasClass("active")) {
+                    setTimeout(() => {
+                        $("#searchRecipeTablet").focus();
+                    }, 300); // Un délai pour attendre la fin de l'animation
+                }
+            });
+            
+            // Fermer la recherche tablette avec le bouton X
+            $("#closeTabletSearch").on("click", function() {
+                $("#tabletSearchContainer").removeClass("active");
+                $("#tabletSearchIcon").removeClass("active");
+                $("#searchRecipeTablet").val(""); // Vider l'input
+                $("#recipeResultsTablet").empty().addClass("hidden"); // Vider et cacher les résultats
+            });
+        });
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const burgerBtn = document.getElementById("burgerBtn");
+            const mobileMenu = document.getElementById("mobileMenu");
+            const scrollIndicator = document.getElementById("scrollIndicator");
+
+            // ========================================= 
+            // GESTION DU MODAL DE DÉCONNEXION MODERNISÉ
+            // =========================================
+            const logoutBtnMobile = document.getElementById("openLogoutModalMobile");
+            const logoutBtn = document.getElementById("openLogoutModal");
+            const cancelLogout = document.getElementById("cancelLogout");
+            const logoutModal = document.getElementById("logoutModal");
+            const modalContent = logoutModal ? logoutModal.querySelector('.modal-enter') : null;
+
+            // Fonction pour ouvrir le modal avec animation
+            function openModal() {
+                if (logoutModal && modalContent) {
+                    logoutModal.classList.remove('hidden');
+                    modalContent.classList.remove('modal-enter');
+                    modalContent.classList.add('modal-enter-active');
+                    
+                    // Focus sur le bouton annuler pour l'accessibilité
+                    setTimeout(() => {
+                        if (cancelLogout) cancelLogout.focus();
+                    }, 150);
+                }
+            }
+
+            // Fonction pour fermer le modal avec animation
+            function closeModal() {
+                if (modalContent && logoutModal) {
+                    modalContent.classList.remove('modal-enter-active');
+                    modalContent.classList.add('modal-exit-active');
+                    
+                    setTimeout(() => {
+                        logoutModal.classList.add('hidden');
+                        modalContent.classList.remove('modal-exit-active');
+                        modalContent.classList.add('modal-enter');
+                    }, 200);
+                }
+            }
+
+            // Event listeners pour ouvrir le modal
+            if (logoutBtnMobile) {
+                logoutBtnMobile.addEventListener("click", openModal);
+            }
+
+            if (logoutBtn) {
+                logoutBtn.addEventListener("click", openModal);
+            }
+
+            // Event listener pour fermer le modal
+            if (cancelLogout) {
+                cancelLogout.addEventListener("click", closeModal);
+            }
+            
+            // Fermer le modal en cliquant sur l'overlay
+            if (logoutModal) {
+                logoutModal.addEventListener("click", function(e) {
+                    if (e.target === logoutModal) {
+                        closeModal();
+                    }
+                });
+            }
+            
+            // Animation de chargement lors de la soumission du formulaire
+            const confirmLogoutBtn = document.getElementById("confirmLogout");
+            const logoutForm = document.getElementById("logoutForm");
+            
+            if (logoutForm && confirmLogoutBtn) {
+                logoutForm.addEventListener("submit", function(e) {
+                    // Animation de chargement
+                    confirmLogoutBtn.innerHTML = `
+                        <div class="relative z-10 flex items-center space-x-3">
+                            <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                            <span>Déconnexion...</span>
+                        </div>
+                    `;
+                    confirmLogoutBtn.disabled = true;
+                });
+            }
+
+            // ========================================= 
+            // GESTION DU MENU MOBILE (CODE EXISTANT)
+            // =========================================
+
+            // Fonction pour vérifier si le contenu du menu déborde
+            function checkMenuScroll() {
+                if (mobileMenu && !mobileMenu.classList.contains("hidden")) {
+                    const isScrollable = mobileMenu.scrollHeight > mobileMenu.clientHeight;
+                    const isScrolledToBottom = Math.abs(mobileMenu.scrollHeight - mobileMenu.clientHeight - mobileMenu.scrollTop) < 1;
+                    
+                    if (scrollIndicator) {
+                        if (isScrollable && !isScrolledToBottom) {
+                            scrollIndicator.classList.add("visible");
+                        } else {
+                            scrollIndicator.classList.remove("visible");
+                        }
+                    }
+                }
+            }
+
+            // Écouter le scroll du menu mobile
+            if (mobileMenu) {
+                mobileMenu.addEventListener("scroll", checkMenuScroll);
+            }
+
+            // Animation du menu burger
+            if (burgerBtn) {
+                burgerBtn.addEventListener("click", () => {
+                    burgerBtn.classList.toggle("burger-open");
+                    
+                    if (mobileMenu.classList.contains("hidden")) {
+                        // Ouvrir le menu
+                        mobileMenu.classList.remove("hidden");
+                        mobileMenu.style.transform = "translateY(-100%)";
+                        mobileMenu.style.opacity = "0";
+                        
+                        // Forcer le reflow pour que les styles initiaux soient appliqués
+                        mobileMenu.offsetHeight;
+                        
+                        // Animation d'entrée
+                        setTimeout(() => {
+                            mobileMenu.style.transform = "translateY(0)";
+                            mobileMenu.style.opacity = "1";
+                            
+                            // Vérifier le scroll après l'ouverture du menu
+                            setTimeout(checkMenuScroll, 350);
+                        }, 10);
+                    } else {
+                        // Fermer le menu avec animation
+                        mobileMenu.style.transform = "translateY(-100%)";
+                        mobileMenu.style.opacity = "0";
+                        
+                        setTimeout(() => {
+                            mobileMenu.classList.add("hidden");
+                            if (scrollIndicator) {
+                                scrollIndicator.classList.remove("visible");
+                            }
+                        }, 300);
+                    }
+                });
+            }
+            
+            // Fermer le menu mobile lors d'un clic sur un lien
+            const mobileLinks = mobileMenu ? mobileMenu.querySelectorAll("a") : [];
+            mobileLinks.forEach(link => {
+                link.addEventListener("click", () => {
+                    if (burgerBtn) burgerBtn.classList.remove("burger-open");
+                    if (mobileMenu) {
+                        mobileMenu.style.transform = "translateY(-100%)";
+                        mobileMenu.style.opacity = "0";
+                        
+                        setTimeout(() => {
+                            mobileMenu.classList.add("hidden");
+                            if (scrollIndicator) {
+                                scrollIndicator.classList.remove("visible");
+                            }
+                        }, 300);
+                    }
+                });
+            });
+            
+            // Touche ESC pour fermer la recherche, le menu mobile et le modal
+            document.addEventListener("keydown", function(e) {
+                if (e.key === "Escape") {
+                    // Fermer le modal de déconnexion
+                    if (logoutModal && !logoutModal.classList.contains("hidden")) {
+                        closeModal();
+                    }
+                    
+                    // Fermer la recherche tablette
+                    const searchContainer = document.getElementById("tabletSearchContainer");
+                    const searchIcon = document.getElementById("tabletSearchIcon");
+                    
+                    if (searchContainer && searchContainer.classList.contains("active")) {
+                        searchContainer.classList.remove("active");
+                        if (searchIcon) searchIcon.classList.remove("active");
+                        
+                        // Vider le champ de recherche et les résultats
+                        const searchInput = document.getElementById("searchRecipeTablet");
+                        const searchResults = document.getElementById("recipeResultsTablet");
+                        
+                        if (searchInput) searchInput.value = "";
+                        if (searchResults) {
+                            searchResults.innerHTML = "";
+                            searchResults.classList.add("hidden");
+                        }
+                    }
+                    
+                    // Fermer le menu mobile
+                    if (mobileMenu && !mobileMenu.classList.contains("hidden")) {
+                        if (burgerBtn) burgerBtn.classList.remove("burger-open");
+                        mobileMenu.style.transform = "translateY(-100%)";
+                        mobileMenu.style.opacity = "0";
+                        
+                        setTimeout(() => {
+                            mobileMenu.classList.add("hidden");
+                            if (scrollIndicator) {
+                                scrollIndicator.classList.remove("visible");
+                            }
+                        }, 300);
+                    }
+                }
+            });
+            
+            // Vérifier le scroll lors du redimensionnement de la fenêtre
+            window.addEventListener("resize", checkMenuScroll);
+        });
+    </script>
 </body>
 </html>
