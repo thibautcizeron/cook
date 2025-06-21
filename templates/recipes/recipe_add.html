@@ -3,118 +3,143 @@
 
 {% block content %}
 
-<div class="bg-gray-800 py-8 min-h-screen">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6">
-        <div class="bg-white shadow-2xl rounded-xl overflow-hidden">
-            <!-- Header -->
-            <div class="bg-blue-600 py-5">
-                <h2 class="text-center text-xl sm:text-2xl md:text-3xl font-bold text-white">Créer une recette</h2>
+<div class="min-h-screen bg-gray-800 text-white">
+    <!-- Hero Section minimaliste -->
+    <div class="relative overflow-hidden">
+        <!-- Grille subtile en arrière-plan -->
+        <div class="absolute inset-0 opacity-[0.02]">
+            <div style="background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 50px 50px;"></div>
+        </div>
+        
+        <div class="max-w-6xl mx-auto px-6 py-16">
+            <div class="text-center">
+                <h1 class="text-5xl md:text-6xl font-light tracking-tight text-white mb-4">
+                    Créer une recette
+                </h1>
+                <div class="w-24 h-0.5 bg-gradient-to-r from-green-600 to-transparent mx-auto mb-6"></div>
+                <p class="text-xl text-gray-400 max-w-2xl mx-auto font-light">
+                    Partagez votre création culinaire avec la communauté
+                </p>
             </div>
+        </div>
+    </div>
+
+    <!-- Contenu principal -->
+    <div class="max-w-5xl mx-auto px-6 pb-20">
+        <div class="bg-gray-900 rounded-3xl overflow-hidden border border-gray-700 shadow-2xl backdrop-blur-sm">
             
             <!-- Form -->
-            <form method="post" enctype="multipart/form-data" class="p-4 sm:p-6 md:p-8">
+            <form method="post" enctype="multipart/form-data" class="p-8">
                 {% csrf_token %}
                 
                 <!-- Affichage des erreurs générales -->
                 {% if form.non_field_errors %}
-                    <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+                    <div class="mb-6 p-4 bg-red-500/10 border border-red-500/30 text-red-200 rounded-2xl backdrop-blur-sm">
                         {{ form.non_field_errors }}
                     </div>
                 {% endif %}
                 
-                <!-- Basic Info -->
-                <div class="grid md:grid-cols-2 gap-6 mb-8">
-                    <!-- Left column -->
-                    <div class="space-y-5">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Nom de la recette *</label>
+                <!-- Informations de base -->
+                <div class="grid md:grid-cols-2 gap-8 mb-12">
+                    <!-- Colonne gauche -->
+                    <div class="space-y-6">
+                        <!-- Nom de la recette -->
+                        <div class="form-section">
+                            <label class="block text-lg font-medium text-gray-300 mb-3">Nom de la recette *</label>
                             <input type="text" name="titre" required
-                                class="border border-gray-300 p-2 sm:p-3 rounded-lg w-full text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                class="w-full bg-gray-800 border border-gray-600 rounded-2xl px-6 py-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 shadow-sm"
                                 placeholder="Entrez le nom de votre recette">
                             {% if recette_form.titre.errors %}
-                                <div class="text-red-500 text-sm mt-1">{{ recette_form.titre.errors }}</div>
+                                <div class="text-red-400 text-sm mt-2">{{ recette_form.titre.errors }}</div>
                             {% endif %}
                         </div>
                         
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre de personnes</label>
+                        <!-- Nombre de personnes -->
+                        <div class="form-section">
+                            <label class="block text-lg font-medium text-gray-300 mb-3">Nombre de personnes</label>
                             <input type="number" name="nbpersonne" min="1" max="20" value="4"
-                                class="border border-gray-300 p-2 sm:p-3 rounded-lg w-full text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+                                class="w-full bg-gray-800 border border-gray-600 rounded-2xl px-6 py-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 shadow-sm">
                             {% if recette_form.nbpersonne.errors %}
-                                <div class="text-red-500 text-sm mt-1">{{ recette_form.nbpersonne.errors }}</div>
+                                <div class="text-red-400 text-sm mt-2">{{ recette_form.nbpersonne.errors }}</div>
                             {% endif %}
                         </div>
                         
-                        <div>
-                            <label for="id_categorie" class="block text-sm font-medium text-gray-700 mb-1">Catégorie</label>
+                        <!-- Catégorie -->
+                        <div class="form-section">
+                            <label for="id_categorie" class="block text-lg font-medium text-gray-300 mb-3">Catégorie</label>
                             <div class="relative">
                                 <select id="id_categorie" name="categorie" 
-                                    class="appearance-none block w-full p-2 sm:p-3 border border-gray-300 rounded-lg 
-                                    focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-700 pr-8 transition">
+                                    class="appearance-none w-full bg-gray-800 border border-gray-600 rounded-2xl px-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 shadow-sm pr-12">
                                     <option value="">Sélectionner une catégorie</option>
                                     {% for categorie in categories %}
                                         <option value="{{ categorie.id }}">{{ categorie.nom }}</option>
                                     {% endfor %}
                                 </select>
-                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-400">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                     </svg>
                                 </div>
                             </div>
                             {% if recette_form.categorie.errors %}
-                                <div class="text-red-500 text-sm mt-1">{{ recette_form.categorie.errors }}</div>
+                                <div class="text-red-400 text-sm mt-2">{{ recette_form.categorie.errors }}</div>
                             {% endif %}
                         </div>
                     </div>
                     
-                    <!-- Right column -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Image de la recette</label>
-                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors">
-                            <div class="mb-4 flex justify-center items-center h-32 sm:h-48" id="image-preview-container">
-                                <svg class="h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" id="default-icon">
+                    <!-- Colonne droite - Image -->
+                    <div class="form-section">
+                        <label class="block text-lg font-medium text-gray-300 mb-3">Image de la recette</label>
+                        <div class="border-2 border-dashed border-gray-600 rounded-3xl p-8 text-center hover:border-green-500/50 transition-all duration-300 bg-gray-800/50 backdrop-blur-sm">
+                            <div class="mb-6 flex justify-center items-center h-48" id="image-preview-container">
+                                <svg class="h-16 w-16 text-gray-500" stroke="currentColor" fill="none" viewBox="0 0 48 48" id="default-icon">
                                     <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                                 </svg>
-                                <img id="image-preview" class="hidden max-h-48 max-w-full object-contain rounded-lg shadow-md" alt="Aperçu de l'image">
+                                <img id="image-preview" class="hidden max-h-48 max-w-full object-contain rounded-2xl shadow-md" alt="Aperçu de l'image">
                             </div>
                             <input type="file" name="image" accept="image/*" id="image-input"
-                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
-                            <p class="text-xs text-gray-500 mt-2">
+                                class="block w-full text-sm text-gray-400 file:mr-4 file:py-3 file:px-6 file:rounded-2xl file:border-0 file:text-sm file:font-semibold file:bg-green-500/20 file:text-green-300 hover:file:bg-green-500/30 cursor-pointer transition-all duration-300">
+                            <p class="text-sm text-gray-500 mt-4">
                                 Formats acceptés: JPG, PNG, WEBP (Max: 5MB)<br>
                                 L'image sera automatiquement optimisée
                             </p>
                             {% if recette_form.image.errors %}
-                                <div class="text-red-500 text-sm mt-2">{{ recette_form.image.errors }}</div>
+                                <div class="text-red-400 text-sm mt-3">{{ recette_form.image.errors }}</div>
                             {% endif %}
                         </div>
                     </div>
                 </div>
                 
-                <!-- Ingredients Section -->
-                <div class="mb-8">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg sm:text-xl font-semibold text-gray-800 flex items-center">
-                            <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
-                            </svg>
+                <!-- Section Ingrédients -->
+                <div class="mb-12">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-2xl font-medium text-white flex items-center">
+                            <div class="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center mr-4">
+                                <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                                </svg>
+                            </div>
                             Ingrédients
                         </h3>
-                        <button type="button" id="add-ingredient" class="flex items-center bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 sm:px-4 sm:py-2 rounded-lg text-sm font-medium transition">
-                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                            </svg>
-                            Ajouter
+                        <button type="button" id="add-ingredient" class="group flex items-center space-x-3 bg-white/5 hover:bg-purple-500/10 border border-white/10 hover:border-purple-500/30 rounded-2xl px-6 py-3 transition-all duration-300 backdrop-blur-sm">
+                            <div class="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center group-hover:bg-purple-500/30 transition-colors">
+                                <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                            </div>
+                            <span class="text-gray-300 group-hover:text-white transition-colors font-medium">
+                                Ajouter
+                            </span>
                         </button>
                     </div>
                     
-                    <div id="ingredient-formset" class="space-y-3 bg-gray-50 p-3 sm:p-4 rounded-xl">
+                    <div id="ingredient-formset" class="space-y-4 bg-gray-800/50 p-6 rounded-3xl backdrop-blur-sm border border-gray-700">
                         {{ ingredient_formset.management_form }}
                         {% for form in ingredient_formset %}
-                            <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-2 sm:space-y-0 ingredient-form bg-white p-3 rounded-lg shadow-sm">
+                            <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-3 sm:space-y-0 ingredient-form bg-gray-800 p-5 rounded-2xl border border-gray-600 transition-all duration-300">
                                 <div class="w-full sm:w-1/2">
-                                    <label class="block text-xs font-medium text-gray-500 mb-1">Ingrédient</label>
-                                    <select name="{{ form.prefix }}-ingredient" class="border border-gray-300 p-2 rounded-lg w-full text-gray-700 focus:ring-blue-500 focus:border-transparent">
+                                    <label class="block text-sm font-medium text-gray-400 mb-2">Ingrédient</label>
+                                    <select name="{{ form.prefix }}-ingredient" class="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300">
                                         <option value="">Sélectionner</option>
                                         {% for ingredient in ingredients %}
                                             <option value="{{ ingredient.id }}">{{ ingredient.nom }}</option>
@@ -122,12 +147,12 @@
                                     </select>
                                 </div>
                                 <div class="w-full sm:w-1/3">
-                                    <label class="block text-xs font-medium text-gray-500 mb-1">Quantité</label>
-                                    <input type="text" name="{{ form.prefix }}-quantite" placeholder="ex: 250g, 2 cuillères..." class="border border-gray-300 p-2 rounded-lg w-full text-gray-700 focus:ring-blue-500 focus:border-transparent">
+                                    <label class="block text-sm font-medium text-gray-400 mb-2">Quantité</label>
+                                    <input type="text" name="{{ form.prefix }}-quantite" placeholder="ex: 250g, 2 cuillères..." class="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300">
                                 </div>
                                 <div class="flex justify-end sm:w-auto sm:flex-none sm:flex-shrink-0 sm:items-end">
-                                    <button type="button" class="bg-red-100 hover:bg-red-200 text-red-700 w-8 h-8 rounded-full flex items-center justify-center remove-ingredient transition">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <button type="button" class="bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 hover:text-red-200 w-12 h-12 rounded-xl flex items-center justify-center remove-ingredient transition-all duration-300">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                         </svg>
                                     </button>
@@ -137,54 +162,76 @@
                     </div>
                 </div>
                 
-                <!-- Steps Section -->
-                <div class="mb-8">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg sm:text-xl font-semibold text-gray-800 flex items-center">
-                            <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
-                            </svg>
+                <!-- Section Étapes -->
+                <div class="mb-12">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-2xl font-medium text-white flex items-center">
+                            <div class="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center mr-4">
+                                <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                                </svg>
+                            </div>
                             Étapes de préparation
                         </h3>
-                        <button type="button" id="add-etape" class="flex items-center bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 sm:px-4 sm:py-2 rounded-lg text-sm font-medium transition">
-                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                            </svg>
-                            Ajouter
+                        <button type="button" id="add-etape" class="group flex items-center space-x-3 bg-white/5 hover:bg-blue-500/10 border border-white/10 hover:border-blue-500/30 rounded-2xl px-6 py-3 transition-all duration-300 backdrop-blur-sm">
+                            <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center group-hover:bg-blue-500/30 transition-colors">
+                                <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                            </div>
+                            <span class="text-gray-300 group-hover:text-white transition-colors font-medium">
+                                Ajouter
+                            </span>
                         </button>
                     </div>
                     
-                    <div id="etape-formset" class="space-y-4 bg-gray-50 p-3 sm:p-4 rounded-xl">
+                    <div id="etape-formset" class="space-y-4 bg-gray-800/50 p-6 rounded-3xl backdrop-blur-sm border border-gray-700">
                         {{ etape_formset.management_form }}
                         {% for form in etape_formset %}
-                            <div class="etape-form bg-white p-3 sm:p-4 rounded-lg shadow-sm">
-                                <div class="flex justify-between items-center mb-2">
-                                    <label class="block text-sm font-medium text-gray-700 bg-blue-100 px-3 py-1 rounded-full">Étape {{ forloop.counter }}</label>
-                                    <button type="button" class="bg-red-100 hover:bg-red-200 text-red-700 w-8 h-8 rounded-full flex items-center justify-center remove-etape transition">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <div class="etape-form bg-gray-800 p-6 rounded-2xl border border-gray-600 transition-all duration-300">
+                                <div class="flex justify-between items-center mb-4">
+                                    <span class="inline-flex items-center bg-blue-500/20 border border-blue-500/30 text-blue-200 px-4 py-2 rounded-2xl font-medium backdrop-blur-sm">
+                                        <svg class="w-4 h-4 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        Étape {{ forloop.counter }}
+                                    </span>
+                                    <button type="button" class="bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 hover:text-red-200 w-12 h-12 rounded-xl flex items-center justify-center remove-etape transition-all duration-300">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                         </svg>
                                     </button>
                                 </div>
-                                <textarea name="{{ form.prefix }}-description" placeholder="Décrivez cette étape de préparation..." class="border border-gray-300 p-2 sm:p-3 rounded-lg w-full text-gray-700 focus:ring-blue-500 focus:border-transparent min-h-24"></textarea>
+                                <textarea name="{{ form.prefix }}-description" placeholder="Décrivez cette étape de préparation..." class="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 min-h-32 resize-vertical"></textarea>
                             </div>
                         {% endfor %}
                     </div>
                 </div>
                 
-                <!-- Action Buttons -->
-                <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-3 sm:space-y-0 pt-4 border-t border-gray-200">
-                    <button type="submit" class="w-full sm:flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium transition flex items-center justify-center">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                        Créer la recette
+                <!-- Boutons d'action -->
+                <div class="flex flex-col sm:flex-row gap-6 pt-8 border-t border-gray-700">
+                    <!-- Bouton Créer -->
+                    <button type="submit" class="group flex-1 flex items-center justify-center space-x-3 bg-white/5 hover:bg-green-500/10 border border-white/10 hover:border-green-500/30 rounded-2xl px-8 py-4 transition-all duration-300 backdrop-blur-sm">
+                        <div class="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center group-hover:bg-green-500/30 transition-colors">
+                            <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                        <span class="text-gray-300 group-hover:text-white transition-colors font-medium text-lg">
+                            Créer la recette
+                        </span>
                     </button>
-                    <a href="{% url 'recipes_list' %}" class="w-full sm:flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-lg font-medium transition flex items-center justify-center">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                        Annuler
+                    
+                    <!-- Bouton Annuler -->
+                    <a href="{% url 'recipes_list' %}" class="group flex-1 flex items-center justify-center space-x-3 bg-white/5 hover:bg-gray-500/10 border border-white/10 hover:border-gray-500/30 rounded-2xl px-8 py-4 transition-all duration-300 backdrop-blur-sm">
+                        <div class="w-10 h-10 rounded-full bg-gray-500/20 flex items-center justify-center group-hover:bg-gray-500/30 transition-colors">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </div>
+                        <span class="text-gray-300 group-hover:text-white transition-colors font-medium text-lg">
+                            Annuler
+                        </span>
                     </a>
                 </div>
             </form>
@@ -218,18 +265,28 @@
                     return;
                 }
                 
-                // Afficher l'aperçu
+                // Afficher l'aperçu avec animation
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     imagePreview.src = e.target.result;
                     imagePreview.classList.remove('hidden');
+                    imagePreview.style.opacity = '0';
                     defaultIcon.classList.add('hidden');
+                    
+                    // Animation d'apparition
+                    setTimeout(() => {
+                        imagePreview.style.transition = 'opacity 0.3s ease';
+                        imagePreview.style.opacity = '1';
+                    }, 50);
                 };
                 reader.readAsDataURL(file);
             } else {
-                // Remettre l'icône par défaut
-                imagePreview.classList.add('hidden');
-                defaultIcon.classList.remove('hidden');
+                // Remettre l'icône par défaut avec animation
+                imagePreview.style.opacity = '0';
+                setTimeout(() => {
+                    imagePreview.classList.add('hidden');
+                    defaultIcon.classList.remove('hidden');
+                }, 150);
             }
         });
 
@@ -259,8 +316,9 @@
             
             // Attacher l'event listener de suppression au nouveau bouton
             newForm.querySelector(".remove-ingredient").addEventListener("click", function () {
-                // Ajouter une animation de suppression
-                newForm.classList.add('transition-all', 'duration-300');
+                // Animation de suppression moderne
+                newForm.style.transition = 'all 0.3s ease';
+                newForm.style.transform = 'translateX(-100%)';
                 newForm.style.opacity = '0';
                 setTimeout(() => {
                     newForm.remove();
@@ -269,12 +327,14 @@
                 }, 300);
             });
             
-            // Ajouter une animation simple
-            newForm.classList.add('opacity-0');
+            // Animation d'apparition moderne
+            newForm.style.opacity = '0';
+            newForm.style.transform = 'translateY(20px)';
             setTimeout(() => {
-                newForm.classList.add('transition-opacity', 'duration-300');
-                newForm.classList.remove('opacity-0');
-            }, 10);
+                newForm.style.transition = 'all 0.3s ease';
+                newForm.style.opacity = '1';
+                newForm.style.transform = 'translateY(0)';
+            }, 50);
         });
 
         // Attacher les event listeners de suppression aux boutons existants
@@ -282,8 +342,9 @@
             button.addEventListener("click", function () {
                 const form = this.closest(".ingredient-form");
                 
-                // Ajouter une animation de suppression
-                form.classList.add('transition-all', 'duration-300');
+                // Animation de suppression moderne
+                form.style.transition = 'all 0.3s ease';
+                form.style.transform = 'translateX(-100%)';
                 form.style.opacity = '0';
                 setTimeout(() => {
                     form.remove();
@@ -310,8 +371,15 @@
             if (textareaElement) textareaElement.value = "";
             
             // Mettre à jour le label de l'étape
-            let labelElement = newForm.querySelector("label.block.text-sm.font-medium");
-            if (labelElement) labelElement.textContent = `Étape ${etapeFormCount + 1}`;
+            let labelElement = newForm.querySelector("span.inline-flex");
+            if (labelElement) {
+                labelElement.innerHTML = `
+                    <svg class="w-4 h-4 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Étape ${etapeFormCount + 1}
+                `;
+            }
             
             // Ajouter le nouveau formulaire et mettre à jour le compteur
             etapeFormset.appendChild(newForm);
@@ -320,25 +388,26 @@
             
             // Attacher l'event listener de suppression au nouveau bouton
             newForm.querySelector(".remove-etape").addEventListener("click", function () {
-                // Ajouter une animation de suppression
-                newForm.classList.add('transition-all', 'duration-300');
+                // Animation de suppression moderne
+                newForm.style.transition = 'all 0.3s ease';
+                newForm.style.transform = 'translateX(-100%)';
                 newForm.style.opacity = '0';
                 setTimeout(() => {
                     newForm.remove();
                     etapeFormCount--;
                     etapeTotalForms.value = etapeFormCount;
-                    
-                    // Mettre à jour les numéros d'étapes
                     updateEtapeNumbers();
                 }, 300);
             });
             
-            // Ajouter une animation simple
-            newForm.classList.add('opacity-0');
+            // Animation d'apparition moderne
+            newForm.style.opacity = '0';
+            newForm.style.transform = 'translateY(20px)';
             setTimeout(() => {
-                newForm.classList.add('transition-opacity', 'duration-300');
-                newForm.classList.remove('opacity-0');
-            }, 10);
+                newForm.style.transition = 'all 0.3s ease';
+                newForm.style.opacity = '1';
+                newForm.style.transform = 'translateY(0)';
+            }, 50);
         });
 
         // Attacher les event listeners de suppression aux boutons existants
@@ -346,8 +415,9 @@
             button.addEventListener("click", function () {
                 const form = this.closest(".etape-form");
                 
-                // Ajouter une animation de suppression
-                form.classList.add('transition-all', 'duration-300');
+                // Animation de suppression moderne
+                form.style.transition = 'all 0.3s ease';
+                form.style.transform = 'translateX(-100%)';
                 form.style.opacity = '0';
                 setTimeout(() => {
                     form.remove();
@@ -363,13 +433,176 @@
             let visibleEtapes = Array.from(etapeFormset.querySelectorAll(".etape-form"));
             
             visibleEtapes.forEach((etape, index) => {
-                let label = etape.querySelector("label.block.text-sm.font-medium");
+                let label = etape.querySelector("span.inline-flex");
                 if (label) {
-                    label.textContent = `Étape ${index + 1}`;
+                    label.innerHTML = `
+                        <svg class="w-4 h-4 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Étape ${index + 1}
+                    `;
                 }
             });
         }
+
+        // Animation d'entrée pour les sections
+        const sections = document.querySelectorAll('.form-section');
+        sections.forEach((section, index) => {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                section.style.opacity = '1';
+                section.style.transform = 'translateY(0)';
+            }, 100 + (index * 150));
+        });
+
+        // Auto-resize pour les textareas
+        document.querySelectorAll('textarea').forEach(textarea => {
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = this.scrollHeight + 'px';
+            });
+        });
+
+        // Validation en temps réel
+        const requiredFields = document.querySelectorAll('[required]');
+        requiredFields.forEach(field => {
+            field.addEventListener('blur', function() {
+                if (this.value.trim() === '') {
+                    this.style.borderColor = 'rgb(239, 68, 68)';
+                    this.style.boxShadow = '0 0 0 2px rgba(239, 68, 68, 0.2)';
+                } else {
+                    this.style.borderColor = 'rgb(34, 197, 94)';
+                    this.style.boxShadow = '0 0 0 2px rgba(34, 197, 94, 0.2)';
+                }
+            });
+            
+            field.addEventListener('input', function() {
+                if (this.value.trim() !== '') {
+                    this.style.borderColor = 'rgb(75, 85, 99)';
+                    this.style.boxShadow = 'none';
+                }
+            });
+        });
     });
 </script>
+
+<style>
+/* Animation d'apparition subtile */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Amélioration du glassmorphism */
+.backdrop-blur-sm {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+/* Transitions fluides */
+* {
+    transition-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Focus states accessibles */
+input:focus, select:focus, textarea:focus, button:focus {
+    outline: none;
+}
+
+/* États de validation */
+.form-field-error {
+    border-color: rgb(239, 68, 68) !important;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2) !important;
+}
+
+.form-field-success {
+    border-color: rgb(34, 197, 94) !important;
+    box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2) !important;
+}
+
+/* Style pour les inputs de fichier */
+input[type="file"] {
+    transition: all 0.3s ease;
+}
+
+input[type="file"]:hover {
+    background-color: rgba(75, 85, 99, 0.1);
+}
+
+/* Amélioration des select */
+select {
+    background-image: none;
+}
+
+/* Animation pour les boutons */
+button:hover {
+    transform: translateY(-1px);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+/* Optimisations mobiles */
+@media (max-width: 768px) {
+    .text-5xl {
+        font-size: 2.5rem;
+    }
+    .text-6xl {
+        font-size: 3rem;
+    }
+}
+
+/* Performance optimizations */
+.group-hover\:scale-105:hover {
+    will-change: transform;
+}
+
+/* Micro-interactions */
+.ingredient-form:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.etape-form:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Auto-resize pour les textareas */
+textarea {
+    resize: vertical;
+    min-height: 8rem;
+}
+
+/* Custom scrollbar pour les textareas */
+textarea::-webkit-scrollbar {
+    width: 8px;
+}
+
+textarea::-webkit-scrollbar-track {
+    background: rgb(31, 41, 55);
+    border-radius: 10px;
+}
+
+textarea::-webkit-scrollbar-thumb {
+    background: linear-gradient(to bottom, rgb(75, 85, 99), rgb(107, 114, 128));
+    border-radius: 10px;
+    border: 2px solid rgb(31, 41, 55);
+}
+
+textarea::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(to bottom, rgb(107, 114, 128), rgb(156, 163, 175));
+}
+</style>
 
 {% endblock %}

@@ -963,6 +963,6 @@ def show_cocktails(request):
 
     return render(request, 'public/home/layout_cocktails.html', {'cocktails': cocktails})
 
-def loading_page(request):
-    return render(request, 'base/loading.html')
+# def loading_page(request):
+#     return render(request, 'base/loading.html')
 

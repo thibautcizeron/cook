@@ -3,96 +3,393 @@
 {% block title %}Mon Compte{% endblock %}
 
 {% block content %}
-<!-- Fond sombre pour correspondre à la page de connexion -->
-<div class="bg-gray-800 min-h-screen py-8 px-4 sm:px-6 md:py-12">
-    <div class="max-w-lg mx-auto bg-gray-800 rounded-xl shadow-2xl overflow-hidden">
-        <!-- En-tête stylisé -->
-        <div class="bg-green-600 px-6 py-4">
-            <h2 class="text-2xl sm:text-3xl font-bold text-white text-center">Mon Compte</h2>
-        </div>
-
-        <!-- Onglets pour basculer entre l'affichage et la modification -->
-        <div class="bg-gray-700 px-4 py-2 flex border-b border-gray-600">
-            <a href="{% url 'account' %}" class="px-4 py-2 font-medium rounded-t-lg mr-2 bg-gray-800 text-green-400 border-b-2 border-green-500">
-                Afficher
-            </a>
-            <a href="{% url 'account_edit' %}" class="px-4 py-2 font-medium rounded-t-lg text-gray-300 hover:text-green-400">
-                Modifier
-            </a>
-        </div>
-
-        <!-- Mode affichage -->
-        <div class="p-6 sm:p-8">
-            <div class="grid grid-cols-1 gap-4 sm:gap-6">
-                <!-- Information utilisateur avec cards individuelles pour chaque élément -->
-                <div class="bg-gray-700 rounded-lg p-4 shadow-sm border border-gray-600">
-                    <p class="text-gray-400 text-sm">Nom d'utilisateur</p>
-                    <p class="text-gray-200 font-semibold text-lg">{{ user.username }}</p>
-                </div>
-                
-                <div class="bg-gray-700 rounded-lg p-4 shadow-sm border border-gray-600">
-                    <p class="text-gray-400 text-sm">Email</p>
-                    <p class="text-gray-200 font-semibold text-lg break-all">{{ user.email }}</p>
-                </div>
-                
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div class="bg-gray-700 rounded-lg p-4 shadow-sm border border-gray-600">
-                        <p class="text-gray-400 text-sm">Prénom</p>
-                        <p class="text-gray-200 font-semibold text-lg">{{ user.first_name }}</p>
-                    </div>
-                    
-                    <div class="bg-gray-700 rounded-lg p-4 shadow-sm border border-gray-600">
-                        <p class="text-gray-400 text-sm">Nom</p>
-                        <p class="text-gray-200 font-semibold text-lg">{{ user.last_name }}</p>
-                    </div>
-                </div>
-                
-                <div class="bg-gray-700 rounded-lg p-4 shadow-sm border border-gray-600">
-                    <p class="text-gray-400 text-sm">Date d'inscription</p>
-                    <p class="text-gray-200 font-semibold text-lg">{{ user.date_joined|date:"d/m/Y H:i" }}</p>
-                </div>
-            </div>
-
-            <!-- Boutons d'action avec design amélioré -->
-            <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">              
-                <a href="{% url 'home' %}" class="flex justify-center items-center bg-gray-600 hover:bg-gray-500 text-gray-200 font-medium py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                    </svg>
-                    Retour
-                </a>
-                <a href="{% url 'account_edit' %}" class="flex justify-center items-center bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                    </svg>
-                    Modifier mon profil
-                </a>
-            </div>
-
-            <!-- Zone de danger pour la suppression du compte -->
-            <div class="mt-8 bg-red-50 border border-red-200 rounded-lg p-4">
-                <h3 class="text-lg font-medium text-red-800 mb-2 flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                    Zone de danger
-                </h3>
-                <p class="text-sm text-red-700 mb-3">
-                    Une fois que vous supprimez votre compte, il n'y a pas de retour en arrière. Soyez certain de votre choix.
-                </p>
-                <a href="{% url 'account_delete' %}" class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md shadow-sm hover:shadow-md transition-all duration-300">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                    Supprimer mon compte
-                </a>
-            </div>
-        </div>
+<div class="min-h-screen bg-gray-800 py-8 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+    <!-- Grille d'arrière-plan -->
+    <div class="absolute inset-0 opacity-[0.02]">
+        <div style="background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 40px 40px;"></div>
     </div>
     
-    <!-- Information de dernière connexion -->
-    <div class="max-w-lg mx-auto mt-4 text-center text-gray-500 text-sm">
-        Dernière connexion : {{ user.last_login|date:"d/m/Y H:i"|default:"Première connexion" }}
+    <!-- Effets lumineux en arrière-plan -->
+    <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-green-500/5 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl"></div>
+    
+    <div class="max-w-2xl mx-auto relative z-10">
+        <!-- En-tête modernisé -->
+        <div class="text-center mb-8">
+            <div class="mx-auto w-20 h-20 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-3xl flex items-center justify-center mb-6 backdrop-blur-sm border border-white/10">
+                <svg class="w-10 h-10 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+            </div>
+            <h1 class="text-4xl sm:text-5xl font-light tracking-tight text-white mb-2">
+                Mon Compte
+            </h1>
+            <p class="text-gray-400 text-sm">
+                Gérez vos informations personnelles
+            </p>
+        </div>
+
+        <!-- Navigation par onglets modernisée -->
+        <div class="bg-gray-900/30 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-2 mb-8">
+            <nav class="flex space-x-2">
+                <a href="{% url 'account' %}" class="flex-1 text-center px-4 py-2 text-sm font-medium bg-green-500/20 text-green-400 rounded-xl border border-green-500/30">
+                    Afficher
+                </a>
+                <a href="{% url 'account_edit' %}" class="flex-1 text-center px-4 py-2 text-sm font-medium text-gray-400 hover:text-gray-300 rounded-xl transition-colors duration-200">
+                    Modifier
+                </a>
+                <a href="{% url 'account_delete' %}" class="flex-1 text-center px-4 py-2 text-sm font-medium text-gray-400 hover:text-red-400 rounded-xl transition-colors duration-200">
+                    Supprimer
+                </a>
+            </nav>
+        </div>
+
+        <!-- Container principal -->
+        <div class="bg-gray-900/50 backdrop-blur-sm border border-gray-700/50 rounded-3xl shadow-2xl overflow-hidden">
+            <!-- Contenu principal -->
+            <div class="p-6 sm:p-8">
+               
+
+                <!-- Grille d'informations en liste -->
+                <div class="space-y-4 mb-8">
+                    <!-- Nom d'utilisateur -->
+                    <div class="bg-gray-800/50 rounded-2xl p-6 border border-gray-700/50 backdrop-blur-sm hover:bg-gray-800/70 transition-all duration-300">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                                <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-gray-400 text-sm font-medium mb-1">Nom d'utilisateur</p>
+                                <p class="text-white text-xl font-semibold">{{ user.username }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Email -->
+                    <div class="bg-gray-800/50 rounded-2xl p-6 border border-gray-700/50 backdrop-blur-sm hover:bg-gray-800/70 transition-all duration-300">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                                <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path>
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-gray-400 text-sm font-medium mb-1">Adresse email</p>
+                                <p class="text-white text-xl font-semibold truncate">{{ user.email }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Prénom -->
+                    <div class="bg-gray-800/50 rounded-2xl p-6 border border-gray-700/50 backdrop-blur-sm hover:bg-gray-800/70 transition-all duration-300">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                                <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-gray-400 text-sm font-medium mb-1">Prénom</p>
+                                <p class="text-white text-xl font-semibold">{{ user.first_name|default:"Non renseigné" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Nom -->
+                    <div class="bg-gray-800/50 rounded-2xl p-6 border border-gray-700/50 backdrop-blur-sm hover:bg-gray-800/70 transition-all duration-300">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-orange-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                                <svg class="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-gray-400 text-sm font-medium mb-1">Nom de famille</p>
+                                <p class="text-white text-xl font-semibold">{{ user.last_name|default:"Non renseigné" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Date d'inscription -->
+                    <div class="bg-gray-800/50 rounded-2xl p-6 border border-gray-700/50 backdrop-blur-sm hover:bg-gray-800/70 transition-all duration-300">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                                <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-gray-400 text-sm font-medium mb-1">Membre depuis</p>
+                                <p class="text-white text-xl font-semibold">{{ user.date_joined|date:"d/m/Y" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Dernière connexion -->
+                    <div class="bg-gray-800/50 rounded-2xl p-6 border border-gray-700/50 backdrop-blur-sm hover:bg-gray-800/70 transition-all duration-300">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-cyan-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                                <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-gray-400 text-sm font-medium mb-1">Dernière connexion</p>
+                                <p class="text-white text-xl font-semibold">{{ user.last_login|date:"d/m/Y H:i"|default:"Première connexion" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Boutons d'action modernisés -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                    <!-- Bouton retour -->
+                    <button onclick="window.location.href='{% url 'home' %}'" 
+                       class="group relative overflow-hidden bg-white/5 hover:bg-gray-600/20 border border-white/10 hover:border-gray-500/30 rounded-2xl px-6 py-4 font-medium text-gray-300 hover:text-white transition-all duration-300 backdrop-blur-sm transform hover:-translate-y-1 hover:shadow-xl flex items-center justify-center space-x-3 w-full">
+                        <div class="relative z-10 flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-gray-500/20 rounded-xl flex items-center justify-center group-hover:bg-gray-400/30 transition-colors duration-300">
+                                <svg class="w-4 h-4 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                                </svg>
+                            </div>
+                            <span class="font-semibold">Retour à l'accueil</span>
+                        </div>
+                        <!-- Effet de brillance subtil -->
+                        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/3 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-out"></div>
+                    </button>
+                    
+                    <!-- Bouton modifier -->
+                    <button onclick="window.location.href='{% url 'account_edit' %}'" 
+                       class="group relative overflow-hidden bg-gradient-to-r from-green-600 via-emerald-600 to-green-600 hover:from-green-500 hover:via-emerald-500 hover:to-green-500 text-white font-semibold rounded-2xl px-6 py-4 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center space-x-3 w-full">
+                        <div class="relative z-10 flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center group-hover:bg-white/30 transition-colors duration-300">
+                                <svg class="w-4 h-4 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                                </svg>
+                            </div>
+                            <span>Modifier mon profil</span>
+                        </div>
+                        <!-- Effet de brillance dynamique -->
+                        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-out"></div>
+                        <!-- Particules flottantes au hover -->
+                        <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                            <div class="absolute top-2 left-4 w-1 h-1 bg-white/60 rounded-full animate-ping"></div>
+                            <div class="absolute top-6 right-8 w-1 h-1 bg-white/40 rounded-full animate-ping" style="animation-delay: 0.3s;"></div>
+                            <div class="absolute bottom-4 left-12 w-0.5 h-0.5 bg-white/50 rounded-full animate-ping" style="animation-delay: 0.6s;"></div>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Zone de danger modernisée -->
+                <div class="bg-red-500/10 border border-red-500/30 rounded-2xl p-6 backdrop-blur-sm">
+                    <div class="flex items-start space-x-4">
+                        <div class="w-14 h-14 bg-red-500/20 rounded-2xl flex items-center justify-center flex-shrink-0">
+                            <svg class="w-7 h-7 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-xl font-semibold text-red-400 mb-3">
+                                Zone de danger
+                            </h3>
+                            <p class="text-red-300 text-sm mb-6 leading-relaxed">
+                                Une fois que vous supprimez votre compte, il n'y a pas de retour en arrière. 
+                                Toutes vos données seront définitivement supprimées.
+                            </p>
+                            <button onclick="window.location.href='{% url 'account_delete' %}'" 
+                               class="group relative overflow-hidden bg-red-600 hover:bg-red-700 text-white font-semibold rounded-2xl px-6 py-3 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex items-center space-x-3">
+                                <div class="relative z-10 flex items-center space-x-3">
+                                    <div class="w-7 h-7 bg-white/20 rounded-xl flex items-center justify-center group-hover:bg-white/30 transition-colors duration-300">
+                                        <svg class="w-4 h-4 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                        </svg>
+                                    </div>
+                                    <span>Supprimer mon compte</span>
+                                </div>
+                                <!-- Effet de pulsation rouge au hover -->
+                                <div class="absolute inset-0 bg-gradient-to-r from-red-500/20 via-red-400/20 to-red-500/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-out"></div>
+                            </button>
+                        </div>
+                    </div>
+                </div> 
+            </div>
+        </div>
     </div>
 </div>
+
+<style>
+    /* Amélioration du glassmorphism */
+    .backdrop-blur-sm {
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+    }
+    
+    /* Animation des cartes améliorées */
+    .bg-gray-800\/50 {
+        background: rgba(31, 41, 55, 0.5);
+        transition: all 0.3s ease;
+    }
+    
+    .bg-gray-800\/50:hover {
+        background: rgba(31, 41, 55, 0.7);
+        transform: translateY(-2px);
+        border-color: rgba(75, 85, 99, 0.7);
+    }
+    
+    /* Boutons améliorés */
+    button {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    button:active {
+        transform: translateY(0) scale(0.98);
+    }
+    
+    /* Animation des particules */
+    @keyframes ping {
+        75%, 100% {
+            transform: scale(2);
+            opacity: 0;
+        }
+    }
+    
+    .animate-ping {
+        animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+    }
+    
+    /* Effet de pulsation pour les boutons */
+    button:hover {
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(34, 197, 94, 0.1), 0 0 20px rgba(34, 197, 94, 0.1);
+    }
+    
+    /* Bouton rouge spécial */
+    .bg-red-600:hover {
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(239, 68, 68, 0.2), 0 0 20px rgba(239, 68, 68, 0.2);
+    }
+    
+    /* Animation des effets lumineux */
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(180deg); }
+    }
+    
+    .absolute.w-96.h-96:nth-child(2) {
+        animation: float 20s ease-in-out infinite;
+    }
+    
+    .absolute.w-96.h-96:nth-child(3) {
+        animation: float 25s ease-in-out infinite reverse;
+    }
+    
+    /* Focus states accessibles */
+    a:focus {
+        outline: 2px solid #10b981;
+        outline-offset: 2px;
+        border-radius: 12px;
+    }
+    
+    /* Responsive amélioré */
+    @media (max-width: 640px) {
+        .backdrop-blur-sm {
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+        
+        .grid-cols-1.lg\:grid-cols-2 {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    /* Amélioration pour les écrans haute résolution */
+    @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+        .backdrop-blur-sm {
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+        }
+    }
+    
+    /* Mode sombre amélioré */
+    @media (prefers-color-scheme: dark) {
+        .bg-gray-800 {
+            background-color: rgb(17, 24, 39);
+        }
+    }
+    
+    /* Accessibilité : réduction des mouvements */
+    @media (prefers-reduced-motion: reduce) {
+        .absolute.w-96.h-96 {
+            animation: none;
+        }
+        
+        .transition-all,
+        .transition-colors,
+        .transition-transform {
+            transition: none;
+        }
+        
+        .hover\:-translate-y-0\.5:hover,
+        .hover\:-translate-y-2:hover {
+            transform: none;
+        }
+    }
+    
+    /* Animation d'entrée des cartes */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .bg-gray-800\/50 {
+        animation: fadeInUp 0.6s ease-out forwards;
+    }
+    
+    .bg-gray-800\/50:nth-child(1) { animation-delay: 0ms; }
+    .bg-gray-800\/50:nth-child(2) { animation-delay: 100ms; }
+    .bg-gray-800\/50:nth-child(3) { animation-delay: 200ms; }
+    .bg-gray-800\/50:nth-child(4) { animation-delay: 300ms; }
+    
+    /* Effet hover sur l'avatar */
+    .w-24.h-24:hover {
+        transform: scale(1.05);
+        transition: transform 0.3s ease;
+    }
+</style>
+
+<script>
+    // Animation d'entrée de la page
+    document.addEventListener('DOMContentLoaded', function() {
+        const container = document.querySelector('.max-w-2xl');
+        container.style.opacity = '0';
+        container.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            container.style.transition = 'all 0.6s ease-out';
+            container.style.opacity = '1';
+            container.style.transform = 'translateY(0)';
+        }, 100);
+        
+        // Animation des cartes avec délai échelonné
+        const cards = document.querySelectorAll('.bg-gray-800\\/50');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                card.style.transition = 'all 0.5s ease-out';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 300 + (index * 100));
+        });
+    });
+</script>
+
 {% endblock %}

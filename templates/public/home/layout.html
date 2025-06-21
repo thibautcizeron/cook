@@ -8,20 +8,11 @@
     <!-- Section Hero améliorée avec parallax et superposition de texte -->
     <div class="relative w-full h-[400px] sm:h-[500px] md:h-[600px] bg-cover bg-center bg-fixed" style="background-image: url({% static 'images/index/main-layout.jpg' %});">
         <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70 flex flex-col items-center justify-center text-center px-4">
-            <h1 class="text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-2 sm:mb-4 tracking-tight" style="font-family: 'DM Serif Display', serif;">
+            <h1 class="text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light mb-2 sm:mb-4 tracking-wide" style="font-family: 'DM Serif Display', serif;">
                 Découvrez des recettes inspirantes
             </h1>
-
-            {% if is_contributor or is_admin or is_superuser %}
-            <div class="flex justify-center mt-8">
-                <a href="{% url 'recipe_add' %}" class="bg-green-600 text-white px-6 py-3 rounded-full shadow-lg hover:bg-green-700 transition-all">
-                    + Ajouter une recette
-                </a>
-            </div>
-            {% endif %}
         </div>
     </div>
-
 
     <!-- Section Catégories avec designs élégants en carré -->
     <div class="py-10 sm:py-12 md:py-16 bg-gray-900">
@@ -68,67 +59,107 @@
         </div>
     </div>
 
-    <!-- Section Recettes en vedette avec carrousel amélioré -->
+    <!-- Section Recettes en vedette avec carrousel modernisé -->
     <div class="py-10 sm:py-12 md:py-16 bg-gray-800">
         <div class="container mx-auto px-4">
             <h2 class="text-center text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-2 sm:mb-4" style="font-family: 'DM Serif Display', serif; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">Recettes en Vedette</h2>
             <p class="text-center text-gray-400 mb-8 sm:mb-10 md:mb-12 max-w-2xl mx-auto text-sm sm:text-base">Découvrez nos recettes les plus populaires, soigneusement sélectionnées pour vous inspirer</p>
             
-            <!-- Contrôles de carrousel -->
+            <!-- Contrôles de carrousel modernisés -->
             <div class="flex justify-center space-x-4 mb-6 sm:mb-8">
-                <button id="prevBtn" class="bg-gray-700 hover:bg-gray-600 text-white w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center focus:outline-none transition-colors shadow-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <button id="prevBtn" class="w-12 h-12 rounded-full bg-emerald-500/20 hover:bg-emerald-500/30 flex items-center justify-center transition-all duration-300 backdrop-blur-sm border border-white/20 hover:border-emerald-500/50">
+                    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                     </svg>
                 </button>
-                <button id="nextBtn" class="bg-gray-700 hover:bg-gray-600 text-white w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center focus:outline-none transition-colors shadow-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <button id="nextBtn" class="w-12 h-12 rounded-full bg-emerald-500/20 hover:bg-emerald-500/30 flex items-center justify-center transition-all duration-300 backdrop-blur-sm border border-white/20 hover:border-emerald-500/50">
+                    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                     </svg>
                 </button>
             </div>
             
-            <!-- Carrousel amélioré -->
+            <!-- Carrousel modernisé avec cartes grises-900 -->
             <div class="carousel-wrapper overflow-hidden">
                 <div id="recetteCarousel" class="flex transition-transform duration-500 ease-in-out">
                     {% for recette in recettes %}
-                        <div class="recette-card w-3/4 xs:w-1/2 sm:w-1/3 lg:w-1/4 p-2 sm:p-3 flex-shrink-0">
-                            <div class="bg-gray-900 rounded-lg overflow-hidden shadow-lg h-full transform transition-all duration-300 hover:scale-105">
-                                <a href="{% url 'recipe_details' recette.id %}" class="block relative">
-                                    {% if recette.image %}
-                                        <img src="{% static recette.image %}" alt="{{ recette.titre }}" class="w-full h-40 sm:h-48 md:h-56 object-cover">
-                                    {% else %}
-                                        <div class="w-full h-40 sm:h-48 md:h-56 bg-gray-700 flex items-center justify-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                            </svg>
+                        <div class="recette-card w-3/4 xs:w-1/2 sm:w-1/3 lg:w-1/4 p-2 sm:p-3 flex-shrink-0 fade-in-card">
+                            <article class="group cursor-pointer h-full">
+                                <a href="{% url 'recipe_details' recette.id %}" class="block h-full">
+                                    <!-- Container principal avec style moderne -->
+                                    <div class="relative bg-gray-900 rounded-3xl overflow-hidden border border-gray-700 hover:border-gray-600 transition-all duration-500 backdrop-blur-sm group-hover:bg-gray-800 shadow-lg h-full flex flex-col">
+                                        
+                                        <!-- Image section -->
+                                        <div class="relative h-48 sm:h-56 overflow-hidden">
+                                            {% if recette.image %}
+                                                <img src="{% static recette.image %}" 
+                                                     alt="{{ recette.titre }}" 
+                                                     class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                                            {% else %}
+                                                <div class="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center">
+                                                    <div class="text-center">
+                                                        <div class="text-4xl mb-2 opacity-60">🍽️</div>
+                                                        <span class="text-gray-500 text-sm">Image à venir</span>
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+                                            
+                                            <!-- Overlay gradient -->
+                                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                            
+                                            <!-- Badge catégorie flottant -->
+                                            <div class="absolute top-4 left-4 flex flex-col gap-2">
+                                                <span class="px-3 py-1 bg-black/40 backdrop-blur-sm rounded-full text-xs text-white border border-white/20">
+                                                    {% if recette.categorie %}{{ recette.categorie }}{% else %}Recette{% endif %}
+                                                </span>
+                                                
+                                                {% if recette.note_moyenne > 0 %}
+                                                    <div class="flex items-center px-3 py-1 bg-black/40 backdrop-blur-sm rounded-full text-xs text-white border border-white/20">
+                                                        <svg class="w-3 h-3 text-yellow-400 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                                        </svg>
+                                                        {{ recette.note_moyenne|floatformat:1 }}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+
+                                            <!-- Icône de vue au hover -->
+                                            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+                                                <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/30 transform scale-75 group-hover:scale-100 transition-transform duration-300">
+                                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                                    </svg>
+                                                </div>
+                                            </div>
                                         </div>
-                                    {% endif %}
-                                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-3 sm:p-4">
-                                        <span class="inline-block bg-green-600 text-white px-2 py-0.5 sm:px-3 sm:py-1 text-xs rounded-full shadow-sm">
-                                            {% if recette.categorie %}{{ recette.categorie }}{% else %}Recette{% endif %}
-                                        </span>
+
+                                        <!-- Contenu -->
+                                        <div class="p-5 flex-1 flex flex-col">
+                                            <h3 class="text-lg font-medium text-white mb-3 line-clamp-2 group-hover:text-green-400 transition-colors duration-300 flex-1">
+                                                {{ recette.titre }}
+                                            </h3>
+                                            
+                                            {% if recette.nbpersonne %}
+                                                <div class="flex items-center text-gray-400 text-sm mb-4">
+                                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                                    </svg>
+                                                    {{ recette.nbpersonne }} personne{{ recette.nbpersonne|pluralize }}
+                                                </div>
+                                            {% endif %}
+
+                                            <!-- Indicateur d'action -->
+                                            <div class="flex items-center justify-between pt-4 border-t border-gray-700 mt-auto">
+                                                <span class="text-sm text-gray-400">Voir la recette</span>
+                                                <svg class="w-4 h-4 text-gray-400 group-hover:text-green-400 group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                                </svg>
+                                            </div>
+                                        </div>
                                     </div>
                                 </a>
-                                <div class="p-3 sm:p-4">
-                                    <h3 class="text-base sm:text-lg font-semibold text-white mb-1 sm:mb-2">
-                                        <a href="{% url 'recipe_details' recette.id %}" class="hover:text-green-500 transition-colors">
-                                            {{ recette.titre }}
-                                        </a>
-                                    </h3>
-                                    <div class="flex items-center text-gray-400 text-xs sm:text-sm mb-1 sm:mb-2">
-                                        {% if recette.nbpersonne %}
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 sm:h-4 sm:w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                            </svg>
-                                            <span>{{ recette.nbpersonne }} personnes</span>
-                                        {% endif %}
-                                    </div>
-                                    <a href="{% url 'recipe_details' recette.id %}" class="inline-block mt-1 sm:mt-2 text-green-500 hover:text-green-400 text-xs sm:text-sm font-medium transition-colors">
-                                        Voir la recette →
-                                    </a>
-                                </div>
-                            </div>
+                            </article>
                         </div>
                     {% endfor %}
                 </div>
@@ -138,6 +169,39 @@
 </div>
 
 <style>
+    /* Animation d'apparition subtile */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .fade-in-card {
+        animation: fadeInUp 0.6s ease-out forwards;
+        opacity: 0;
+    }
+
+    /* Animation échelonnée pour les cartes */
+    .fade-in-card:nth-child(1) { animation-delay: 0ms; }
+    .fade-in-card:nth-child(2) { animation-delay: 100ms; }
+    .fade-in-card:nth-child(3) { animation-delay: 200ms; }
+    .fade-in-card:nth-child(4) { animation-delay: 300ms; }
+    .fade-in-card:nth-child(n+5) { animation-delay: 400ms; }
+
+    /* Limitation de texte */
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        line-height: 1.4;
+    }
+
     /* Style pour le carrousel */
     .carousel-wrapper {
         width: 100%;
@@ -150,6 +214,7 @@
     
     .recette-card:hover {
         z-index: 10;
+        transform: translateY(-4px);
     }
     
     /* Styles pour les catégories */
@@ -227,15 +292,19 @@
         animation: gentle-pulse 3s infinite ease-in-out;
     }
     
-    /* Styles pour les boutons de navigation */
+    /* Styles modernisés pour les boutons de navigation */
     #prevBtn, #nextBtn {
-        opacity: 0.7;
-        transition: opacity 0.3s ease, transform 0.2s ease;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
     
     #prevBtn:hover, #nextBtn:hover {
-        opacity: 1;
-        transform: scale(1.1);
+        transform: scale(1.05);
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #prevBtn:active, #nextBtn:active {
+        transform: scale(0.95);
     }
     
     /* Animation de fondu pour les sections */
@@ -247,6 +316,46 @@
     .py-10 {
         animation: fadeIn 0.8s ease-out forwards;
     }
+
+    /* Focus states accessibles */
+    a:focus, button:focus {
+        outline: 2px solid #10b981;
+        outline-offset: 4px;
+        border-radius: 8px;
+    }
+
+    /* Amélioration du glassmorphism */
+    .backdrop-blur-sm {
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+    }
+
+    /* Performance optimizations */
+    .group-hover\:scale-105:hover {
+        will-change: transform;
+    }
+
+    /* Transitions fluides */
+    * {
+        transition-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    /* Effet de survol discret */
+    .recette-card:hover .bg-gray-900 {
+        background-color: rgb(31, 41, 55);
+    }
+
+    /* Effet parallax subtil */
+    .recette-card:hover img {
+        transform: scale(1.05) translateZ(0);
+        backface-visibility: hidden;
+    }
+
+    /* Micro-interactions */
+    .recette-card:active {
+        transform: translateY(-2px) scale(0.98);
+        transition: transform 0.1s ease;
+    }
 </style>
 
 <script>
@@ -257,116 +366,177 @@
         
         // Variables pour le carrousel
         let position = 0;
-        const cards = document.querySelectorAll('.recette-card');
-        let cardWidth = cards[0]?.offsetWidth || 0;
+        const originalCards = document.querySelectorAll('.recette-card');
+        const totalOriginalCards = originalCards.length / 2; // Divisé par 2 car on a dupliqué
+        let cardWidth = originalCards[0]?.offsetWidth || 0;
         let visibleCards = Math.floor(carousel.offsetWidth / cardWidth);
-        let maxPosition = Math.max(0, cards.length - visibleCards);
+        let isTransitioning = false;
+        
+        // Variables pour le défilement continu
+        let autoScrollInterval;
+        const autoScrollSpeed = 3000; // 3 secondes
         
         // Fonctions pour le carrousel
         function updateCarouselMetrics() {
-            if (cards.length > 0) {
-                cardWidth = cards[0].offsetWidth;
+            if (originalCards.length > 0) {
+                cardWidth = originalCards[0].offsetWidth;
                 visibleCards = Math.floor(carousel.offsetWidth / cardWidth);
-                maxPosition = Math.max(0, cards.length - visibleCards);
+            }
+        }
+        
+        function updateCarouselPosition(smooth = true) {
+            const translateX = -position * cardWidth;
+            carousel.style.transition = smooth ? 'transform 0.5s ease-in-out' : 'none';
+            carousel.style.transform = `translateX(${translateX}px)`;
+        }
+        
+        function moveCarousel(direction, auto = false) {
+            if (isTransitioning) return;
+            
+            isTransitioning = true;
+            
+            if (direction === 'next') {
+                position++;
+                updateCarouselPosition();
                 
-                // Réajuster la position si nécessaire
-                if (position > maxPosition) {
-                    position = maxPosition;
+                // Si on atteint la fin des cartes originales, revenir au début
+                if (position >= totalOriginalCards) {
+                    setTimeout(() => {
+                        position = 0;
+                        updateCarouselPosition(false);
+                        setTimeout(() => {
+                            isTransitioning = false;
+                        }, 50);
+                    }, 500);
+                } else {
+                    setTimeout(() => {
+                        isTransitioning = false;
+                    }, 500);
+                }
+            } else if (direction === 'prev') {
+                if (position <= 0) {
+                    // Aller à la fin des cartes originales instantanément
+                    position = totalOriginalCards;
+                    updateCarouselPosition(false);
+                    setTimeout(() => {
+                        position = totalOriginalCards - 1;
+                        updateCarouselPosition();
+                        setTimeout(() => {
+                            isTransitioning = false;
+                        }, 500);
+                    }, 50);
+                } else {
+                    position--;
                     updateCarouselPosition();
+                    setTimeout(() => {
+                        isTransitioning = false;
+                    }, 500);
                 }
             }
         }
         
-        function updateCarouselPosition() {
-            const translateX = -position * cardWidth;
-            carousel.style.transform = `translateX(${translateX}px)`;
+        // Défilement automatique continu
+        function startAutoScroll() {
+            stopAutoScroll(); // S'assurer qu'il n'y a pas de doublons
+            autoScrollInterval = setInterval(() => {
+                moveCarousel('next', true);
+            }, autoScrollSpeed);
         }
         
-        function moveCarousel(direction) {
-            if (direction === 'next' && position < maxPosition) {
-                position++;
-            } else if (direction === 'prev' && position > 0) {
-                position--;
+        function stopAutoScroll() {
+            if (autoScrollInterval) {
+                clearInterval(autoScrollInterval);
+                autoScrollInterval = null;
             }
-            
-            updateCarouselPosition();
         }
         
-        // Écouteurs d'événements pour les boutons (seulement si on a des cartes)
-        if (cards.length > 0) {
-            prevBtn.addEventListener('click', () => moveCarousel('prev'));
-            nextBtn.addEventListener('click', () => moveCarousel('next'));
+        // Écouteurs d'événements pour les boutons
+        if (originalCards.length > 0) {
+            prevBtn.addEventListener('click', () => {
+                stopAutoScroll();
+                moveCarousel('prev');
+                // Redémarrer après un délai
+                setTimeout(startAutoScroll, 5000);
+            });
+            
+            nextBtn.addEventListener('click', () => {
+                stopAutoScroll();
+                moveCarousel('next');
+                // Redémarrer après un délai
+                setTimeout(startAutoScroll, 5000);
+            });
             
             // Support tactile pour le carrousel
             let touchStartX = 0;
             let touchEndX = 0;
+            let touchStartTime = 0;
             
             carousel.addEventListener('touchstart', function(e) {
                 touchStartX = e.changedTouches[0].screenX;
+                touchStartTime = Date.now();
+                stopAutoScroll();
             }, false);
             
             carousel.addEventListener('touchend', function(e) {
                 touchEndX = e.changedTouches[0].screenX;
-                handleSwipe();
+                const touchDuration = Date.now() - touchStartTime;
+                
+                // Ignorer les touches trop longues (probablement du scrolling)
+                if (touchDuration < 300) {
+                    handleSwipe();
+                }
+                
+                // Redémarrer l'auto-scroll après un délai
+                setTimeout(startAutoScroll, 3000);
             }, false);
             
             function handleSwipe() {
-                const swipeThreshold = 50; // Nombre de pixels pour considérer un swipe
+                const swipeThreshold = 50;
+                const swipeDistance = Math.abs(touchStartX - touchEndX);
                 
-                if (touchStartX - touchEndX > swipeThreshold) {
-                    // Swipe vers la gauche - image suivante
-                    moveCarousel('next');
-                } else if (touchEndX - touchStartX > swipeThreshold) {
-                    // Swipe vers la droite - image précédente
-                    moveCarousel('prev');
+                if (swipeDistance > swipeThreshold) {
+                    if (touchStartX - touchEndX > 0) {
+                        // Swipe vers la gauche - image suivante
+                        moveCarousel('next');
+                    } else {
+                        // Swipe vers la droite - image précédente
+                        moveCarousel('prev');
+                    }
                 }
             }
+            
+            // Pause au survol
+            carousel.addEventListener('mouseenter', stopAutoScroll);
+            carousel.addEventListener('mouseleave', () => {
+                setTimeout(startAutoScroll, 1000);
+            });
+            
+            // Pause quand l'onglet n'est pas visible
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden) {
+                    stopAutoScroll();
+                } else {
+                    setTimeout(startAutoScroll, 1000);
+                }
+            });
             
             // Ajuster le carrousel en cas de redimensionnement
             function handleResize() {
                 updateCarouselMetrics();
-                updateCarouselPosition();
+                updateCarouselPosition(false);
             }
             
             window.addEventListener('resize', handleResize);
             
-            // Initialisation initiale
+            // Initialisation
             updateCarouselMetrics();
+            updateCarouselPosition(false);
             
-            // Défilement automatique optionnel
-            let autoScroll;
-            
-            function startAutoScroll() {
-                autoScroll = setInterval(() => {
-                    if (position < maxPosition) {
-                        moveCarousel('next');
-                    } else {
-                        // Retour au début
-                        position = 0;
-                        updateCarouselPosition();
-                    }
-                }, 5000);
-            }
-            
-            function stopAutoScroll() {
-                clearInterval(autoScroll);
-            }
-            
-            // Démarrer le défilement automatique
-            startAutoScroll();
-            
-            // Arrêter le défilement automatique au survol ou toucher
-            carousel.addEventListener('mouseenter', stopAutoScroll);
-            carousel.addEventListener('touchstart', stopAutoScroll);
-            
-            // Redémarrer le défilement automatique à la fin du survol ou toucher
-            carousel.addEventListener('mouseleave', startAutoScroll);
-            carousel.addEventListener('touchend', () => {
-                setTimeout(startAutoScroll, 3000); // Délai avant de redémarrer après un toucher
-            });
+            // Démarrer le défilement automatique après un court délai
+            setTimeout(startAutoScroll, 2000);
         }
         
-        // Animation d'entrée pour les catégories
+        // Animation d'entrée pour les catégories (code existant)
         const categoryCards = document.querySelectorAll('.category-card');
         categoryCards.forEach((card, index) => {
             card.style.opacity = '0';

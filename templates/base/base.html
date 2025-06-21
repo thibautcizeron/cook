@@ -11,115 +11,15 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
     <!-- Ajout de Font Awesome pour l'icône de loupe -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="stylesheet" href="{% static 'css/base/main.css' %}">
 
-    <style>
-        #recipeResults, #userMenuModal {
-            position: absolute;
-            z-index: 1050;
-        }
-        
-        /* Animation pour le menu mobile */
-        .mobile-menu-enter {
-            opacity: 0;
-            transform: translateY(-20px);
-        }
-        .mobile-menu-enter-active {
-            opacity: 1;
-            transform: translateY(0);
-            transition: opacity 300ms, transform 300ms;
-        }
-        .mobile-menu-exit {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        .mobile-menu-exit-active {
-            opacity: 0;
-            transform: translateY(-20px);
-            transition: opacity 300ms, transform 300ms;
-        }
-        
-        /* Animation pour les icônes du burger menu */
-        .burger-icon span {
-            display: block;
-            width: 100%;
-            height: 2px;
-            background-color: white;
-            transition: all 0.3s ease;
-        }
-        
-        .burger-open .line1 {
-            transform: rotate(45deg) translate(5px, 5px);
-        }
-        
-        .burger-open .line2 {
-            opacity: 0;
-        }
-        
-        .burger-open .line3 {
-            transform: rotate(-45deg) translate(5px, -5px);
-        }
-        
-        /* Styles pour l'affichage tablette */
-        @media (min-width: 640px) and (max-width: 1023px) {
-            .tablet-nav-container {
-                display: grid;
-                grid-template-columns: auto 1fr auto;
-                align-items: center;
-            }
-            
-            .tablet-nav-title {
-                text-align: center;
-                margin: 0 auto;
-            }
-            
-            .tablet-search-container {
-                position: absolute;
-                top: 60px;
-                left: 0;
-                right: 0;
-                background-color: rgba(31, 41, 55, 0.95);
-                padding: 0.75rem;
-                border-bottom: 1px solid rgba(75, 85, 99, 0.5);
-                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-                z-index: 40;
-                transition: all 0.3s ease;
-                transform-origin: top;
-                transform: scaleY(0);
-                opacity: 0;
-            }
-            
-            .tablet-search-container.active {
-                transform: scaleY(1);
-                opacity: 1;
-            }
-            
-            .search-icon {
-                transition: all 0.3s ease;
-            }
-            
-            .search-icon.active {
-                color: #10B981; /* text-green-500 en Tailwind */
-            }
-        }
-        
-        body {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-        
-        footer {
-            margin-top: auto;
-        }
-
-    </style>
 </head>
 <body class="bg-gray-100">
     <nav class="bg-gray-900/90 backdrop-blur shadow-md py-4 fixed top-0 w-full z-50">
         <div class="container mx-auto px-4 flex items-center justify-between lg:justify-start tablet-nav-container">
             <!-- Logo/Title for all screen sizes -->
-            <h1 class="text-white text-3xl font-serif lg:absolute lg:left-1/2 lg:transform lg:-translate-x-1/2 tablet-nav-title order-2 lg:order-none transition-all duration-300 sm:ml-4 md:ml-0" style="font-family: 'DM Serif Display', serif;">
-                COOKFAMILY
+            <h1  class="text-white text-3xl font-serif lg:absolute lg:left-1/2 lg:transform lg:-translate-x-1/2 tablet-nav-title order-2 lg:order-none transition-all duration-300 sm:ml-4 md:ml-0" style="font-family: 'DM Serif Display', serif;">
+                <a href="{% url 'home' %}">COOKFAMILY</a>
             </h1>
             
             <!-- Desktop navigation links -->
@@ -158,37 +58,37 @@
                 <div class="relative w-80 lg:w-80 hidden lg:block">
                     <form method="GET" action="{% url 'search_recipes' %}" class="flex">
                         <input type="text" name="q" id="searchRecipe" placeholder="Rechercher une recette..."
-                            class="w-full border border-gray-600 bg-gray-800 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400">
-                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-3 ml-2 rounded-lg transition-colors">
-                            <i class="fas fa-search"></i>
+                            class="w-full border border-gray-600 bg-gray-800 text-white rounded-lg px-4 py-2 outline-none">
+                        <!-- Bouton de recherche modernisé -->
+                        <button type="submit" class="group flex items-center justify-center bg-white/5 hover:bg-emerald-500/10 border border-white/10 hover:border-emerald-500/30 rounded-xl px-3 ml-2 transition-all duration-300 backdrop-blur-sm btn-modern">
+                            <div class="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center group-hover:bg-emerald-500/30 transition-colors">
+                                <i class="fas fa-search text-emerald-400 text-xs"></i>
+                            </div>
                         </button>
-                        <a href="{% url 'advanced_search' %}" class="bg-green-700 hover:bg-green-800 text-white px-1 py-2 ml-2 rounded-lg transition-colors flex items-center justify-center group" title="Recherche avancée">
-                            <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M2 4h20l-8 8v8l-4-2v-6L2 4z"/>
-                                <path d="M10 14v6l4 2v-8"/>
-                            </svg>
+                        <!-- Bouton recherche avancée modernisé -->
+                        <a href="{% url 'advanced_search' %}" class="group flex items-center justify-center bg-white/5 hover:bg-blue-500/10 border border-white/10 hover:border-blue-500/30 rounded-xl px-3 ml-2 transition-all duration-300 backdrop-blur-sm btn-modern" title="Recherche avancée">
+                            <div class="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center group-hover:bg-blue-500/30 transition-colors">
+                                <svg class="w-3 h-3 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M2 4h20l-8 8v8l-4-2v-6L2 4z"/>
+                                    <path d="M10 14v6l4 2v-8"/>
+                                </svg>
+                            </div>
                         </a>
                     </form>
                     <ul id="recipeResults" class="absolute bg-gray-800 text-white shadow-md mt-2 w-full hidden rounded-lg max-h-40 overflow-y-auto border border-gray-700 z-50"></ul>
                 </div>
                 <!-- Tablet search icon -->
                 <div class="hidden sm:flex lg:hidden items-center space-x-2">
-                    <button id="tabletSearchIcon" class="search-icon text-gray-200 hover:text-white focus:outline-none rounded-full w-10 h-10 flex items-center justify-center">
-                        <i class="fas fa-search text-xl"></i>
+                    <button id="tabletSearchIcon" class="search-icon w-10 h-10 rounded-full bg-emerald-500/20 hover:bg-emerald-500/30 flex items-center justify-center transition-all duration-300 backdrop-blur-sm border border-white/20 hover:border-emerald-500/50 btn-modern">
+                        <i class="fas fa-search text-emerald-400"></i>
                     </button>
-                    <!-- Bouton recherche avancée pour tablette -->
-                    <a href="{% url 'advanced_search' %}" class="text-gray-200 hover:text-white focus:outline-none rounded-full w-10 h-10 flex items-center justify-center group" title="Recherche avancée">
-                        <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M2 4h20l-8 8v8l-4-2v-6L2 4z"/>
-                            <path d="M10 14v6l4 2v-8"/>
-                        </svg>
-                    </a>
+                    
                 </div>
 
                 <!-- User menu for desktop and tablet -->
                 <div class="relative hidden sm:block">
                     {% if user.is_authenticated %}
-                        <button id="userMenuBtn" class="bg-gray-800 text-white w-10 h-10 rounded-full flex items-center justify-center text-xl border border-gray-600 uppercase">
+                        <button id="userMenuBtn" class="bg-gray-800 text-white w-10 h-10 rounded-full flex items-center justify-center text-xl border border-gray-600 uppercase btn-modern hover:border-emerald-500/50">
                             {{ user.username|slice:":1" }}
                         </button>
                         <div id="userMenuModal" class="absolute right-0 mt-2 bg-gray-800 shadow-lg rounded-lg w-48 hidden">
@@ -202,15 +102,23 @@
                             </ul>
                         </div>
                     {% else %}
-                        <a href="{% url 'login' %}" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
-                            Connexion
+                        <!-- Bouton connexion modernisé -->
+                        <a href="{% url 'login' %}" class="group flex items-center space-x-2 bg-white/5 hover:bg-emerald-500/10 border border-white/10 hover:border-emerald-500/30 rounded-2xl px-4 py-2 transition-all duration-300 backdrop-blur-sm btn-modern">
+                            <div class="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center group-hover:bg-emerald-500/30 transition-colors">
+                                <svg class="w-3 h-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013 3v1"></path>
+                                </svg>
+                            </div>
+                            <span class="text-gray-300 group-hover:text-white transition-colors font-medium">
+                                Connexion
+                            </span>
                         </a>
                     {% endif %}
                 </div>
 
                 <!-- Hamburger menu for mobile and tablet -->
                 <div class="lg:hidden flex items-center">
-                    <button id="burgerBtn" class="burger-icon text-gray-200 focus:outline-none h-6 w-8 flex flex-col justify-between">
+                    <button id="burgerBtn" class="burger-icon text-gray-200 outline-none h-6 w-8 flex flex-col justify-between">
                         <span class="line1"></span>
                         <span class="line2"></span>
                         <span class="line3"></span>
@@ -226,19 +134,28 @@
                     <div class="flex gap-2">
                         <div class="flex flex-1">
                             <input type="text" name="q" id="searchRecipeTablet" placeholder="Rechercher une recette..."
-                                class="w-full border border-gray-600 bg-gray-800 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400">
-                            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-3 ml-2 rounded-lg transition-colors">
-                                <i class="fas fa-search"></i>
+                                class="w-full border border-gray-600 bg-gray-800 text-white rounded-lg px-4 py-2 outline-none">
+                            <!-- Bouton recherche tablette modernisé -->
+                            <button type="submit" class="group flex items-center justify-center bg-white/5 hover:bg-emerald-500/10 border border-white/10 hover:border-emerald-500/30 rounded-xl px-3 ml-2 transition-all duration-300 backdrop-blur-sm btn-modern">
+                                <div class="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center group-hover:bg-emerald-500/30 transition-colors">
+                                    <i class="fas fa-search text-emerald-400 text-xs"></i>
+                                </div>
                             </button>
                         </div>
-                        <a href="{% url 'advanced_search' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors flex items-center justify-center" title="Recherche avancée">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M2 4h20l-8 8v8l-4-2v-6L2 4z"/>
-                                <path d="M10 14v6l4 2v-8"/>
-                            </svg>
+                        <!-- Bouton recherche avancée tablette modernisé -->
+                        <a href="{% url 'advanced_search' %}" class="group flex items-center justify-center bg-white/5 hover:bg-blue-500/10 border border-white/10 hover:border-blue-500/30 rounded-xl px-3 py-2 transition-all duration-300 backdrop-blur-sm btn-modern" title="Recherche avancée">
+                            <div class="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center group-hover:bg-blue-500/30 transition-colors">
+                                <svg class="w-3 h-3 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M2 4h20l-8 8v8l-4-2v-6L2 4z"/>
+                                    <path d="M10 14v6l4 2v-8"/>
+                                </svg>
+                            </div>
                         </a>
-                        <button type="button" id="closeTabletSearch" class="bg-gray-700 text-gray-300 px-3 py-2 rounded-lg hover:bg-gray-600 transition-colors">
-                            <i class="fas fa-times"></i>
+                        <!-- Bouton fermer modernisé -->
+                        <button type="button" id="closeTabletSearch" class="group flex items-center justify-center bg-white/5 hover:bg-red-500/10 border border-white/10 hover:border-red-500/30 rounded-xl px-3 py-2 transition-all duration-300 backdrop-blur-sm btn-modern">
+                            <div class="w-6 h-6 rounded-full bg-red-500/20 flex items-center justify-center group-hover:bg-red-500/30 transition-colors">
+                                <i class="fas fa-times text-red-400 text-xs"></i>
+                            </div>
                         </button>
                     </div>
                     <ul id="recipeResultsTablet" class="absolute bg-gray-800 text-white shadow-md mt-2 w-full hidden rounded-lg max-h-40 overflow-y-auto border border-gray-700 z-50"></ul>
@@ -248,8 +165,8 @@
     </nav>
 
     <!-- Mobile and Tablet menu -->
-    <div id="mobileMenu" class="lg:hidden bg-gray-800 text-white py-4 hidden shadow-lg fixed w-full z-40 transition-all duration-300 ease-in-out" style="top: 60px;">
-        <div class="px-4 space-y-3">
+    <div id="mobileMenu" class="lg:hidden bg-gray-800/95 backdrop-blur-sm text-white py-4 hidden shadow-lg fixed inset-x-0 z-40 transition-all duration-300 ease-in-out" style="top: 60px; bottom: 0;">
+        <div class="menu-content px-4 space-y-3">
             <a href="{% url 'layout' %}" class="block py-2 border-b border-gray-700 hover:bg-gray-700 transition-colors px-2 rounded">Home</a>
             <a href="{% url 'layout_starts' %}" class="block py-2 border-b border-gray-700 hover:bg-gray-700 transition-colors px-2 rounded">Entrées</a>
             <a href="{% url 'layout_dishes' %}" class="block py-2 border-b border-gray-700 hover:bg-gray-700 transition-colors px-2 rounded">Plats</a>
@@ -261,21 +178,28 @@
                 <form method="GET" action="{% url 'search_recipes' %}" class="relative mb-3">
                     <div class="flex gap-2">
                         <input type="text" name="q" id="searchRecipeMobile" placeholder="Rechercher une recette..." 
-                            class="flex-1 border border-gray-600 bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400">
-                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg transition-colors">
-                            <i class="fas fa-search"></i>
+                            class="flex-1 border border-gray-600 bg-gray-700 text-white rounded-lg px-4 py-2 outline-none">
+                        <!-- Bouton recherche mobile modernisé -->
+                        <button type="submit" class="group flex items-center justify-center bg-white/5 hover:bg-emerald-500/10 border border-white/10 hover:border-emerald-500/30 rounded-xl px-3 py-2 transition-all duration-300 backdrop-blur-sm btn-modern">
+                            <div class="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center group-hover:bg-emerald-500/30 transition-colors">
+                                <i class="fas fa-search text-emerald-400 text-xs"></i>
+                            </div>
                         </button>
                     </div>
                     <ul id="recipeResultsMobile" class="bg-gray-700 text-white shadow-md mt-2 w-full hidden rounded-lg max-h-40 overflow-y-auto border border-gray-700 z-50"></ul>
                 </form>
-                <!-- Bouton recherche avancée pour mobile - maintenant séparé -->
+                <!-- Bouton recherche avancée pour mobile - maintenant séparé et modernisé -->
                 <div class="flex items-center justify-center mt-3">
-                    <a href="{% url 'advanced_search' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M2 4h20l-8 8v8l-4-2v-6L2 4z"/>
-                            <path d="M10 14v6l4 2v-8"/>
-                        </svg>
-                        <span class="text-sm">Recherche avancée</span>
+                    <a href="{% url 'advanced_search' %}" class="group flex items-center space-x-3 bg-white/5 hover:bg-blue-500/10 border border-white/10 hover:border-blue-500/30 rounded-2xl px-4 py-2 transition-all duration-300 backdrop-blur-sm btn-modern">
+                        <div class="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center group-hover:bg-blue-500/30 transition-colors">
+                            <svg class="w-3 h-3 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M2 4h20l-8 8v8l-4-2v-6L2 4z"/>
+                                <path d="M10 14v6l4 2v-8"/>
+                            </svg>
+                        </div>
+                        <span class="text-gray-300 group-hover:text-white transition-colors font-medium text-sm">
+                            Recherche avancée
+                        </span>
                     </a>
                 </div>
             </div>
@@ -308,33 +232,76 @@
                 </div>
             {% else %}
                 <!-- Login button in mobile menu only - hidden for tablets as they have the button in the navbar -->
-                <a href="{% url 'login' %}" class="block mt-3 bg-green-500 text-white px-3 py-2 rounded-md text-center sm:hidden">Connexion</a>
+                <div class="mt-3 sm:hidden">
+                    <a href="{% url 'login' %}" class="group flex items-center justify-center space-x-3 bg-white/5 hover:bg-emerald-500/10 border border-white/10 hover:border-emerald-500/30 rounded-2xl px-4 py-3 transition-all duration-300 backdrop-blur-sm btn-modern">
+                        <div class="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center group-hover:bg-emerald-500/30 transition-colors">
+                            <svg class="w-3 h-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013 3v1"></path>
+                            </svg>
+                        </div>
+                        <span class="text-gray-300 group-hover:text-white transition-colors font-medium">
+                            Connexion
+                        </span>
+                    </a>
+                </div>
             {% endif %}
         </div>
+        
+        <!-- Indicateur de scroll -->
+        <div id="scrollIndicator" class="scroll-indicator"></div>
     </div>
 
     <div class="w-full bg-gray-800 min-h-screen pt-16 pb-0">
         {% block content %}{% endblock %}
     </div>
 
-    <div id="logoutModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden flex justify-center items-center z-50">
-        <div class="bg-white rounded-lg shadow-lg p-6 w-96 mx-4">
-            <h2 class="text-lg font-semibold mb-4">Déconnexion</h2>
-            <p class="mb-4">Etes-vous sûr de vouloir vous déconnecter ?</p>
-            <div class="flex justify-end space-x-4">
-                <button id="cancelLogout" class="bg-gray-300 px-4 py-2 rounded-lg hover:bg-gray-400">
+    <!-- ========================================= -->
+    <!-- MODAL DE DÉCONNEXION MODERNISÉ -->
+    <!-- ========================================= -->
+    <div id="logoutModal" class="fixed inset-0 bg-gray-900/80 modal-backdrop hidden flex justify-center items-center z-50 p-4">
+        <!-- Overlay avec effet de grille -->
+        <div class="absolute inset-0 grid-bg opacity-10"></div>
+        
+        <!-- Effets lumineux en arrière-plan -->
+        <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-red-500/5 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-orange-500/5 rounded-full blur-3xl"></div>
+        
+        <!-- Container du modal -->
+        <div class="bg-gray-800/90 backdrop-blur-sm border border-gray-700/50 rounded-2xl shadow-2xl p-6 w-full max-w-sm mx-4 relative z-10 modal-enter">
+            <!-- Icône d'alerte modernisée -->
+            <div class="text-center mb-6">
+                <div class="mx-auto w-14 h-14 bg-gradient-to-br from-red-500/20 to-orange-500/20 rounded-2xl flex items-center justify-center mb-4 backdrop-blur-sm border border-red-500/30">
+                    <svg class="w-7 h-7 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                    </svg>
+                </div>
+                <h2 class="text-xl font-semibold text-white mb-2">Déconnexion</h2>
+                <p class="text-gray-400 text-sm">
+                    Confirmer la déconnexion ?
+                </p>
+            </div>
+
+            <!-- Boutons d'action -->
+            <div class="grid grid-cols-2 gap-3">
+                <!-- Bouton Annuler -->
+                <button id="cancelLogout" class="bg-white/5 hover:bg-gray-600/20 border border-white/10 hover:border-gray-500/30 rounded-xl px-4 py-3 font-medium text-gray-300 hover:text-white transition-all duration-300 backdrop-blur-sm btn-modern">
                     Annuler
                 </button>
-                <form id="logoutForm" action="{% url 'logout' %}" method="post">
-                    {% csrf_token %}
-                    <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-700">
-                        Confirmer
-                    </button>
-                </form>
+                
+                <!-- Bouton Confirmer avec form Django -->
+                <button type="submit" form="logoutForm" id="confirmLogout" class="bg-red-600 hover:bg-red-500 text-white font-medium rounded-xl px-4 py-3 shadow-lg hover:shadow-xl transition-all duration-300 btn-modern">
+                    Confirmer
+                </button>
             </div>
+            
+            <!-- Form caché -->
+            <form id="logoutForm" action="{% url 'logout' %}" method="post" class="hidden">
+                {% csrf_token %}
+            </form>
         </div>
     </div>
 
+    
     <footer class="bg-gray-900 text-gray-300 py-8 mt-0">
         <div class="container mx-auto px-6 lg:px-20">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -365,216 +332,9 @@
         </div>
     </footer>
 
+
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            // Fonctions pour la recherche sur différents dispositifs
-            $("#searchRecipe").on("input", function() {
-                let query = $(this).val().trim();
-                handleSearchSuggestions(query, "#recipeResults");
-            });
-            
-            $("#searchRecipeMobile").on("input", function() {
-                let query = $(this).val().trim();
-                handleSearchSuggestions(query, "#recipeResultsMobile");
-            });
-            
-            // Fonction pour la recherche tablette
-            $("#searchRecipeTablet").on("input", function() {
-                let query = $(this).val().trim();
-                handleSearchSuggestions(query, "#recipeResultsTablet");
-            });
-            
-            // Fonction pour les suggestions de recherche (autocomplétion)
-            function handleSearchSuggestions(query, resultSelector) {
-                if (query.length > 1) {
-                    $.ajax({
-                        url: "{% url 'search_recipe_api' %}",
-                        data: { q: query },
-                        dataType: 'json',
-                        success: function(data) {
-                            let results = $(resultSelector);
-                            results.empty().removeClass("hidden");
-                            if (data.length > 0) {
-                                data.forEach(function(recette) {
-                                    results.append(`
-                                        <li><a href="/recettes/${recette.id}/" class="block px-4 py-2 hover:bg-gray-600">
-                                            <div class="flex justify-between items-center">
-                                                <span>${recette.titre}</span>
-                                                <span class="text-sm text-gray-400">${recette.categorie}</span>
-                                            </div>
-                                        </a></li>
-                                    `);
-                                });
-                                
-                                // Ajouter un lien "Voir tous les résultats"
-                                results.append(`
-                                    <li class="border-t border-gray-700">
-                                        <a href="/search/?q=${encodeURIComponent(query)}" class="block px-4 py-2 hover:bg-gray-600 text-green-400 font-medium">
-                                            <div class="flex items-center">
-                                                <i class="fas fa-search mr-2"></i>
-                                                Voir tous les résultats
-                                            </div>
-                                        </a>
-                                    </li>
-                                `);
-                            } else {
-                                results.append(`<li class="px-4 py-2 text-gray-500">Aucune recette trouvée.</li>`);
-                            }
-                        }
-                    });
-                } else {
-                    $(resultSelector).empty().addClass("hidden");
-                }
-            }
-
-            // Cacher les résultats quand on clique ailleurs
-            $(document).on("click", function(e) {
-                if (!$(e.target).closest("#searchRecipe, #recipeResults").length) {
-                    $("#recipeResults").addClass("hidden");
-                }
-                
-                if (!$(e.target).closest("#searchRecipeMobile, #recipeResultsMobile").length) {
-                    $("#recipeResultsMobile").addClass("hidden");
-                }
-                
-                if (!$(e.target).closest("#searchRecipeTablet, #recipeResultsTablet, #tabletSearchIcon").length) {
-                    $("#recipeResultsTablet").addClass("hidden");
-                }
-                
-                // Fermer le menu utilisateur quand on clique ailleurs
-                if (!$(e.target).closest("#userMenuBtn, #userMenuModal").length) {
-                    $("#userMenuModal").addClass("hidden");
-                }
-            });
-            
-            // Toggle du menu utilisateur
-            $("#userMenuBtn").on("click", function() {
-                $("#userMenuModal").toggleClass("hidden");
-            });
-            
-            // Toggle de la recherche tablette avec l'icône loupe
-            $("#tabletSearchIcon").on("click", function() {
-                const searchContainer = $("#tabletSearchContainer");
-                searchContainer.toggleClass("active");
-                $(this).toggleClass("active");
-                
-                // Si le conteneur de recherche est maintenant ouvert, focus sur l'input
-                if (searchContainer.hasClass("active")) {
-                    setTimeout(() => {
-                        $("#searchRecipeTablet").focus();
-                    }, 300); // Un délai pour attendre la fin de l'animation
-                }
-            });
-            
-            // Fermer la recherche tablette avec le bouton X
-            $("#closeTabletSearch").on("click", function() {
-                $("#tabletSearchContainer").removeClass("active");
-                $("#tabletSearchIcon").removeClass("active");
-                $("#searchRecipeTablet").val(""); // Vider l'input
-                $("#recipeResultsTablet").empty().addClass("hidden"); // Vider et cacher les résultats
-            });
-        });
-
-        document.addEventListener("DOMContentLoaded", function() {
-            const burgerBtn = document.getElementById("burgerBtn");
-            const mobileMenu = document.getElementById("mobileMenu");
-            const logoutBtnMobile = document.getElementById("openLogoutModalMobile");
-            const logoutBtn = document.getElementById("openLogoutModal");
-            const cancelLogout = document.getElementById("cancelLogout");
-            const logoutModal = document.getElementById("logoutModal");
-
-            // Animation du menu burger
-            if (burgerBtn) {
-                burgerBtn.addEventListener("click", () => {
-                    burgerBtn.classList.toggle("burger-open");
-                    
-                    if (mobileMenu.classList.contains("hidden")) {
-                        // Ouvrir le menu
-                        mobileMenu.classList.remove("hidden");
-                        mobileMenu.classList.add("mobile-menu-enter");
-                        
-                        // Animation
-                        setTimeout(() => {
-                            mobileMenu.classList.remove("mobile-menu-enter");
-                            mobileMenu.classList.add("mobile-menu-enter-active");
-                        }, 10);
-                    } else {
-                        // Fermer le menu avec animation
-                        mobileMenu.classList.add("mobile-menu-exit");
-                        mobileMenu.classList.remove("mobile-menu-enter-active");
-                        
-                        setTimeout(() => {
-                            mobileMenu.classList.add("mobile-menu-exit-active");
-                        }, 10);
-                        
-                        setTimeout(() => {
-                            mobileMenu.classList.add("hidden");
-                            mobileMenu.classList.remove("mobile-menu-exit", "mobile-menu-exit-active");
-                        }, 300);
-                    }
-                });
-            }
-
-            // Gestion du modal de déconnexion
-            if (logoutBtnMobile) {
-                logoutBtnMobile.addEventListener("click", () => {
-                    logoutModal.classList.remove("hidden");
-                });
-            }
-
-            if (logoutBtn) {
-                logoutBtn.addEventListener("click", () => {
-                    logoutModal.classList.remove("hidden");
-                });
-            }
-
-            if (cancelLogout) {
-                cancelLogout.addEventListener("click", () => {
-                    logoutModal.classList.add("hidden");
-                });
-            }
-            
-            // Fermer le modal en cliquant en dehors
-            logoutModal.addEventListener("click", function(e) {
-                if (e.target === logoutModal) {
-                    logoutModal.classList.add("hidden");
-                }
-            });
-            
-            // Fermer le menu mobile lors d'un clic sur un lien
-            const mobileLinks = mobileMenu.querySelectorAll("a");
-            mobileLinks.forEach(link => {
-                link.addEventListener("click", () => {
-                    burgerBtn.classList.remove("burger-open");
-                    mobileMenu.classList.add("hidden");
-                });
-            });
-            
-            // Touche ESC pour fermer la recherche
-            document.addEventListener("keydown", function(e) {
-                if (e.key === "Escape") {
-                    const searchContainer = document.getElementById("tabletSearchContainer");
-                    const searchIcon = document.getElementById("tabletSearchIcon");
-                    
-                    if (searchContainer && searchContainer.classList.contains("active")) {
-                        searchContainer.classList.remove("active");
-                        if (searchIcon) searchIcon.classList.remove("active");
-                        
-                        // Vider le champ de recherche et les résultats
-                        const searchInput = document.getElementById("searchRecipeTablet");
-                        const searchResults = document.getElementById("recipeResultsTablet");
-                        
-                        if (searchInput) searchInput.value = "";
-                        if (searchResults) {
-                            searchResults.innerHTML = "";
-                            searchResults.classList.add("hidden");
-                        }
-                    }
-                }
-            });
-        });
-    </script>
+    <script src="{% static 'js/base/main.js' %}"></script>
 </body>
 </html>

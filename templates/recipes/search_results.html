@@ -4,38 +4,53 @@
 {% block title %}Résultats de recherche{% endblock %}
 
 {% block content %}
-<div class="bg-gray-800 min-h-screen py-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="min-h-screen bg-gray-800 text-white">
+    <!-- Hero Section avec résultats -->
+    <div class="relative overflow-hidden">
+        <!-- Grille subtile en arrière-plan -->
+        <div class="absolute inset-0 opacity-[0.02]">
+            <div style="background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 50px 50px;"></div>
+        </div>
         
-        <!-- En-tête avec filtres -->
-        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
-            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+        <div class="max-w-7xl mx-auto px-6 py-16">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
                 
                 <!-- Titre et nombre de résultats -->
                 <div>
-                    <h1 class="text-2xl lg:text-3xl font-bold text-gray-800 mb-2">
+                    <h1 class="text-4xl md:text-5xl font-light tracking-tight text-white mb-4">
                         {% if query %}
                             Résultats pour "{{ query }}"
                         {% else %}
                             Toutes les recettes
                         {% endif %}
                     </h1>
-                    <p class="text-gray-600">{{ total_results }} recette{{ total_results|pluralize }} trouvée{{ total_results|pluralize }}</p>
+                    <div class="w-24 h-0.5 bg-gradient-to-r from-blue-600 to-transparent mb-4"></div>
+                    <p class="text-xl text-gray-400 font-light">{{ total_results }} recette{{ total_results|pluralize }} trouvée{{ total_results|pluralize }}</p>
                 </div>
                 
-                <!-- Bouton recherche avancée -->
-                <div class="flex gap-3">
-                    <a href="{% url 'advanced_search' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition">
-                        <i class="fas fa-search"></i>
-                        Recherche avancée
+                <!-- Boutons d'action modernisés -->
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href="{% url 'advanced_search' %}" class="group flex items-center space-x-3 bg-white/5 hover:bg-blue-500/10 border border-white/10 hover:border-blue-500/30 rounded-2xl px-6 py-4 transition-all duration-300 backdrop-blur-sm">
+                        <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center group-hover:bg-blue-500/30 transition-colors">
+                            <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                        <span class="text-gray-300 group-hover:text-white transition-colors font-medium">
+                            Recherche avancée
+                        </span>
                     </a>
                     
                     {% if query or category_filter or selected_ingredients %}
-                    <a href="{% url 'search_recipes' %}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                        Effacer les filtres
+                    <a href="{% url 'search_recipes' %}" class="group flex items-center space-x-3 bg-white/5 hover:bg-gray-500/10 border border-white/10 hover:border-gray-500/30 rounded-2xl px-6 py-4 transition-all duration-300 backdrop-blur-sm">
+                        <div class="w-8 h-8 rounded-full bg-gray-500/20 flex items-center justify-center group-hover:bg-gray-500/30 transition-colors">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </div>
+                        <span class="text-gray-300 group-hover:text-white transition-colors font-medium">
+                            Effacer les filtres
+                        </span>
                     </a>
                     {% endif %}
                 </div>
@@ -43,11 +58,14 @@
             
             <!-- Filtres actifs -->
             {% if query or category_filter or selected_ingredients %}
-            <div class="mt-4 pt-4 border-t border-gray-200">
-                <h3 class="text-sm font-medium text-gray-700 mb-2">Filtres actifs :</h3>
-                <div class="flex flex-wrap gap-2">
+            <div class="mt-8 pt-8 border-t border-gray-700">
+                <h3 class="text-lg font-medium text-gray-300 mb-4">Filtres actifs :</h3>
+                <div class="flex flex-wrap gap-3">
                     {% if query %}
-                    <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                    <span class="inline-flex items-center bg-blue-500/20 border border-blue-500/30 text-blue-200 px-4 py-2 rounded-2xl font-medium backdrop-blur-sm">
+                        <svg class="w-4 h-4 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
                         Recherche: "{{ query }}"
                     </span>
                     {% endif %}
@@ -55,7 +73,10 @@
                     {% if category_filter %}
                         {% for categorie in categories %}
                             {% if categorie.id|stringformat:"s" == category_filter %}
-                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                            <span class="inline-flex items-center bg-green-500/20 border border-green-500/30 text-green-200 px-4 py-2 rounded-2xl font-medium backdrop-blur-sm">
+                                <svg class="w-4 h-4 mr-2 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                                </svg>
                                 Catégorie: {{ categorie.nom }}
                             </span>
                             {% endif %}
@@ -65,7 +86,10 @@
                     {% for ingredient_id in selected_ingredients %}
                     {% for ingredient in ingredients %}
                         {% if ingredient.id|stringformat:"s" == ingredient_id %}
-                        <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-medium">
+                        <span class="inline-flex items-center bg-purple-500/20 border border-purple-500/30 text-purple-200 px-4 py-2 rounded-2xl font-medium backdrop-blur-sm">
+                            <svg class="w-4 h-4 mr-2 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                            </svg>
                             Ingrédient: {{ ingredient.nom }}
                         </span>
                         {% endif %}
@@ -75,129 +99,158 @@
             </div>
             {% endif %}
         </div>
-        
-        <!-- Résultats -->
+    </div>
+    
+    <!-- Résultats -->
+    <div class="max-w-7xl mx-auto px-6 pb-20">
         {% if recettes %}
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-12">
             {% for recette in recettes %}
-            <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+            <article class="recette-card group cursor-pointer">
                 <a href="{% url 'recipe_details' recette.id %}" class="block">
-                    <!-- Image -->
-                    <div class="relative h-48 bg-gray-200">
-                        {% if recette.image %}
-                            <img src="{% static recette.image %}" alt="{{ recette.titre }}" class="w-full h-full object-cover">
-                        {% else %}
-                            <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    <!-- Container principal -->
+                    <div class="relative bg-gray-900 rounded-3xl overflow-hidden border border-gray-700 hover:border-gray-600 transition-all duration-500 backdrop-blur-sm group-hover:bg-gray-800 shadow-lg">
+                        
+                        <!-- Image section -->
+                        <div class="relative h-56 overflow-hidden">
+                            {% if recette.image %}
+                                <img src="{% static recette.image %}" 
+                                     alt="{{ recette.titre }}" 
+                                     class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                            {% else %}
+                                <div class="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center">
+                                    <div class="text-center">
+                                        <div class="text-4xl mb-2 opacity-60">🍽️</div>
+                                        <span class="text-gray-500 text-sm">Image à venir</span>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            
+                            <!-- Overlay gradient -->
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            
+                            <!-- Badges flottants -->
+                            <div class="absolute top-4 left-4 flex flex-col gap-2">
+                                {% if recette.categorie %}
+                                    <span class="px-3 py-1 bg-black/40 backdrop-blur-sm rounded-full text-xs text-white border border-white/20">
+                                        {{ recette.categorie.nom|capfirst }}
+                                    </span>
+                                {% endif %}
+                                
+                                {% if recette.note_moyenne > 0 %}
+                                    <div class="flex items-center px-3 py-1 bg-black/40 backdrop-blur-sm rounded-full text-xs text-white border border-white/20">
+                                        <svg class="w-3 h-3 text-yellow-400 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                        </svg>
+                                        {{ recette.note_moyenne|floatformat:1 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Icône de vue au hover -->
+                            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+                                <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/30 transform scale-75 group-hover:scale-100 transition-transform duration-300">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contenu -->
+                        <div class="p-6">
+                            <h3 class="text-xl font-medium text-white mb-3 line-clamp-2 group-hover:text-blue-400 transition-colors duration-300">
+                                {{ recette.titre }}
+                            </h3>
+                            
+                            {% if recette.nbpersonne %}
+                                <div class="flex items-center text-gray-400 text-sm mb-4">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                    </svg>
+                                    {{ recette.nbpersonne }} personne{{ recette.nbpersonne|pluralize }}
+                                </div>
+                            {% endif %}
+
+                            <!-- Indicateur d'action -->
+                            <div class="flex items-center justify-between pt-4 border-t border-gray-700">
+                                <span class="text-sm text-gray-400">Voir la recette</span>
+                                <svg class="w-4 h-4 text-gray-400 group-hover:text-blue-400 group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                                 </svg>
                             </div>
-                        {% endif %}
-                        
-                        <!-- Badge catégorie -->
-                        {% if recette.categorie %}
-                        <div class="absolute top-3 left-3">
-                            <span class="bg-white/90 backdrop-blur-sm text-gray-800 px-2 py-1 rounded-full text-xs font-medium shadow-sm">
-                                {{ recette.categorie.nom|capfirst }}
-                            </span>
                         </div>
-                        {% endif %}
-                    </div>
-                    
-                    <!-- Contenu -->
-                    <div class="p-4">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">{{ recette.titre }}</h3>
-                        
-                        <!-- Nombre de personnes -->
-                        {% if recette.nbpersonne %}
-                        <div class="flex items-center text-gray-600 text-sm mb-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                            </svg>
-                            {{ recette.nbpersonne }} personne{{ recette.nbpersonne|pluralize }}
-                        </div>
-                        {% endif %}
-                        
-                        <!-- Note moyenne -->
-                        {% if recette.note_moyenne > 0 %}
-                        <div class="flex items-center">
-                            <div class="flex text-yellow-400 text-sm">
-                                {% for i in "12345"|make_list %}
-                                    {% if forloop.counter <= recette.note_moyenne %}
-                                        <span>★</span>
-                                    {% else %}
-                                        <span class="text-gray-300">★</span>
-                                    {% endif %}
-                                {% endfor %}
-                            </div>
-                            <span class="text-sm text-gray-500 ml-2">
-                                ({{ recette.note_moyenne|floatformat:1 }})
-                            </span>
-                        </div>
-                        {% endif %}
                     </div>
                 </a>
-            </div>
+            </article>
             {% endfor %}
         </div>
         
-        <!-- Pagination -->
+        <!-- Pagination modernisée -->
         {% if page_obj.has_other_pages %}
-        <div class="bg-white rounded-xl shadow-lg p-6">
+        <div class="bg-gray-900 rounded-3xl border border-gray-700 p-8 backdrop-blur-sm">
             <nav class="flex items-center justify-between">
+                <!-- Navigation mobile -->
                 <div class="flex-1 flex justify-between sm:hidden">
                     {% if page_obj.has_previous %}
-                        <a href="?{% if query %}q={{ query }}&{% endif %}{% if category_filter %}category={{ category_filter }}&{% endif %}{% for ing in selected_ingredients %}ingredient={{ ing }}&{% endfor %}page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                        <a href="?{% if query %}q={{ query }}&{% endif %}{% if category_filter %}category={{ category_filter }}&{% endif %}{% for ing in selected_ingredients %}ingredient={{ ing }}&{% endfor %}page={{ page_obj.previous_page_number }}" 
+                           class="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-300 hover:text-white px-4 py-2 rounded-xl transition-all duration-300">
                             Précédent
                         </a>
                     {% endif %}
                     
                     {% if page_obj.has_next %}
-                        <a href="?{% if query %}q={{ query }}&{% endif %}{% if category_filter %}category={{ category_filter }}&{% endif %}{% for ing in selected_ingredients %}ingredient={{ ing }}&{% endfor %}page={{ page_obj.next_page_number }}" class="ml-3 relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                        <a href="?{% if query %}q={{ query }}&{% endif %}{% if category_filter %}category={{ category_filter }}&{% endif %}{% for ing in selected_ingredients %}ingredient={{ ing }}&{% endfor %}page={{ page_obj.next_page_number }}" 
+                           class="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-300 hover:text-white px-4 py-2 rounded-xl transition-all duration-300">
                             Suivant
                         </a>
                     {% endif %}
                 </div>
                 
+                <!-- Navigation desktop -->
                 <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                     <div>
-                        <p class="text-sm text-gray-700">
+                        <p class="text-gray-400">
                             Affichage de
-                            <span class="font-medium">{{ page_obj.start_index }}</span>
+                            <span class="font-medium text-white">{{ page_obj.start_index }}</span>
                             à
-                            <span class="font-medium">{{ page_obj.end_index }}</span>
+                            <span class="font-medium text-white">{{ page_obj.end_index }}</span>
                             sur
-                            <span class="font-medium">{{ page_obj.paginator.count }}</span>
+                            <span class="font-medium text-white">{{ page_obj.paginator.count }}</span>
                             résultats
                         </p>
                     </div>
                     
                     <div>
-                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                        <nav class="flex items-center space-x-2">
                             {% if page_obj.has_previous %}
-                                <a href="?{% if query %}q={{ query }}&{% endif %}{% if category_filter %}category={{ category_filter }}&{% endif %}{% for ing in selected_ingredients %}ingredient={{ ing }}&{% endfor %}page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                <a href="?{% if query %}q={{ query }}&{% endif %}{% if category_filter %}category={{ category_filter }}&{% endif %}{% for ing in selected_ingredients %}ingredient={{ ing }}&{% endfor %}page={{ page_obj.previous_page_number }}" 
+                                   class="w-10 h-10 bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded-xl flex items-center justify-center text-gray-300 hover:text-white transition-all duration-300">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                                     </svg>
                                 </a>
                             {% endif %}
                             
                             {% for i in page_obj.paginator.page_range %}
                                 {% if page_obj.number == i %}
-                                    <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-blue-50 text-sm font-medium text-blue-600">
+                                    <span class="w-10 h-10 bg-blue-600 border border-blue-500 rounded-xl flex items-center justify-center text-white font-medium">
                                         {{ i }}
                                     </span>
                                 {% elif i > page_obj.number|add:'-3' and i < page_obj.number|add:'3' %}
-                                    <a href="?{% if query %}q={{ query }}&{% endif %}{% if category_filter %}category={{ category_filter }}&{% endif %}{% for ing in selected_ingredients %}ingredient={{ ing }}&{% endfor %}page={{ i }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                    <a href="?{% if query %}q={{ query }}&{% endif %}{% if category_filter %}category={{ category_filter }}&{% endif %}{% for ing in selected_ingredients %}ingredient={{ ing }}&{% endfor %}page={{ i }}" 
+                                       class="w-10 h-10 bg-gray-800 hover:bg-gray-700 border border-gray-600 hover:border-gray-500 rounded-xl flex items-center justify-center text-gray-300 hover:text-white transition-all duration-300">
                                         {{ i }}
                                     </a>
                                 {% endif %}
                             {% endfor %}
                             
                             {% if page_obj.has_next %}
-                                <a href="?{% if query %}q={{ query }}&{% endif %}{% if category_filter %}category={{ category_filter }}&{% endif %}{% for ing in selected_ingredients %}ingredient={{ ing }}&{% endfor %}page={{ page_obj.next_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                <a href="?{% if query %}q={{ query }}&{% endif %}{% if category_filter %}category={{ category_filter }}&{% endif %}{% for ing in selected_ingredients %}ingredient={{ ing }}&{% endfor %}page={{ page_obj.next_page_number }}" 
+                                   class="w-10 h-10 bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded-xl flex items-center justify-center text-gray-300 hover:text-white transition-all duration-300">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                                     </svg>
                                 </a>
                             {% endif %}
@@ -209,24 +262,44 @@
         {% endif %}
         
         {% else %}
-        <!-- Aucun résultat -->
-        <div class="bg-white rounded-xl shadow-lg p-12 text-center">
-            <div class="text-6xl mb-4">🔍</div>
-            <h3 class="text-xl font-semibold text-gray-800 mb-2">Aucune recette trouvée</h3>
-            <p class="text-gray-600 mb-6">
-                {% if query %}
-                    Aucune recette ne correspond à votre recherche "{{ query }}".
-                {% else %}
-                    Aucune recette ne correspond à vos critères de recherche.
-                {% endif %}
-            </p>
-            <div class="flex flex-col sm:flex-row gap-3 justify-center">
-                <a href="{% url 'search_recipes' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition">
-                    Voir toutes les recettes
-                </a>
-                <a href="{% url 'advanced_search' %}" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg transition">
-                    Recherche avancée
-                </a>
+        <!-- État vide -->
+        <div class="text-center py-24">
+            <div class="max-w-md mx-auto">
+                <div class="w-24 h-24 mx-auto mb-8 bg-gray-900 rounded-full flex items-center justify-center border border-gray-700 shadow-lg">
+                    <svg class="w-12 h-12 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-2xl font-light text-white mb-4">Aucune recette trouvée</h3>
+                <p class="text-gray-400 leading-relaxed mb-8">
+                    {% if query %}
+                        Aucune recette ne correspond à votre recherche "{{ query }}".
+                    {% else %}
+                        Aucune recette ne correspond à vos critères de recherche.
+                    {% endif %}
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="{% url 'search_recipes' %}" class="group flex items-center space-x-3 bg-white/5 hover:bg-blue-500/10 border border-white/10 hover:border-blue-500/30 rounded-2xl px-6 py-4 transition-all duration-300 backdrop-blur-sm">
+                        <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center group-hover:bg-blue-500/30 transition-colors">
+                            <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                            </svg>
+                        </div>
+                        <span class="text-gray-300 group-hover:text-white transition-colors font-medium">
+                            Voir toutes les recettes
+                        </span>
+                    </a>
+                    <a href="{% url 'advanced_search' %}" class="group flex items-center space-x-3 bg-white/5 hover:bg-gray-500/10 border border-white/10 hover:border-gray-500/30 rounded-2xl px-6 py-4 transition-all duration-300 backdrop-blur-sm">
+                        <div class="w-8 h-8 rounded-full bg-gray-500/20 flex items-center justify-center group-hover:bg-gray-500/30 transition-colors">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                        <span class="text-gray-300 group-hover:text-white transition-colors font-medium">
+                            Recherche avancée
+                        </span>
+                    </a>
+                </div>
             </div>
         </div>
         {% endif %}
@@ -234,11 +307,109 @@
 </div>
 
 <style>
+/* Animation d'apparition subtile */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.recette-card {
+    animation: fadeInUp 0.6s ease-out forwards;
+    opacity: 0;
+}
+
+/* Animation échelonnée */
+.recette-card:nth-child(1) { animation-delay: 0ms; }
+.recette-card:nth-child(2) { animation-delay: 50ms; }
+.recette-card:nth-child(3) { animation-delay: 100ms; }
+.recette-card:nth-child(4) { animation-delay: 150ms; }
+.recette-card:nth-child(5) { animation-delay: 200ms; }
+.recette-card:nth-child(6) { animation-delay: 250ms; }
+.recette-card:nth-child(7) { animation-delay: 300ms; }
+.recette-card:nth-child(8) { animation-delay: 350ms; }
+.recette-card:nth-child(n+9) { animation-delay: 400ms; }
+
+/* Limitation de texte */
 .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    line-height: 1.4;
+}
+
+/* Amélioration du glassmorphism */
+.backdrop-blur-sm {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+/* Hover subtil sur les cartes */
+.recette-card:hover {
+    transform: translateY(-4px);
+    transition: transform 0.3s ease;
+}
+
+/* Focus states accessibles */
+a:focus, button:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 4px;
+    border-radius: 8px;
+}
+
+/* Optimisations mobiles */
+@media (max-width: 768px) {
+    .text-4xl {
+        font-size: 2rem;
+    }
+    .text-5xl {
+        font-size: 2.5rem;
+    }
+}
+
+/* Performance optimizations */
+.group-hover\:scale-105:hover {
+    will-change: transform;
+}
+
+/* Transitions fluides */
+* {
+    transition-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Effet de survol discret */
+.recette-card:hover .bg-gray-900 {
+    background-color: rgb(31, 41, 55);
+}
+
+/* Amélioration de la grille responsive */
+@media (min-width: 1536px) {
+    .grid {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+}
+
+/* Effet parallax subtil */
+.recette-card:hover img {
+    transform: scale(1.05) translateZ(0);
+    backface-visibility: hidden;
+}
+
+/* Micro-interactions */
+.recette-card:active {
+    transform: translateY(-2px) scale(0.98);
+    transition: transform 0.1s ease;
+}
+
+/* Pagination hover effects */
+nav a:hover {
+    transform: translateY(-1px);
 }
 </style>
 {% endblock %}
