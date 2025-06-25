@@ -359,195 +359,345 @@
 </style>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const carousel = document.getElementById("recetteCarousel");
-        const prevBtn = document.getElementById("prevBtn");
-        const nextBtn = document.getElementById("nextBtn");
-        
-        // Variables pour le carrousel
-        let position = 0;
-        const originalCards = document.querySelectorAll('.recette-card');
-        const totalOriginalCards = originalCards.length / 2; // Divisé par 2 car on a dupliqué
-        let cardWidth = originalCards[0]?.offsetWidth || 0;
-        let visibleCards = Math.floor(carousel.offsetWidth / cardWidth);
-        let isTransitioning = false;
-        
-        // Variables pour le défilement continu
-        let autoScrollInterval;
-        const autoScrollSpeed = 3000; // 3 secondes
-        
-        // Fonctions pour le carrousel
-        function updateCarouselMetrics() {
-            if (originalCards.length > 0) {
-                cardWidth = originalCards[0].offsetWidth;
-                visibleCards = Math.floor(carousel.offsetWidth / cardWidth);
-            }
-        }
-        
-        function updateCarouselPosition(smooth = true) {
-            const translateX = -position * cardWidth;
-            carousel.style.transition = smooth ? 'transform 0.5s ease-in-out' : 'none';
-            carousel.style.transform = `translateX(${translateX}px)`;
-        }
-        
-        function moveCarousel(direction, auto = false) {
-            if (isTransitioning) return;
-            
-            isTransitioning = true;
-            
-            if (direction === 'next') {
-                position++;
-                updateCarouselPosition();
-                
-                // Si on atteint la fin des cartes originales, revenir au début
-                if (position >= totalOriginalCards) {
-                    setTimeout(() => {
-                        position = 0;
-                        updateCarouselPosition(false);
-                        setTimeout(() => {
-                            isTransitioning = false;
-                        }, 50);
-                    }, 500);
-                } else {
-                    setTimeout(() => {
-                        isTransitioning = false;
-                    }, 500);
-                }
-            } else if (direction === 'prev') {
-                if (position <= 0) {
-                    // Aller à la fin des cartes originales instantanément
-                    position = totalOriginalCards;
-                    updateCarouselPosition(false);
-                    setTimeout(() => {
-                        position = totalOriginalCards - 1;
-                        updateCarouselPosition();
-                        setTimeout(() => {
-                            isTransitioning = false;
-                        }, 500);
-                    }, 50);
-                } else {
-                    position--;
-                    updateCarouselPosition();
-                    setTimeout(() => {
-                        isTransitioning = false;
-                    }, 500);
-                }
-            }
-        }
-        
-        // Défilement automatique continu
-        function startAutoScroll() {
-            stopAutoScroll(); // S'assurer qu'il n'y a pas de doublons
-            autoScrollInterval = setInterval(() => {
-                moveCarousel('next', true);
-            }, autoScrollSpeed);
-        }
-        
-        function stopAutoScroll() {
-            if (autoScrollInterval) {
-                clearInterval(autoScrollInterval);
-                autoScrollInterval = null;
-            }
-        }
-        
-        // Écouteurs d'événements pour les boutons
+  document.addEventListener("DOMContentLoaded", function () {
+    const carousel = document.getElementById("recetteCarousel");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    
+    // Variables pour le carrousel
+    let position = 0;
+    const originalCards = document.querySelectorAll('.recette-card');
+    const totalOriginalCards = originalCards.length;
+    let cardWidth = originalCards[0]?.offsetWidth || 0;
+    let visibleCards = Math.floor(carousel.offsetWidth / cardWidth);
+    let isTransitioning = false;
+    
+    // Variables pour le défilement automatique
+    let autoScrollInterval;
+    const autoScrollSpeed = 4000; // 4 secondes
+    
+    // Variables pour les interactions tactiles améliorées
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchCurrentX = 0;
+    let touchCurrentY = 0;
+    let touchEndX = 0;
+    let touchEndY = 0;
+    let touchStartTime = 0;
+    let isTouching = false;
+    let isDragging = false;
+    let initialTransform = 0;
+    let currentTransform = 0;
+    
+    // Seuils pour les interactions tactiles
+    const SWIPE_THRESHOLD = 50;
+    const DRAG_THRESHOLD = 10;
+    const MAX_TOUCH_TIME = 500;
+    const VELOCITY_THRESHOLD = 0.3;
+    
+    // Fonctions utilitaires
+    function updateCarouselMetrics() {
         if (originalCards.length > 0) {
-            prevBtn.addEventListener('click', () => {
-                stopAutoScroll();
-                moveCarousel('prev');
-                // Redémarrer après un délai
-                setTimeout(startAutoScroll, 5000);
-            });
+            cardWidth = originalCards[0].offsetWidth;
+            visibleCards = Math.floor(carousel.offsetWidth / cardWidth);
+        }
+    }
+    
+    function updateCarouselPosition(smooth = true, customTransform = null) {
+        const translateX = customTransform !== null ? customTransform : -position * cardWidth;
+        carousel.style.transition = smooth ? 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'none';
+        carousel.style.transform = `translateX(${translateX}px)`;
+        currentTransform = translateX;
+    }
+    
+    function moveCarousel(direction, auto = false) {
+        if (isTransitioning) return;
+        
+        isTransitioning = true;
+        
+        if (direction === 'next') {
+            position = (position + 1) % totalOriginalCards;
+        } else if (direction === 'prev') {
+            position = position <= 0 ? totalOriginalCards - 1 : position - 1;
+        }
+        
+        updateCarouselPosition();
+        
+        setTimeout(() => {
+            isTransitioning = false;
+        }, 400);
+    }
+    
+    // Fonctions pour le défilement automatique
+    function startAutoScroll() {
+        stopAutoScroll();
+        autoScrollInterval = setInterval(() => {
+            if (!isTouching && !isDragging) {
+                moveCarousel('next', true);
+            }
+        }, autoScrollSpeed);
+    }
+    
+    function stopAutoScroll() {
+        if (autoScrollInterval) {
+            clearInterval(autoScrollInterval);
+            autoScrollInterval = null;
+        }
+    }
+    
+    // Gestionnaires d'événements tactiles améliorés
+    function handleTouchStart(e) {
+        const touch = e.touches[0];
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+        touchCurrentX = touch.clientX;
+        touchCurrentY = touch.clientY;
+        touchStartTime = Date.now();
+        isTouching = true;
+        isDragging = false;
+        
+        initialTransform = currentTransform;
+        
+        // Arrêter l'animation en cours
+        carousel.style.transition = 'none';
+        stopAutoScroll();
+        
+        // Empêcher la sélection de texte
+        e.preventDefault();
+    }
+    
+    function handleTouchMove(e) {
+        if (!isTouching) return;
+        
+        const touch = e.touches[0];
+        touchCurrentX = touch.clientX;
+        touchCurrentY = touch.clientY;
+        
+        const deltaX = touchCurrentX - touchStartX;
+        const deltaY = touchCurrentY - touchStartY;
+        
+        // Déterminer si c'est un scroll horizontal ou vertical
+        if (!isDragging && Math.abs(deltaX) > DRAG_THRESHOLD) {
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                isDragging = true;
+                // Empêcher le scroll vertical de la page
+                document.body.style.overflow = 'hidden';
+            }
+        }
+        
+        if (isDragging) {
+            // Appliquer une résistance aux bords
+            let resistance = 1;
+            const maxPosition = -(totalOriginalCards - 1) * cardWidth;
+            const currentPos = initialTransform + deltaX;
             
-            nextBtn.addEventListener('click', () => {
-                stopAutoScroll();
-                moveCarousel('next');
-                // Redémarrer après un délai
-                setTimeout(startAutoScroll, 5000);
-            });
-            
-            // Support tactile pour le carrousel
-            let touchStartX = 0;
-            let touchEndX = 0;
-            let touchStartTime = 0;
-            
-            carousel.addEventListener('touchstart', function(e) {
-                touchStartX = e.changedTouches[0].screenX;
-                touchStartTime = Date.now();
-                stopAutoScroll();
-            }, false);
-            
-            carousel.addEventListener('touchend', function(e) {
-                touchEndX = e.changedTouches[0].screenX;
-                const touchDuration = Date.now() - touchStartTime;
-                
-                // Ignorer les touches trop longues (probablement du scrolling)
-                if (touchDuration < 300) {
-                    handleSwipe();
-                }
-                
-                // Redémarrer l'auto-scroll après un délai
-                setTimeout(startAutoScroll, 3000);
-            }, false);
-            
-            function handleSwipe() {
-                const swipeThreshold = 50;
-                const swipeDistance = Math.abs(touchStartX - touchEndX);
-                
-                if (swipeDistance > swipeThreshold) {
-                    if (touchStartX - touchEndX > 0) {
-                        // Swipe vers la gauche - image suivante
-                        moveCarousel('next');
-                    } else {
-                        // Swipe vers la droite - image précédente
-                        moveCarousel('prev');
-                    }
-                }
+            if (currentPos > 0) {
+                // Résistance au début
+                resistance = 1 - (currentPos / (cardWidth * 0.5));
+                resistance = Math.max(0.1, resistance);
+            } else if (currentPos < maxPosition) {
+                // Résistance à la fin
+                const overscroll = Math.abs(currentPos - maxPosition);
+                resistance = 1 - (overscroll / (cardWidth * 0.5));
+                resistance = Math.max(0.1, resistance);
             }
             
-            // Pause au survol
-            carousel.addEventListener('mouseenter', stopAutoScroll);
-            carousel.addEventListener('mouseleave', () => {
-                setTimeout(startAutoScroll, 1000);
-            });
+            const newTransform = initialTransform + (deltaX * resistance);
+            carousel.style.transform = `translateX(${newTransform}px)`;
             
-            // Pause quand l'onglet n'est pas visible
-            document.addEventListener('visibilitychange', function() {
-                if (document.hidden) {
-                    stopAutoScroll();
+            e.preventDefault();
+        }
+    }
+    
+    function handleTouchEnd(e) {
+        if (!isTouching) return;
+        
+        const touch = e.changedTouches[0];
+        touchEndX = touch.clientX;
+        touchEndY = touch.clientY;
+        
+        const deltaX = touchEndX - touchStartX;
+        const deltaY = touchEndY - touchStartY;
+        const touchDuration = Date.now() - touchStartTime;
+        const velocity = Math.abs(deltaX) / touchDuration;
+        
+        isTouching = false;
+        document.body.style.overflow = '';
+        
+        if (isDragging) {
+            // Déterminer l'action basée sur la distance et la vélocité
+            const shouldMove = Math.abs(deltaX) > SWIPE_THRESHOLD || velocity > VELOCITY_THRESHOLD;
+            
+            if (shouldMove) {
+                if (deltaX > 0) {
+                    // Swipe vers la droite - image précédente
+                    moveCarousel('prev');
                 } else {
-                    setTimeout(startAutoScroll, 1000);
+                    // Swipe vers la gauche - image suivante
+                    moveCarousel('next');
                 }
-            });
-            
-            // Ajuster le carrousel en cas de redimensionnement
-            function handleResize() {
-                updateCarouselMetrics();
-                updateCarouselPosition(false);
+            } else {
+                // Revenir à la position actuelle
+                updateCarouselPosition(true);
             }
             
-            window.addEventListener('resize', handleResize);
+            isDragging = false;
+        } else if (touchDuration < MAX_TOUCH_TIME && Math.abs(deltaX) > SWIPE_THRESHOLD) {
+            // Swipe rapide sans drag
+            if (deltaX > 0) {
+                moveCarousel('prev');
+            } else {
+                moveCarousel('next');
+            }
+        }
+        
+        // Redémarrer l'auto-scroll après un délai
+        setTimeout(() => {
+            if (!isTouching && !isDragging) {
+                startAutoScroll();
+            }
+        }, 3000);
+    }
+    
+    function handleTouchCancel(e) {
+        isTouching = false;
+        isDragging = false;
+        document.body.style.overflow = '';
+        updateCarouselPosition(true);
+        
+        setTimeout(() => {
+            if (!isTouching && !isDragging) {
+                startAutoScroll();
+            }
+        }, 1000);
+    }
+    
+    // Gestionnaires pour les boutons
+    if (originalCards.length > 0) {
+        prevBtn.addEventListener('click', () => {
+            stopAutoScroll();
+            moveCarousel('prev');
+            setTimeout(startAutoScroll, 5000);
+        });
+        
+        nextBtn.addEventListener('click', () => {
+            stopAutoScroll();
+            moveCarousel('next');
+            setTimeout(startAutoScroll, 5000);
+        });
+        
+        // Événements tactiles
+        carousel.addEventListener('touchstart', handleTouchStart, { passive: false });
+        carousel.addEventListener('touchmove', handleTouchMove, { passive: false });
+        carousel.addEventListener('touchend', handleTouchEnd, { passive: false });
+        carousel.addEventListener('touchcancel', handleTouchCancel, { passive: false });
+        
+        // Support souris pour desktop (optionnel)
+        let mouseDown = false;
+        let mouseStartX = 0;
+        let mouseCurrentX = 0;
+        
+        carousel.addEventListener('mousedown', (e) => {
+            mouseDown = true;
+            mouseStartX = e.clientX;
+            mouseCurrentX = e.clientX;
+            initialTransform = currentTransform;
+            carousel.style.transition = 'none';
+            stopAutoScroll();
+            carousel.style.cursor = 'grabbing';
+            e.preventDefault();
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (!mouseDown) return;
             
-            // Initialisation
+            mouseCurrentX = e.clientX;
+            const deltaX = mouseCurrentX - mouseStartX;
+            const newTransform = initialTransform + deltaX * 0.8; // Réduction de la sensibilité
+            carousel.style.transform = `translateX(${newTransform}px)`;
+        });
+        
+        document.addEventListener('mouseup', (e) => {
+            if (!mouseDown) return;
+            
+            mouseDown = false;
+            carousel.style.cursor = 'grab';
+            
+            const deltaX = mouseCurrentX - mouseStartX;
+            
+            if (Math.abs(deltaX) > SWIPE_THRESHOLD) {
+                if (deltaX > 0) {
+                    moveCarousel('prev');
+                } else {
+                    moveCarousel('next');
+                }
+            } else {
+                updateCarouselPosition(true);
+            }
+            
+            setTimeout(startAutoScroll, 3000);
+        });
+        
+        // Pause au survol
+        carousel.addEventListener('mouseenter', () => {
+            stopAutoScroll();
+            carousel.style.cursor = 'grab';
+        });
+        
+        carousel.addEventListener('mouseleave', () => {
+            carousel.style.cursor = 'default';
+            setTimeout(() => {
+                if (!isTouching && !isDragging && !mouseDown) {
+                    startAutoScroll();
+                }
+            }, 1000);
+        });
+        
+        // Pause quand l'onglet n'est pas visible
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                stopAutoScroll();
+            } else if (!isTouching && !isDragging) {
+                setTimeout(startAutoScroll, 1000);
+            }
+        });
+        
+        // Ajuster le carrousel en cas de redimensionnement
+        function handleResize() {
             updateCarouselMetrics();
             updateCarouselPosition(false);
-            
-            // Démarrer le défilement automatique après un court délai
-            setTimeout(startAutoScroll, 2000);
         }
         
-        // Animation d'entrée pour les catégories (code existant)
-        const categoryCards = document.querySelectorAll('.category-card');
-        categoryCards.forEach((card, index) => {
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(20px)';
-            
-            setTimeout(() => {
-                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-                card.style.opacity = '1';
-                card.style.transform = 'translateY(0)';
-            }, 100 + (index * 150));
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(handleResize, 150);
         });
+        
+        // Initialisation
+        updateCarouselMetrics();
+        updateCarouselPosition(false);
+        
+        // Démarrer le défilement automatique après un court délai
+        setTimeout(() => {
+            if (!isTouching && !isDragging) {
+                startAutoScroll();
+            }
+        }, 2000);
+    }
+    
+    // Animation d'entrée pour les catégories
+    const categoryCards = document.querySelectorAll('.category-card');
+    categoryCards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, 100 + (index * 150));
     });
+});
 </script>
 {% endblock %}
