@@ -27,9 +27,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-x@kd0o+&7d5u9f-w5$m$xwmp8*l&#o0a3n#u_ar*p1_7h588ww"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['cookfamily.fr']
 
 # Application definition
 INSTALLED_APPS = [
@@ -159,10 +159,10 @@ SESSION_SAVE_EVERY_REQUEST = True  # Renouvelle la session à chaque requête
 SESSION_COOKIE_SECURE = False  # True en production avec HTTPS
 SESSION_COOKIE_HTTPONLY = True  # Empêche l'accès via JavaScript
 SESSION_COOKIE_SAMESITE = 'Lax'  # Protection CSRF
-# SECURE_HSTS_SECONDS = 31536000  # 1 an
-# SECURE_SSL_REDIRECT = True
-# SESSION_COOKIE_SECURE = True
-# CSRF_COOKIE_SECURE = True
+SECURE_HSTS_SECONDS = 31536000  # 1 an
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
 # Optionnel : Définir le nom du cookie de session
 SESSION_COOKIE_NAME = 'cook_sessionid'
