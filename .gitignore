@@ -1,3 +1,4 @@
 .env
 venv
 /static
+cook/settings.py
