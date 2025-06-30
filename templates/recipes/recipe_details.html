@@ -6,9 +6,7 @@
 {% block content %}
 <div class="min-h-screen bg-gray-800 text-white">
     <!-- Container principal avec bordure conditionnelle -->
-    <div class="recipe-container max-w-4xl mx-auto px-2 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-12 lg:py-16 xl:py-20">
-        
-        <!-- Hero Section -->
+    <div class="recipe-container max-w-4xl mx-auto px-2 sm:px-6 lg:px-8 pt-4 sm:pt-6 md:pt-8 lg:pt-10 xl:pt-12 pb-6 sm:pb-8 md:pb-12 lg:pb-16 xl:pb-20">
         <div class="hero-section relative overflow-hidden bg-gray-900/80 backdrop-blur-sm border border-gray-700 rounded-3xl shadow-2xl mb-8">
             <!-- Grille subtile en arrière-plan -->
             <div class="absolute inset-0 opacity-[0.02]">
@@ -597,14 +595,19 @@
     100% { transform: scale(1); }
 }
 
-/* Container responsive */
+/* Container responsive avec espacement navbar ultra-minimal */
 .recipe-container {
-    padding-top: 0;
-    padding-bottom: 0;
+    /* Aucun espacement supplémentaire */
+    margin-top: 0;
+    position: relative;
 }
 
-/* Suppression du rectangle global sur mobile */
+/* Suppression du rectangle global sur mobile sans espacement */
 @media (max-width: 768px) {
+    .recipe-container {
+        margin-top: 0; /* Aucun espacement sur mobile */
+    }
+    
     .hero-section {
         background: transparent !important;
         border: none !important;
@@ -622,6 +625,10 @@
 
 /* Conteneur principal avec effet glassmorphism pour desktop */
 @media (min-width: 769px) {
+    .recipe-container {
+        margin-top: 0; /* Aucun espacement sur desktop */
+    }
+    
     .bg-gray-900\/80 {
         background-color: rgba(17, 24, 39, 0.8);
     }
@@ -818,6 +825,7 @@ button:active, a:active {
     .recipe-container {
         padding-left: 0.25rem !important;
         padding-right: 0.25rem !important;
+        margin-top: 0; /* Aucun espace */
     }
     
     .hero-section {
@@ -845,6 +853,10 @@ button:active, a:active {
 }
 
 @media (max-width: 380px) {
+    .recipe-container {
+        margin-top: 0; /* Aucun espace pour très petits écrans */
+    }
+    
     .hero-section {
         padding: 0.75rem !important;
         background: transparent !important;
@@ -919,20 +931,6 @@ button:active, a:active {
     }
 }
 
-/* Conteneur flex amélioré pour les notes */
-@media (max-width: 640px) {
-    .flex.flex-col.sm\:flex-row.sm\:items-center.sm\:justify-between {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        align-items: flex-start;
-    }
-    
-    .flex.flex-col.sm\:flex-row.sm\:items-center.sm\:justify-between > div:last-child {
-        align-self: flex-end;
-    }
-}
-
 /* Amélioration des cartes d'étapes */
 .etape-card {
     transition: all 0.3s ease;
@@ -985,6 +983,18 @@ button:active, a:active {
     background-color: var(--primary-yellow-light) !important;
     border-color: rgba(245, 158, 11, 0.5) !important;
     transform: scale(1.05);
+}
+
+/* Aucun espacement supplémentaire */
+@media (min-width: 1024px) {
+    .recipe-container {
+        margin-top: 0; /* Aucun espace sur les grands écrans */
+    }
+}
+
+/* Suppression de l'indicateur visuel */
+.recipe-container::before {
+    display: none;
 }
 </style>
 
