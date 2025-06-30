@@ -4,257 +4,250 @@
 {% block title %}Détails de la Recette{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gray-800 text-white p-6">
-    <!-- Conteneur principal avec bordure arrondie -->
-    <div class="max-w-4xl mx-auto bg-gray-900/80 backdrop-blur-sm border border-gray-700 rounded-3xl shadow-2xl overflow-hidden">
+<div class="min-h-screen bg-gray-800 text-white py-6 sm:py-8 lg:py-12">
+    <!-- Container principal avec bordure conditionnelle -->
+    <div class="recipe-container max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        
         <!-- Hero Section -->
-        <div class="relative overflow-hidden">
+        <div class="hero-section relative overflow-hidden bg-gray-900/80 backdrop-blur-sm border border-gray-700 rounded-3xl shadow-2xl mb-8">
             <!-- Grille subtile en arrière-plan -->
             <div class="absolute inset-0 opacity-[0.02]">
                 <div style="background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 50px 50px;"></div>
             </div>
             
-            <div class="px-8 py-12">
-            <!-- Titre et sélecteur de personnes (ligne du haut) -->
-            <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-6 mx-12">
-                <!-- Titre et catégorie à gauche -->
-                <div class="flex-1">
-                    <h1 class="text-3xl md:text-4xl font-light tracking-tight text-white mb-3">
-                        {{ recette.titre }}
-                    </h1>
-                    <div class="w-20 h-0.5 bg-gradient-to-r from-blue-600 to-transparent mt-4"></div>
+            <div class="px-6 sm:px-8 py-8 sm:py-12">
+                <!-- Titre et sélecteur de personnes (ligne du haut) -->
+                <div class="flex items-start justify-between gap-4 mb-6">
+                    <!-- Titre et catégorie à gauche -->
+                    <div class="flex-1 min-w-0">
+                        <h1 class="text-2xl sm:text-3xl md:text-4xl font-light tracking-tight text-white mb-3 break-words">
+                            {{ recette.titre }}
+                        </h1>
+                        <!-- Trait vert pour tous les écrans -->
+                        <div class="w-20 h-0.5 bg-gradient-to-r from-green-500 to-transparent mt-4"></div>
+                        
+                        <!-- Description si disponible -->
+                        {% if recette.description %}
+                        <p class="text-sm sm:text-lg text-gray-400 mt-4 leading-relaxed">
+                            {{ recette.description }}
+                        </p>
+                        {% endif %}
+                    </div>
                     
-                    <!-- Description si disponible -->
-                    {% if recette.description %}
-                    <p class="text-lg text-gray-400 mt-4 leading-relaxed">
-                        {{ recette.description }}
-                    </p>
+                    <!-- Sélecteur de personnes à droite -->
+                    {% if recette.nbpersonne %}
+                    <div class="relative dropdown-container flex-shrink-0">
+                        <button id="dropdown-button" class="group flex items-center space-x-2 sm:space-x-3 bg-white/5 hover:bg-orange-500/10 border border-white/10 hover:border-orange-500/30 rounded-xl px-3 sm:px-4 py-2 transition-all duration-300 backdrop-blur-sm text-sm">
+                            <div class="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-orange-500/20 flex items-center justify-center group-hover:bg-orange-500/30 transition-colors">
+                                <svg class="w-2.5 h-2.5 sm:w-3 sm:h-3 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                </svg>
+                            </div>
+                            <span id="selected-option" class="text-gray-300 group-hover:text-white transition-colors font-medium whitespace-nowrap">
+                                {{ nb_personnes_souhaite|default:recette.nbpersonne }} pers{% if nb_personnes_souhaite|default:recette.nbpersonne != 1 %}.{% endif %}
+                            </span>
+                            <svg class="w-3 h-3 text-gray-400 group-hover:text-orange-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        
+                        <div id="dropdown-menu" class="hidden absolute right-0 mt-2 w-48 bg-gray-900 border border-gray-600 rounded-xl shadow-2xl z-[9999] max-h-64 overflow-y-auto backdrop-blur-sm">
+                            <form id="nb_persons_form" method="get">
+                                <input type="hidden" id="nb_personnes" name="nb_personnes" value="{{ nb_personnes_souhaite|default:recette.nbpersonne }}">
+                            </form>
+                            <ul class="py-2">
+                                {% for i in "123456789"|make_list %}
+                                    <li class="dropdown-option {% if nb_personnes_souhaite == i|add:'0' or recette.nbpersonne == i|add:'0' and not nb_personnes_souhaite %}bg-orange-500/20 border-orange-500/30{% endif %}" data-value="{{ i }}">
+                                        <div class="flex items-center px-3 py-2 text-white hover:bg-gray-800/50 cursor-pointer transition-colors duration-300 {% if nb_personnes_souhaite == i|add:'0' or recette.nbpersonne == i|add:'0' and not nb_personnes_souhaite %}bg-orange-500/20{% endif %}">
+                                            <span class="text-sm">{{ i }} personne{% if i != "1" %}s{% endif %}</span>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
                     {% endif %}
                 </div>
                 
-                <!-- Sélecteur de personnes à droite -->
-                {% if recette.nbpersonne %}
-                <div class="relative dropdown-container flex-shrink-0">
-                    <button id="dropdown-button" class="group flex items-center space-x-3 bg-white/5 hover:bg-orange-500/10 border border-white/10 hover:border-orange-500/30 rounded-xl px-4 py-2 transition-all duration-300 backdrop-blur-sm">
-                        <div class="w-6 h-6 rounded-full bg-orange-500/20 flex items-center justify-center group-hover:bg-orange-500/30 transition-colors">
-                            <svg class="w-3 h-3 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                            </svg>
+                <!-- Section notes (ligne du milieu) - Même ligne sur mobile -->
+                <div class="flex items-center justify-between gap-4 mb-8">
+                    <!-- Note moyenne à gauche -->
+                    <div class="flex items-center space-x-3">
+                        <div class="flex items-center space-x-2">
+                            <div class="flex">
+                                {% for i in "12345"|make_list %}
+                                    {% if forloop.counter <= note_moyenne %}
+                                        <span class="text-yellow-400 text-lg">★</span>
+                                    {% else %}
+                                        <span class="text-gray-500 text-lg">★</span>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <span class="text-lg font-bold text-white">{{ note_moyenne|floatformat:1 }}</span>
                         </div>
-                        <span id="selected-option" class="text-gray-300 group-hover:text-white transition-colors font-medium text-sm">
-                            {{ nb_personnes_souhaite|default:recette.nbpersonne }} personne{% if nb_personnes_souhaite|default:recette.nbpersonne != 1 %}s{% endif %}
-                        </span>
-                        <svg class="w-3 h-3 text-gray-400 group-hover:text-orange-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                    </button>
+                        <span class="text-gray-400 text-sm">({{ nombre_votes }} vote{{ nombre_votes|pluralize }})</span>
+                    </div>
                     
-                    <div id="dropdown-menu" class="hidden absolute right-0 mt-2 w-48 bg-gray-900 border border-gray-600 rounded-xl shadow-2xl z-[9999] max-h-64 overflow-y-auto backdrop-blur-sm">
-                        <form id="nb_persons_form" method="get">
-                            <input type="hidden" id="nb_personnes" name="nb_personnes" value="{{ nb_personnes_souhaite|default:recette.nbpersonne }}">
-                        </form>
-                        <ul class="py-2">
-                            {% for i in "123456789"|make_list %}
-                                <li class="dropdown-option {% if nb_personnes_souhaite == i|add:'0' or recette.nbpersonne == i|add:'0' and not nb_personnes_souhaite %}bg-orange-500/20 border-orange-500/30{% endif %}" data-value="{{ i }}">
-                                    <div class="flex items-center px-3 py-2 text-white hover:bg-gray-800/50 cursor-pointer transition-colors duration-300 {% if nb_personnes_souhaite == i|add:'0' or recette.nbpersonne == i|add:'0' and not nb_personnes_souhaite %}bg-orange-500/20{% endif %}">
-                                        <span class="text-sm">{{ i }} personne{% if i != "1" %}s{% endif %}</span>
+                    <!-- Section notation utilisateur à droite -->
+                    <div class="flex-shrink-0">
+                        {% if user.is_authenticated %}
+                            <div class="flex items-center space-x-1 sm:space-x-2">
+                                <form method="post" action="{% url 'noter_recette' recette.id %}" class="form-notation flex items-center space-x-1 sm:space-x-2" id="rating-form">
+                                    {% csrf_token %}
+                                    <div class="etoiles flex space-x-1">
+                                        {% for i in "12345"|make_list %}
+                                            <input type="radio" id="etoile{{ i }}" name="valeur" value="{{ i }}" {% if note_utilisateur.valeur == i|add:'0' %}checked{% endif %} class="hidden">
+                                            <label for="etoile{{ i }}" class="star-label w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gray-800/50 border border-gray-600 flex items-center justify-center cursor-pointer hover:bg-yellow-500/20 hover:border-yellow-500/30 transition-all duration-300 group" data-rating="{{ i }}">
+                                                <svg class="w-2.5 h-2.5 sm:w-3 sm:h-3 text-gray-500 group-hover:text-yellow-400 transition-colors duration-300 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
+                                                </svg>
+                                            </label>
+                                        {% endfor %}
                                     </div>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                </div>
-                {% endif %}
-            </div>
-            
-            <!-- Section notes (ligne du milieu) -->
-            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8 mx-12">
-                <!-- Note moyenne à gauche -->
-                <div class="flex items-center space-x-3">
-                    <div class="flex items-center space-x-2">
-                        <div class="flex">
-                            {% for i in "12345"|make_list %}
-                                {% if forloop.counter <= note_moyenne %}
-                                    <span class="text-yellow-400 text-lg">★</span>
-                                {% else %}
-                                    <span class="text-gray-500 text-lg">★</span>
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-                        <span class="text-lg font-bold text-white">{{ note_moyenne|floatformat:1 }}</span>
-                    </div>
-                    <span class="text-gray-400 text-sm">({{ nombre_votes }} vote{{ nombre_votes|pluralize }})</span>
-                </div>
-                
-                <!-- Section notation utilisateur à droite -->
-                <div class="flex-shrink-0">
-                    {% if user.is_authenticated %}
-                        <div class="flex items-center space-x-3">
-                            <span class="text-gray-300 font-medium text-sm">Votre note:</span>
-                            <form method="post" action="{% url 'noter_recette' recette.id %}" class="form-notation flex items-center space-x-2" id="rating-form">
-                                {% csrf_token %}
-                                <div class="etoiles flex space-x-1">
-                                    {% for i in "12345"|make_list %}
-                                        <input type="radio" id="etoile{{ i }}" name="valeur" value="{{ i }}" {% if note_utilisateur.valeur == i|add:'0' %}checked{% endif %} class="hidden">
-                                        <label for="etoile{{ i }}" class="star-label w-6 h-6 rounded-full bg-gray-800/50 border border-gray-600 flex items-center justify-center cursor-pointer hover:bg-yellow-500/20 hover:border-yellow-500/30 transition-all duration-300 group" data-rating="{{ i }}">
-                                            <svg class="w-3 h-3 text-gray-500 group-hover:text-yellow-400 transition-colors duration-300 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
+                                    
+                                    <button type="submit" class="group flex items-center space-x-1 bg-white/5 hover:bg-yellow-500/10 border border-white/10 hover:border-yellow-500/30 rounded-lg px-2 sm:px-3 py-1 transition-all duration-300 backdrop-blur-sm">
+                                        <div class="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-yellow-500/20 flex items-center justify-center group-hover:bg-yellow-500/30 transition-colors">
+                                            <svg class="w-1.5 h-1.5 sm:w-2 sm:h-2 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
                                             </svg>
-                                        </label>
-                                    {% endfor %}
-                                </div>
-                                
-                                <button type="submit" class="group flex items-center space-x-1 bg-white/5 hover:bg-yellow-500/10 border border-white/10 hover:border-yellow-500/30 rounded-lg px-3 py-1 transition-all duration-300 backdrop-blur-sm">
-                                    <div class="w-4 h-4 rounded-full bg-yellow-500/20 flex items-center justify-center group-hover:bg-yellow-500/30 transition-colors">
-                                        <svg class="w-2 h-2 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                                        </div>
+                                        <span class="text-gray-300 group-hover:text-white transition-colors font-medium text-xs">
+                                            Noter
+                                        </span>
+                                    </button>
+                                </form>
+                            </div>
+                        {% else %}
+                            <div class="text-center">
+                                <a href="{% url 'login' %}?next={{ request.path }}" class="group inline-flex items-center space-x-1 sm:space-x-2 bg-white/5 hover:bg-blue-500/10 border border-white/10 hover:border-blue-500/30 rounded-lg px-2 sm:px-3 py-1 transition-all duration-300 backdrop-blur-sm">
+                                    <div class="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-blue-500/20 flex items-center justify-center group-hover:bg-blue-500/30 transition-colors">
+                                        <svg class="w-1.5 h-1.5 sm:w-2 sm:h-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
                                         </svg>
                                     </div>
                                     <span class="text-gray-300 group-hover:text-white transition-colors font-medium text-xs">
-                                        Noter
+                                        Se connecter
                                     </span>
-                                </button>
-                            </form>
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Image de la recette centrée -->
+                <div class="flex justify-center -mb-4">
+                    {% if recette.image %}
+                        <div class="w-64 h-48 sm:w-80 sm:h-60 rounded-3xl overflow-hidden shadow-xl border border-gray-700 group">
+                            <img src="{% static recette.image %}" alt="{{ recette.titre }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
                         </div>
                     {% else %}
-                        <div class="text-center">
-                            <a href="{% url 'login' %}?next={{ request.path }}" class="group inline-flex items-center space-x-2 bg-white/5 hover:bg-blue-500/10 border border-white/10 hover:border-blue-500/30 rounded-lg px-3 py-1 transition-all duration-300 backdrop-blur-sm">
-                                <div class="w-4 h-4 rounded-full bg-blue-500/20 flex items-center justify-center group-hover:bg-blue-500/30 transition-colors">
-                                    <svg class="w-2 h-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                        <div class="w-64 h-48 sm:w-80 sm:h-60 rounded-3xl bg-gray-900 border border-gray-700 flex items-center justify-center shadow-xl">
+                            <div class="text-center">
+                                <div class="w-12 h-12 sm:w-16 sm:h-16 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <svg class="w-6 h-6 sm:w-8 sm:h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                     </svg>
                                 </div>
-                                <span class="text-gray-300 group-hover:text-white transition-colors font-medium text-xs">
-                                    Se connecter pour noter
-                                </span>
-                            </a>
+                                <p class="text-gray-500 text-sm">Aucune image</p>
+                            </div>
                         </div>
                     {% endif %}
                 </div>
             </div>
-            
-            <!-- Image de la recette centrée -->
-            <div class="flex justify-center -mb-12">
-                {% if recette.image %}
-                    <div class="w-80 h-60 rounded-2xl overflow-hidden shadow-xl border border-gray-700 group">
-                        <img src="{% static recette.image %}" alt="{{ recette.titre }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
-                    </div>
-                {% else %}
-                    <div class="w-80 h-60 rounded-2xl bg-gray-900 border border-gray-700 flex items-center justify-center shadow-xl">
-                        <div class="text-center">
-                            <div class="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-3">
-                                <svg class="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                </svg>
-                            </div>
-                            <p class="text-gray-500">Aucune image</p>
-                        </div>
-                    </div>
-                {% endif %}
-            </div>
         </div>
 
-        <!-- Contenu principal -->
-        <div class="px-8 pb-12">
-        
-            <!-- Section Ingrédients -->
-            <div class="mb-1 -mb-12">
-                <div class="p-6 pb-0">
-                    <h3 class="text-xl font-medium text-white mb-6 flex items-center">
-                        <div class="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center mr-3">
-                            <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+        <!-- Section Ingrédients -->
+        <div class="ingredients-section bg-gray-900/80 backdrop-blur-sm border border-gray-700 rounded-3xl shadow-2xl mb-8 p-6 sm:p-8">
+            <h3 class="text-lg sm:text-xl font-medium text-white mb-4 sm:mb-6 flex items-center">
+                <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-purple-500/20 flex items-center justify-center mr-3">
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                    </svg>
+                </div>
+                Ingrédients
+            </h3>
+            
+            <!-- Grille responsive pour ingrédients -->
+            <div class="ingredients-grid grid gap-2 sm:gap-3">
+                {% for ingredient in ingredients %}
+                <div class="ingredient-card bg-gray-700/50 rounded-xl border border-gray-500 hover:border-gray-400 transition-all duration-300 text-center group aspect-square flex flex-col items-center justify-center p-2 sm:p-3">
+                    {% if ingredient.ingredient.image %}
+                        <img src="{% static ingredient.ingredient.image %}" alt="{{ ingredient.ingredient.nom }}" class="w-12 h-12 sm:w-16 sm:h-16 md:w-18 md:h-18 lg:w-20 lg:h-20 xl:w-22 xl:h-22 object-cover mx-auto mb-1 sm:mb-2 rounded-lg group-hover:scale-105 transition-transform duration-300 flex-shrink-0">
+                    {% else %}
+                        <div class="w-12 h-12 sm:w-16 sm:h-16 md:w-18 md:h-18 lg:w-20 lg:h-20 xl:w-22 xl:h-22 bg-gray-600 rounded-lg mx-auto mb-1 sm:mb-2 flex items-center justify-center group-hover:scale-105 transition-transform duration-300 flex-shrink-0">
+                            <svg class="w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 xl:w-11 xl:h-11 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
                             </svg>
                         </div>
-                        Ingrédients
-                    </h3>
-                </div>
-                
-                <div class="p-6 pt-0">
-                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                        {% for ingredient in ingredients %}
-                        <div class="ingredient-card bg-gray-700/50 rounded-xl p-4 border border-gray-500 hover:border-gray-400 transition-all duration-300 text-center group">
-                            {% if ingredient.ingredient.image %}
-                                <img src="{% static ingredient.ingredient.image %}" alt="{{ ingredient.ingredient.nom }}" class="w-16 h-16 object-cover mx-auto mb-3 rounded-lg group-hover:scale-105 transition-transform duration-300">
-                            {% else %}
-                                <div class="w-16 h-16 bg-gray-600 rounded-lg mx-auto mb-3 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
-                                    <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
-                                    </svg>
-                                </div>
-                            {% endif %}
-                            <h4 class="text-white font-medium mb-1 text-sm">{{ ingredient.ingredient.nom }}</h4>
-                            <p class="text-purple-300 text-xs font-medium">{{ ingredient.quantite_ajustee }}</p>
-                        </div>
-                        {% empty %}
-                        <div class="col-span-full text-center py-8">
-                            <div class="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-3">
-                                <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
-                                </svg>
-                            </div>
-                            <p class="text-gray-500 text-sm">Aucun ingrédient ajouté</p>
-                        </div>
-                        {% endfor %}
+                    {% endif %}
+                    <div class="flex-1 flex flex-col justify-center min-w-0">
+                        <h4 class="text-white font-medium mb-0.5 text-xs leading-tight break-words">{{ ingredient.ingredient.nom }}</h4>
+                        <p class="text-purple-300 text-xs font-medium">{{ ingredient.quantite_ajustee }}</p>
                     </div>
                 </div>
+                {% empty %}
+                <div class="col-span-full text-center py-6 sm:py-8">
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                        </svg>
+                    </div>
+                    <p class="text-gray-500 text-sm">Aucun ingrédient ajouté</p>
+                </div>
+                {% endfor %}
+            </div>
         </div>
 
         <!-- Section Étapes -->
-        <div class="mb-10">
-                <div class="p-6 pb-0">
-                    <h3 class="text-xl font-medium text-white mb-6 flex items-center">
-                        <div class="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center mr-3">
-                            <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
-                            </svg>
-                        </div>
-                        Étapes de préparation
-                    </h3>
+        <div class="steps-section bg-gray-900/80 backdrop-blur-sm border border-gray-700 rounded-3xl shadow-2xl mb-8 p-6 sm:p-8">
+            <h3 class="text-lg sm:text-xl font-medium text-white mb-4 sm:mb-6 flex items-center">
+                <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-green-500/20 flex items-center justify-center mr-3">
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                    </svg>
                 </div>
-                
-                <div class="p-6 pt-0">
-                    <div class="space-y-2">
-                        {% for etape in recette.etapes.all %}
-                        <div class="etape-card bg-gray-700/50 rounded-xl p-5 border border-gray-500 hover:border-gray-400 transition-all duration-300 group">
-                            <div class="flex items-start space-x-3">
-                                <div class="flex-shrink-0">
-                                    <div class="w-10 h-10 bg-green-500/20 border border-green-500/30 rounded-full flex items-center justify-center group-hover:bg-green-500/30 transition-colors">
-                                        <span class="text-green-400 font-bold">{{ forloop.counter }}</span>
-                                    </div>
-                                </div>
-                                <div class="flex-1">
-                                    <p class="text-gray-200 leading-relaxed text-sm">{{ etape.description }}</p>
-                                </div>
+                Étapes de préparation
+            </h3>
+            
+            <div class="space-y-3 sm:space-y-4">
+                {% for etape in recette.etapes.all %}
+                <div class="etape-card bg-gray-700/50 rounded-xl p-4 sm:p-5 border border-gray-500 hover:border-gray-400 transition-all duration-300 group">
+                    <div class="flex items-start space-x-3">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 sm:w-10 sm:h-10 bg-green-500/20 border border-green-500/30 rounded-full flex items-center justify-center group-hover:bg-green-500/30 transition-colors">
+                                <span class="text-green-400 font-bold text-sm sm:text-base">{{ forloop.counter }}</span>
                             </div>
                         </div>
-                        {% empty %}
-                        <div class="text-center py-8">
-                            <div class="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-3">
-                                <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
-                                </svg>
-                            </div>
-                            <p class="text-gray-500 text-sm">Aucune étape ajoutée</p>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-gray-200 leading-relaxed text-sm sm:text-base">{{ etape.description }}</p>
                         </div>
-                        {% endfor %}
                     </div>
                 </div>
+                {% empty %}
+                <div class="text-center py-6 sm:py-8">
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                        </svg>
+                    </div>
+                    <p class="text-gray-500 text-sm">Aucune étape ajoutée</p>
+                </div>
+                {% endfor %}
             </div>
+        </div>
 
-            <!-- Bouton retour avec marge en dessous -->
-            <div class="text-center mb-8">
-                <a href="{% url 'layout' %}" class="group flex items-center space-x-2 bg-gray-700/50 hover:bg-gray-600/50 border border-gray-500 hover:border-gray-400 rounded-xl px-6 py-3 transition-all duration-300 backdrop-blur-sm w-fit mx-auto">
-                    <div class="w-8 h-8 rounded-full bg-gray-500/30 flex items-center justify-center group-hover:bg-gray-400/30 transition-colors">
-                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <!-- Bouton retour -->
+        <div class="text-center mb-8 px-4">
+            <a href="{% url 'layout' %}" class="group inline-flex items-center space-x-2 bg-gray-700/50 hover:bg-gray-600/50 border border-gray-500 hover:border-gray-400 rounded-xl px-4 sm:px-6 py-2 sm:py-3 transition-all duration-300 backdrop-blur-sm">
+                <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gray-500/30 flex items-center justify-center group-hover:bg-gray-400/30 transition-colors">
+                    <svg class="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                     </svg>
                 </div>
-                <span class="text-gray-300 group-hover:text-white transition-colors font-medium">
+                <span class="text-gray-300 group-hover:text-white transition-colors font-medium text-sm sm:text-base">
                     Retour aux recettes
                 </span>
             </a>
-        </div>
         </div>
     </div>
 </div>
@@ -299,7 +292,7 @@
             dropdownOptions.forEach(option => {
                 option.addEventListener('click', function() {
                     const value = this.dataset.value;
-                    const text = value + ' personne' + (value !== '1' ? 's' : '');
+                    const text = value + ' pers' + (value !== '1' ? '.' : '.');
                     
                     // Animation de fermeture
                     dropdownMenu.style.transition = 'all 0.3s ease';
@@ -353,8 +346,6 @@
                 
                 // Mettre à jour l'affichage
                 updateStarsDisplay();
-                
-                console.log('Étoile sélectionnée:', rating);
             });
         });
         
@@ -362,7 +353,6 @@
         etoilesInputs.forEach((input, index) => {
             input.addEventListener('change', function() {
                 updateStarsDisplay();
-                console.log('Input changé:', this.value);
             });
         });
         
@@ -402,15 +392,12 @@
                     alert('Veuillez sélectionner une note avant de soumettre.');
                     return false;
                 }
-                console.log('Formulaire soumis avec la note:', checkedInput.value);
             });
         }
         
         function updateStarsDisplay() {
             const checkedInput = document.querySelector('.etoiles input[type="radio"]:checked');
             const checkedValue = checkedInput ? parseInt(checkedInput.value) : 0;
-            
-            console.log('Mise à jour affichage étoiles, valeur:', checkedValue);
             
             etoilesLabels.forEach((label, index) => {
                 const svg = label.querySelector('svg');
@@ -436,7 +423,7 @@
         const ingredientCards = document.querySelectorAll('.ingredient-card');
         const etapeCards = document.querySelectorAll('.etape-card');
         
-        // Animation pour les ingrédients
+        // Animation pour les ingrédients avec délai échelonné
         ingredientCards.forEach((card, index) => {
             card.style.opacity = '0';
             card.style.transform = 'translateY(20px)';
@@ -445,7 +432,7 @@
                 card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
                 card.style.opacity = '1';
                 card.style.transform = 'translateY(0)';
-            }, 100 + (index * 100));
+            }, 100 + (index * 50));
         });
         
         // Animation pour les étapes
@@ -471,11 +458,66 @@
                 }, 300);
             }
         });
+        
+        // Adaptive grid observer pour optimiser l'affichage des ingrédients
+        function updateIngredientGrid() {
+            const container = document.querySelector('.ingredients-grid');
+            if (!container) return;
+            
+            const containerWidth = container.offsetWidth;
+            let minCardWidth;
+            
+            // Définir la largeur minimale selon la taille d'écran
+            if (window.innerWidth < 640) {
+                minCardWidth = 80;
+            } else if (window.innerWidth < 768) {
+                minCardWidth = 100;
+            } else if (window.innerWidth < 1024) {
+                minCardWidth = 120;
+            } else {
+                minCardWidth = 130;
+            }
+            
+            const gap = window.innerWidth < 640 ? 8 : 12;
+            
+            // Calculer le nombre optimal de colonnes
+            let cols = Math.floor((containerWidth + gap) / (minCardWidth + gap));
+            cols = Math.max(2, cols); // Minimum 2 colonnes
+            
+            // Appliquer la grille CSS
+            container.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+        }
+        
+        // Observer pour le redimensionnement
+        const resizeObserver = new ResizeObserver(updateIngredientGrid);
+        const ingredientContainer = document.querySelector('.ingredients-grid');
+        if (ingredientContainer) {
+            resizeObserver.observe(ingredientContainer);
+        }
+        
+        // Exécuter au chargement
+        updateIngredientGrid();
     });
 </script>
 
 <style>
-/* Animation d'apparition subtile */
+/* Variables CSS pour la cohérence */
+:root {
+    --primary-green: #10b981;
+    --primary-green-light: rgba(16, 185, 129, 0.2);
+    --primary-green-border: rgba(16, 185, 129, 0.3);
+    --primary-purple: #8b5cf6;
+    --primary-purple-light: rgba(139, 92, 246, 0.2);
+    --primary-orange: #f97316;
+    --primary-orange-light: rgba(249, 115, 22, 0.2);
+    --primary-yellow: #f59e0b;
+    --primary-yellow-light: rgba(245, 158, 11, 0.2);
+    --gray-800: #1f2937;
+    --gray-900: #111827;
+    --transition-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Animations d'apparition */
 @keyframes fadeInUp {
     from {
         opacity: 0;
@@ -498,47 +540,110 @@
     }
 }
 
-/* Conteneur principal avec effet glassmorphism amélioré */
-.bg-gray-900\/80 {
-    background-color: rgba(17, 24, 39, 0.8);
+/* Container responsive */
+.recipe-container {
+    padding-top: 0;
+    padding-bottom: 0;
 }
 
-/* Amélioration du glassmorphism */
-.backdrop-blur-sm {
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+/* Marges spécifiques pour desktop et tablette */
+@media (min-width: 768px) {
+    .min-h-screen {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .min-h-screen {
+        padding-top: 3rem;
+        padding-bottom: 3rem;
+    }
+}
+
+/* Suppression du rectangle global sur mobile */
+@media (max-width: 768px) {
+    .hero-section {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+    
+    .ingredients-section,
+    .steps-section {
+        margin-left: 0;
+        margin-right: 0;
+    }
+}
+
+/* Conteneur principal avec effet glassmorphism pour desktop */
+@media (min-width: 769px) {
+    .bg-gray-900\/80 {
+        background-color: rgba(17, 24, 39, 0.8);
+    }
+    
+    .backdrop-blur-sm {
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+    }
 }
 
 /* Transitions fluides */
 * {
-    transition-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition-timing-function: var(--transition-smooth);
 }
 
-/* Custom scrollbar pour le dropdown */
-#dropdown-menu::-webkit-scrollbar {
-    width: 6px;
+/* Grille adaptative pour ingrédients */
+.ingredients-grid {
+    display: grid;
+    transition: all 0.3s ease;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
 }
 
-#dropdown-menu::-webkit-scrollbar-track {
-    background: rgb(31, 41, 55);
-    border-radius: 8px;
+@media (min-width: 640px) {
+    .ingredients-grid {
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    }
 }
 
-#dropdown-menu::-webkit-scrollbar-thumb {
-    background: linear-gradient(to bottom, rgb(75, 85, 99), rgb(107, 114, 128));
-    border-radius: 8px;
-    border: 1px solid rgb(31, 41, 55);
+@media (min-width: 768px) {
+    .ingredients-grid {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    }
 }
 
-#dropdown-menu::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(to bottom, rgb(107, 114, 128), rgb(156, 163, 175));
+@media (min-width: 1024px) {
+    .ingredients-grid {
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    }
 }
 
-/* Styles pour les étoiles de notation */
+/* Responsive card sizing */
+.ingredient-card {
+    min-width: 0;
+    transition: all 0.3s ease;
+    aspect-ratio: 1;
+}
+
+.ingredient-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Classes personnalisées pour les tailles d'images */
+.w-18 { width: 4.5rem; }
+.h-18 { height: 4.5rem; }
+.w-22 { width: 5.5rem; }
+.h-22 { height: 5.5rem; }
+
+/* Étoiles de notation responsive */
 .star-label {
     transition: all 0.3s ease;
-    cursor: pointer !important;
+    cursor: pointer;
     user-select: none;
+    min-width: 0;
 }
 
 .star-label:hover {
@@ -549,103 +654,43 @@
     transform: scale(0.95);
 }
 
+/* États des étoiles */
 .etoiles input:checked + .star-label {
-    background-color: rgba(245, 158, 11, 0.2) !important;
+    background-color: var(--primary-yellow-light) !important;
     border-color: rgba(245, 158, 11, 0.3) !important;
 }
 
 .etoiles input:checked + .star-label svg {
-    fill: #F59E0B !important;
-    stroke: #F59E0B !important;
-    color: #F59E0B !important;
+    fill: var(--primary-yellow) !important;
+    stroke: var(--primary-yellow) !important;
+    color: var(--primary-yellow) !important;
 }
 
-/* Assurer que les étoiles sont bien cliquables */
-.star-label svg {
-    pointer-events: none;
+/* Custom scrollbar pour le dropdown */
+#dropdown-menu::-webkit-scrollbar {
+    width: 6px;
 }
 
-.star-label {
-    z-index: 10;
-    position: relative;
+#dropdown-menu::-webkit-scrollbar-track {
+    background: var(--gray-800);
+    border-radius: 8px;
 }
 
-/* Focus states accessibles */
+#dropdown-menu::-webkit-scrollbar-thumb {
+    background: linear-gradient(to bottom, rgb(75, 85, 99), rgb(107, 114, 128));
+    border-radius: 8px;
+    border: 1px solid var(--gray-800);
+}
+
+#dropdown-menu::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(to bottom, rgb(107, 114, 128), rgb(156, 163, 175));
+}
+
+/* Focus states pour l'accessibilité */
 input:focus, button:focus, a:focus {
     outline: 2px solid #3b82f6;
     outline-offset: 2px;
     border-radius: 6px;
-}
-
-/* Optimisations mobiles */
-@media (max-width: 768px) {
-    .text-3xl {
-        font-size: 1.75rem;
-    }
-    .text-4xl {
-        font-size: 2rem;
-    }
-    
-    /* Adapter l'image sur mobile */
-    .w-80 {
-        width: 18rem;
-    }
-    .h-60 {
-        height: 12rem;
-    }
-    
-    /* Adapter les grilles pour mobile */
-    .lg\:grid-cols-4 {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    
-    .md\:grid-cols-3 {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    
-    /* Réorganiser sur mobile */
-    .lg\:flex-row {
-        flex-direction: column;
-    }
-    
-    .lg\:justify-between {
-        align-items: flex-start;
-    }
-    
-    /* Centrer le dropdown sur mobile */
-    .dropdown-container {
-        align-self: flex-end;
-    }
-}
-
-@media (max-width: 640px) {
-    /* Image encore plus petite sur très petit écran */
-    .w-80 {
-        width: 16rem;
-    }
-    .h-60 {
-        height: 10rem;
-    }
-    
-    /* Stack les notes verticalement sur petit écran */
-    .lg\:flex-row {
-        flex-direction: column;
-        gap: 1rem;
-    }
-    
-    .lg\:items-center {
-        align-items: flex-start;
-    }
-    
-    /* Grille compacte sur mobile */
-    .grid-cols-2 {
-        grid-template-columns: repeat(1, minmax(0, 1fr));
-    }
-}
-
-/* Performance optimizations */
-.group-hover\:scale-105:hover {
-    will-change: transform;
 }
 
 /* Micro-interactions */
@@ -674,7 +719,7 @@ button:active, a:active {
 }
 
 .dropdown-option.bg-orange-500\/20:hover {
-    background-color: rgba(234, 88, 12, 0.3) !important;
+    background-color: var(--primary-orange-light) !important;
 }
 
 /* Amélioration de l'accessibilité */
@@ -696,42 +741,110 @@ button:active, a:active {
     z-index: 9999;
 }
 
-/* Compact design improvements */
-.max-w-4xl {
-    max-width: 56rem;
-}
-
-/* Améliorer l'espacement compact */
-.space-y-4 > :not([hidden]) ~ :not([hidden]) {
-    --tw-space-y-reverse: 0;
-    margin-top: calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));
-    margin-bottom: calc(0.75rem * var(--tw-space-y-reverse));
-}
-
-/* Réduire les paddings pour un look plus compact */
-.compact-padding {
-    padding: 1rem;
-}
-
-/* Optimiser pour les petits écrans */
-@media (max-width: 480px) {
-    .px-6 {
-        padding-left: 1rem;
-        padding-right: 1rem;
+/* Optimisations pour les très petits écrans */
+@media (max-width: 380px) {
+    .hero-section {
+        padding: 1rem !important;
     }
     
-    .py-12 {
-        padding-top: 2rem;
-        padding-bottom: 2rem;
+    .text-2xl {
+        font-size: 1.25rem;
     }
     
-    .mb-8 {
-        margin-bottom: 1.5rem;
+    .ingredients-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.5rem;
     }
     
-    .mb-10 {
-        margin-bottom: 2rem;
+    .ingredient-card {
+        padding: 0.5rem;
     }
+    
+    .w-12, .h-12 {
+        width: 2.5rem;
+        height: 2.5rem;
+    }
+}
+
+/* Performance optimizations */
+.group-hover\:scale-105:hover {
+    will-change: transform;
+}
+
+/* Trait vert pour tous les écrans */
+.bg-gradient-to-r.from-green-500 {
+    background: linear-gradient(to right, var(--primary-green), transparent);
+}
+
+/* Espacement uniforme */
+.recipe-container > * + * {
+    margin-top: 1.5rem;
+}
+
+@media (min-width: 640px) {
+    .recipe-container > * + * {
+        margin-top: 1.5rem;
+    }
+}
+
+/* Text wrapping amélioré */
+.break-words {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    hyphens: auto;
+}
+
+/* Optimisation de la lisibilité sur mobile */
+@media (max-width: 640px) {
+    .text-sm {
+        font-size: 0.825rem;
+        line-height: 1.4;
+    }
+    
+    .leading-relaxed {
+        line-height: 1.6;
+    }
+}
+
+/* Conteneur flex amélioré pour les notes */
+@media (max-width: 640px) {
+    .flex.flex-col.sm\:flex-row.sm\:items-center.sm\:justify-between {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+    
+    .flex.flex-col.sm\:flex-row.sm\:items-center.sm\:justify-between > div:last-child {
+        align-self: flex-end;
+    }
+}
+
+/* Amélioration des cartes d'étapes */
+.etape-card {
+    transition: all 0.3s ease;
+}
+
+.etape-card:hover {
+    transform: translateX(4px);
+    border-color: var(--primary-green-border);
+}
+
+/* Bordures fluides */
+.border-gray-500:hover {
+    border-color: #9ca3af;
+}
+
+/* Optimisation du z-index */
+.hero-section {
+    position: relative;
+    z-index: 1;
+}
+
+.ingredients-section,
+.steps-section {
+    position: relative;
+    z-index: 2;
 }
 </style>
 
