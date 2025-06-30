@@ -4,9 +4,9 @@
 {% block title %}Détails de la Recette{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gray-800 text-white py-6 sm:py-8 lg:py-12">
+<div class="min-h-screen bg-gray-800 text-white">
     <!-- Container principal avec bordure conditionnelle -->
-    <div class="recipe-container max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="recipe-container max-w-4xl mx-auto px-2 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-12 lg:py-16 xl:py-20">
         
         <!-- Hero Section -->
         <div class="hero-section relative overflow-hidden bg-gray-900/80 backdrop-blur-sm border border-gray-700 rounded-3xl shadow-2xl mb-8">
@@ -15,7 +15,7 @@
                 <div style="background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 50px 50px;"></div>
             </div>
             
-            <div class="px-6 sm:px-8 py-8 sm:py-12">
+            <div class="px-2 sm:px-8 py-8 sm:py-12">
                 <!-- Titre et sélecteur de personnes (ligne du haut) -->
                 <div class="flex items-start justify-between gap-4 mb-6">
                     <!-- Titre et catégorie à gauche -->
@@ -85,7 +85,7 @@
                             </div>
                             <span class="text-lg font-bold text-white">{{ note_moyenne|floatformat:1 }}</span>
                         </div>
-                        <span class="text-gray-400 text-sm">({{ nombre_votes }} vote{{ nombre_votes|pluralize }})</span>
+                        <span class="text-gray-400 text-sm hidden sm:inline">({{ nombre_votes }} vote{{ nombre_votes|pluralize }})</span>
                     </div>
                     
                     <!-- Section notation utilisateur à droite -->
@@ -105,15 +105,26 @@
                                         {% endfor %}
                                     </div>
                                     
-                                    <button type="submit" class="group flex items-center space-x-1 bg-white/5 hover:bg-yellow-500/10 border border-white/10 hover:border-yellow-500/30 rounded-lg px-2 sm:px-3 py-1 transition-all duration-300 backdrop-blur-sm">
-                                        <div class="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-yellow-500/20 flex items-center justify-center group-hover:bg-yellow-500/30 transition-colors">
-                                            <svg class="w-1.5 h-1.5 sm:w-2 sm:h-2 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                                    <!-- Bouton Noter modifié pour mobile -->
+                                    <button type="submit" class="group">
+                                        <!-- Version mobile : juste le rond avec la flèche -->
+                                        <div class="w-5 h-5 sm:w-6 sm:h-6 sm:hidden bg-gray-500/20 hover:bg-green-500/20 border border-gray-500/30 hover:border-green-500/40 rounded-full flex items-center justify-center transition-all duration-300">
+                                            <svg class="w-2.5 h-2.5 sm:w-3 sm:h-3 text-gray-400 hover:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" transform="rotate(45)"> 
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path> 
                                             </svg>
                                         </div>
-                                        <span class="text-gray-300 group-hover:text-white transition-colors font-medium text-xs">
-                                            Noter
-                                        </span>
+                                        
+                                        <!-- Version desktop : bouton complet avec texte -->
+                                        <div class="hidden sm:flex items-center space-x-2 bg-white/5 hover:bg-yellow-500/10 border border-white/10 hover:border-yellow-500/30 rounded-lg px-3 py-1 transition-all duration-300 backdrop-blur-sm">
+                                            <div class="w-4 h-4 rounded-full bg-yellow-500/20 flex items-center justify-center group-hover:bg-yellow-500/30 transition-colors">
+                                                <svg class="w-2 h-2 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" transform="rotate(45)"> 
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path> 
+                                                </svg>                                        
+                                            </div>
+                                            <span class="text-gray-300 group-hover:text-white transition-colors font-medium text-xs">
+                                                Noter
+                                            </span>
+                                        </div>
                                     </button>
                                 </form>
                             </div>
@@ -122,10 +133,10 @@
                                 <a href="{% url 'login' %}?next={{ request.path }}" class="group inline-flex items-center space-x-1 sm:space-x-2 bg-white/5 hover:bg-blue-500/10 border border-white/10 hover:border-blue-500/30 rounded-lg px-2 sm:px-3 py-1 transition-all duration-300 backdrop-blur-sm">
                                     <div class="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-blue-500/20 flex items-center justify-center group-hover:bg-blue-500/30 transition-colors">
                                         <svg class="w-1.5 h-1.5 sm:w-2 sm:h-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17l9.2-9.2M17 17V7H7"></path>
                                         </svg>
                                     </div>
-                                    <span class="text-gray-300 group-hover:text-white transition-colors font-medium text-xs">
+                                    <span class="text-gray-300 group-hover:text-white transition-colors font-medium text-xs hidden sm:inline">
                                         Se connecter
                                     </span>
                                 </a>
@@ -135,7 +146,7 @@
                 </div>
                 
                 <!-- Image de la recette centrée -->
-                <div class="flex justify-center -mb-4">
+                <div class="flex justify-center -mb-12">
                     {% if recette.image %}
                         <div class="w-64 h-48 sm:w-80 sm:h-60 rounded-3xl overflow-hidden shadow-xl border border-gray-700 group">
                             <img src="{% static recette.image %}" alt="{{ recette.titre }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
@@ -157,7 +168,7 @@
         </div>
 
         <!-- Section Ingrédients -->
-        <div class="ingredients-section bg-gray-900/80 backdrop-blur-sm border border-gray-700 rounded-3xl shadow-2xl mb-8 p-6 sm:p-8">
+        <div class="ingredients-section bg-gray-900/80 backdrop-blur-sm border border-gray-700 rounded-3xl shadow-2xl mb-8 p-3 sm:p-8">
             <h3 class="text-lg sm:text-xl font-medium text-white mb-4 sm:mb-6 flex items-center">
                 <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-purple-500/20 flex items-center justify-center mr-3">
                     <svg class="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -199,7 +210,7 @@
         </div>
 
         <!-- Section Étapes -->
-        <div class="steps-section bg-gray-900/80 backdrop-blur-sm border border-gray-700 rounded-3xl shadow-2xl mb-8 p-6 sm:p-8">
+        <div class="steps-section bg-gray-900/80 backdrop-blur-sm border border-gray-700 rounded-3xl shadow-2xl mb-8 p-3 sm:p-8">
             <h3 class="text-lg sm:text-xl font-medium text-white mb-4 sm:mb-6 flex items-center">
                 <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-green-500/20 flex items-center justify-center mr-3">
                     <svg class="w-4 h-4 sm:w-5 sm:h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -237,7 +248,7 @@
         </div>
 
         <!-- Bouton retour -->
-        <div class="text-center mb-8 px-4">
+        <div class="text-center mb-8 px-2 sm:px-4">
             <a href="{% url 'layout' %}" class="group inline-flex items-center space-x-2 bg-gray-700/50 hover:bg-gray-600/50 border border-gray-500 hover:border-gray-400 rounded-xl px-4 sm:px-6 py-2 sm:py-3 transition-all duration-300 backdrop-blur-sm">
                 <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gray-500/30 flex items-center justify-center group-hover:bg-gray-400/30 transition-colors">
                     <svg class="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -323,67 +334,107 @@
             });
         }
         
-        // Gestion des étoiles de notation
-        const etoilesInputs = document.querySelectorAll('.etoiles input[type="radio"]');
-        const etoilesLabels = document.querySelectorAll('.star-label');
+        // Gestion des étoiles de notation - CORRIGÉ
+        const starsContainer = document.querySelector('.etoiles');
+        const starLabels = document.querySelectorAll('.star-label');
+        const starInputs = document.querySelectorAll('.etoiles input[type="radio"]');
         const ratingForm = document.getElementById('rating-form');
         
-        // Marquer les étoiles sélectionnées au chargement
-        updateStarsDisplay();
-        
-        // Gestion des clics sur les étoiles
-        etoilesLabels.forEach((label, index) => {
-            label.addEventListener('click', function(e) {
-                e.preventDefault();
-                const rating = this.getAttribute('data-rating');
-                const radioInput = document.getElementById('etoile' + rating);
+        if (starsContainer && starLabels.length > 0) {
+            
+            // Fonction pour mettre à jour l'affichage des étoiles
+            function updateStarsDisplay() {
+                const checkedInput = document.querySelector('.etoiles input[type="radio"]:checked');
+                const rating = checkedInput ? parseInt(checkedInput.value) : 0;
                 
-                // Décocher toutes les autres étoiles
-                etoilesInputs.forEach(input => input.checked = false);
-                
-                // Cocher l'étoile cliquée
-                radioInput.checked = true;
-                
-                // Mettre à jour l'affichage
-                updateStarsDisplay();
-            });
-        });
-        
-        // Gestion du changement des inputs radio
-        etoilesInputs.forEach((input, index) => {
-            input.addEventListener('change', function() {
-                updateStarsDisplay();
-            });
-        });
-        
-        // Effet hover sur les étoiles
-        etoilesLabels.forEach((label, index) => {
-            label.addEventListener('mouseenter', function() {
-                const rating = parseInt(this.getAttribute('data-rating'));
-                
-                // Highlight jusqu'à cette étoile
-                etoilesLabels.forEach((l, i) => {
-                    const svg = l.querySelector('svg');
-                    if (i < rating) {
+                starLabels.forEach((label, index) => {
+                    const svg = label.querySelector('svg');
+                    const labelRating = parseInt(label.getAttribute('data-rating'));
+                    
+                    if (labelRating <= rating) {
+                        // Étoile sélectionnée
                         svg.style.fill = '#F59E0B';
                         svg.style.stroke = '#F59E0B';
-                        l.style.backgroundColor = 'rgba(245, 158, 11, 0.2)';
-                        l.style.borderColor = 'rgba(245, 158, 11, 0.3)';
+                        svg.style.color = '#F59E0B';
+                        label.style.backgroundColor = 'rgba(245, 158, 11, 0.2)';
+                        label.style.borderColor = 'rgba(245, 158, 11, 0.3)';
                     } else {
+                        // Étoile non sélectionnée
                         svg.style.fill = 'none';
                         svg.style.stroke = '#6B7280';
-                        l.style.backgroundColor = 'rgba(31, 41, 55, 0.5)';
-                        l.style.borderColor = 'rgb(75, 85, 99)';
+                        svg.style.color = '#6B7280';
+                        label.style.backgroundColor = 'rgba(31, 41, 55, 0.5)';
+                        label.style.borderColor = 'rgb(75, 85, 99)';
                     }
+                });
+            }
+            
+            // Initialiser l'affichage
+            updateStarsDisplay();
+            
+            // Gestion des clics sur les étoiles
+            starLabels.forEach((label) => {
+                label.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const rating = parseInt(this.getAttribute('data-rating'));
+                    const radioInput = document.getElementById('etoile' + rating);
+                    
+                    if (radioInput) {
+                        // Décocher toutes les étoiles
+                        starInputs.forEach(input => input.checked = false);
+                        
+                        // Cocher l'étoile cliquée
+                        radioInput.checked = true;
+                        
+                        // Mettre à jour l'affichage
+                        updateStarsDisplay();
+                        
+                        // Animation de feedback
+                        this.style.transform = 'scale(1.2)';
+                        setTimeout(() => {
+                            this.style.transform = 'scale(1)';
+                        }, 150);
+                    }
+                });
+                
+                // Effet hover
+                label.addEventListener('mouseenter', function() {
+                    const hoverRating = parseInt(this.getAttribute('data-rating'));
+                    
+                    starLabels.forEach((l) => {
+                        const svg = l.querySelector('svg');
+                        const labelRating = parseInt(l.getAttribute('data-rating'));
+                        
+                        if (labelRating <= hoverRating) {
+                            svg.style.fill = '#F59E0B';
+                            svg.style.stroke = '#F59E0B';
+                            svg.style.color = '#F59E0B';
+                            l.style.backgroundColor = 'rgba(245, 158, 11, 0.2)';
+                            l.style.borderColor = 'rgba(245, 158, 11, 0.3)';
+                        } else {
+                            svg.style.fill = 'none';
+                            svg.style.stroke = '#6B7280';
+                            svg.style.color = '#6B7280';
+                            l.style.backgroundColor = 'rgba(31, 41, 55, 0.5)';
+                            l.style.borderColor = 'rgb(75, 85, 99)';
+                        }
+                    });
+                });
+                
+                label.addEventListener('mouseleave', function() {
+                    updateStarsDisplay();
                 });
             });
             
-            label.addEventListener('mouseleave', function() {
-                updateStarsDisplay();
+            // Gestion des changements d'inputs radio
+            starInputs.forEach((input) => {
+                input.addEventListener('change', function() {
+                    updateStarsDisplay();
+                });
             });
-        });
+        }
         
-        // Gestion de la soumission du formulaire
+        // Gestion de la soumission du formulaire de notation
         if (ratingForm) {
             ratingForm.addEventListener('submit', function(e) {
                 const checkedInput = document.querySelector('.etoiles input[type="radio"]:checked');
@@ -392,29 +443,14 @@
                     alert('Veuillez sélectionner une note avant de soumettre.');
                     return false;
                 }
-            });
-        }
-        
-        function updateStarsDisplay() {
-            const checkedInput = document.querySelector('.etoiles input[type="radio"]:checked');
-            const checkedValue = checkedInput ? parseInt(checkedInput.value) : 0;
-            
-            etoilesLabels.forEach((label, index) => {
-                const svg = label.querySelector('svg');
-                const rating = parseInt(label.getAttribute('data-rating'));
                 
-                if (rating <= checkedValue) {
-                    svg.style.fill = '#F59E0B';
-                    svg.style.stroke = '#F59E0B';
-                    label.style.backgroundColor = 'rgba(245, 158, 11, 0.2)';
-                    label.style.borderColor = 'rgba(245, 158, 11, 0.3)';
-                    svg.style.color = '#F59E0B';
-                } else {
-                    svg.style.fill = 'none';
-                    svg.style.stroke = '#6B7280';
-                    label.style.backgroundColor = 'rgba(31, 41, 55, 0.5)';
-                    label.style.borderColor = 'rgb(75, 85, 99)';
-                    svg.style.color = '#6B7280';
+                // Animation de soumission
+                const submitButton = this.querySelector('button[type="submit"]');
+                if (submitButton) {
+                    submitButton.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        submitButton.style.transform = 'scale(1)';
+                    }, 100);
                 }
             });
         }
@@ -497,6 +533,21 @@
         
         // Exécuter au chargement
         updateIngredientGrid();
+        
+        // Feedback visuel pour les interactions
+        document.querySelectorAll('button, a, .clickable').forEach(element => {
+            element.addEventListener('mousedown', function() {
+                this.style.transform = 'scale(0.98)';
+            });
+            
+            element.addEventListener('mouseup', function() {
+                this.style.transform = 'scale(1)';
+            });
+            
+            element.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
     });
 </script>
 
@@ -540,25 +591,16 @@
     }
 }
 
+@keyframes starPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
 /* Container responsive */
 .recipe-container {
     padding-top: 0;
     padding-bottom: 0;
-}
-
-/* Marges spécifiques pour desktop et tablette */
-@media (min-width: 768px) {
-    .min-h-screen {
-        padding-top: 2rem;
-        padding-bottom: 2rem;
-    }
-}
-
-@media (min-width: 1024px) {
-    .min-h-screen {
-        padding-top: 3rem;
-        padding-bottom: 3rem;
-    }
 }
 
 /* Suppression du rectangle global sur mobile */
@@ -638,32 +680,47 @@
 .w-22 { width: 5.5rem; }
 .h-22 { height: 5.5rem; }
 
-/* Étoiles de notation responsive */
+/* Étoiles de notation responsive et améliorées */
 .star-label {
     transition: all 0.3s ease;
     cursor: pointer;
     user-select: none;
     min-width: 0;
+    position: relative;
 }
 
 .star-label:hover {
     transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
 }
 
 .star-label:active {
     transform: scale(0.95);
+    animation: starPulse 0.3s ease;
 }
 
-/* États des étoiles */
+.star-label svg {
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+/* États des étoiles améliorés */
 .etoiles input:checked + .star-label {
     background-color: var(--primary-yellow-light) !important;
-    border-color: rgba(245, 158, 11, 0.3) !important;
+    border-color: rgba(245, 158, 11, 0.5) !important;
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.2);
 }
 
 .etoiles input:checked + .star-label svg {
     fill: var(--primary-yellow) !important;
     stroke: var(--primary-yellow) !important;
     color: var(--primary-yellow) !important;
+    filter: drop-shadow(0 1px 3px rgba(245, 158, 11, 0.3));
+}
+
+/* Animation au survol des étoiles */
+.star-label:hover svg {
+    filter: drop-shadow(0 2px 4px rgba(245, 158, 11, 0.4));
 }
 
 /* Custom scrollbar pour le dropdown */
@@ -687,10 +744,16 @@
 }
 
 /* Focus states pour l'accessibilité */
-input:focus, button:focus, a:focus {
+input:focus, button:focus, a:focus, .star-label:focus {
     outline: 2px solid #3b82f6;
     outline-offset: 2px;
     border-radius: 6px;
+}
+
+/* Focus spécial pour les étoiles */
+.star-label:focus {
+    outline: 2px solid var(--primary-yellow);
+    outline-offset: 2px;
 }
 
 /* Micro-interactions */
@@ -724,10 +787,19 @@ button:active, a:active {
 
 /* Amélioration de l'accessibilité */
 @media (prefers-reduced-motion: reduce) {
-    * {
+    *, *::before, *::after {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+    
+    .star-label:hover {
+        transform: none;
+    }
+    
+    .star-label:active {
+        animation: none;
     }
 }
 
@@ -742,9 +814,44 @@ button:active, a:active {
 }
 
 /* Optimisations pour les très petits écrans */
+@media (max-width: 480px) {
+    .recipe-container {
+        padding-left: 0.25rem !important;
+        padding-right: 0.25rem !important;
+    }
+    
+    .hero-section {
+        margin-left: 0;
+        margin-right: 0;
+        border-radius: 1rem !important;
+    }
+    
+    .ingredients-section,
+    .steps-section {
+        margin-left: 0;
+        margin-right: 0;
+        border-radius: 1rem !important;
+    }
+    
+    .star-label {
+        width: 1.25rem !important;
+        height: 1.25rem !important;
+    }
+    
+    .star-label svg {
+        width: 0.75rem !important;
+        height: 0.75rem !important;
+    }
+}
+
 @media (max-width: 380px) {
     .hero-section {
-        padding: 1rem !important;
+        padding: 0.75rem !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
     }
     
     .text-2xl {
@@ -763,6 +870,12 @@ button:active, a:active {
     .w-12, .h-12 {
         width: 2.5rem;
         height: 2.5rem;
+    }
+    
+    .ingredients-section,
+    .steps-section {
+        padding: 0.75rem !important;
+        border-radius: 1rem !important;
     }
 }
 
@@ -845,6 +958,33 @@ button:active, a:active {
 .steps-section {
     position: relative;
     z-index: 2;
+}
+
+/* Animation de feedback pour la notation */
+.rating-feedback {
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--primary-yellow);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.rating-feedback.show {
+    opacity: 1;
+}
+
+/* Amélioration de l'état actif des étoiles */
+.star-label.active {
+    background-color: var(--primary-yellow-light) !important;
+    border-color: rgba(245, 158, 11, 0.5) !important;
+    transform: scale(1.05);
 }
 </style>
 
