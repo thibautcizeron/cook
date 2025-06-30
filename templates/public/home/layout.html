@@ -85,7 +85,7 @@
                     {% for recette in recettes %}
                         <div class="recette-card w-3/4 xs:w-1/2 sm:w-1/3 lg:w-1/4 p-2 sm:p-3 flex-shrink-0 fade-in-card">
                             <article class="group cursor-pointer h-full">
-                                <a href="{% url 'recipe_details' recette.id %}" class="block h-full">
+                                <div class="recipe-link block h-full" data-url="{% url 'recipe_details' recette.id %}">
                                     <!-- Container principal avec style moderne -->
                                     <div class="relative bg-gray-900 rounded-3xl overflow-hidden border border-gray-700 hover:border-gray-600 transition-all duration-500 backdrop-blur-sm group-hover:bg-gray-800 shadow-lg h-full flex flex-col">
                                         
@@ -158,7 +158,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                </a>
+                                </div>
                             </article>
                         </div>
                     {% endfor %}
@@ -206,15 +206,37 @@
     .carousel-wrapper {
         width: 100%;
         position: relative;
+        touch-action: pan-x;
+    }
+    
+    #recetteCarousel {
+        touch-action: pan-x;
+        user-select: none;
     }
     
     .recette-card {
         transition: all 0.3s ease;
+        touch-action: manipulation;
     }
     
     .recette-card:hover {
         z-index: 10;
         transform: translateY(-4px);
+    }
+
+    /* Amélioration des interactions tactiles */
+    .recipe-link {
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Indicateur visuel pour le drag */
+    #recetteCarousel.dragging {
+        cursor: grabbing;
+    }
+
+    #recetteCarousel.dragging .recipe-link {
+        pointer-events: none;
     }
     
     /* Styles pour les catégories */
@@ -226,6 +248,8 @@
         border-radius: 0.75rem;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
         transition: transform 0.3s ease, box-shadow 0.3s ease;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
     }
     
     .category-card:hover {
@@ -296,6 +320,8 @@
     #prevBtn, #nextBtn {
         transition: all 0.3s ease;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
     }
     
     #prevBtn:hover, #nextBtn:hover {
@@ -356,10 +382,21 @@
         transform: translateY(-2px) scale(0.98);
         transition: transform 0.1s ease;
     }
+
+    /* Optimisations pour appareils tactiles */
+    @media (hover: none) and (pointer: coarse) {
+        .recette-card:hover {
+            transform: none;
+        }
+        
+        .category-card:hover {
+            transform: none;
+        }
+    }
 </style>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function () {
     const carousel = document.getElementById("recetteCarousel");
     const prevBtn = document.getElementById("prevBtn");
     const nextBtn = document.getElementById("nextBtn");
@@ -376,7 +413,7 @@
     let autoScrollInterval;
     const autoScrollSpeed = 4000; // 4 secondes
     
-    // Variables pour les interactions tactiles améliorées
+    // Variables pour les interactions tactiles optimisées
     let touchStartX = 0;
     let touchStartY = 0;
     let touchCurrentX = 0;
@@ -386,14 +423,18 @@
     let touchStartTime = 0;
     let isTouching = false;
     let isDragging = false;
+    let hasStartedDrag = false;
     let initialTransform = 0;
     let currentTransform = 0;
+    let clickTarget = null;
+    let touchMoved = false;
     
     // Seuils pour les interactions tactiles
     const SWIPE_THRESHOLD = 50;
-    const DRAG_THRESHOLD = 10;
+    const DRAG_THRESHOLD = 15;
     const MAX_TOUCH_TIME = 500;
     const VELOCITY_THRESHOLD = 0.3;
+    const CLICK_TOLERANCE = 10;
     
     // Fonctions utilitaires
     function updateCarouselMetrics() {
@@ -444,8 +485,16 @@
             autoScrollInterval = null;
         }
     }
+
+    // Fonction pour gérer les clics sur les cartes de recette
+    function handleRecipeClick(target) {
+        const recipeLink = target.closest('.recipe-link');
+        if (recipeLink && recipeLink.dataset.url && !touchMoved) {
+            window.location.href = recipeLink.dataset.url;
+        }
+    }
     
-    // Gestionnaires d'événements tactiles améliorés
+    // Gestionnaires d'événements tactiles optimisés
     function handleTouchStart(e) {
         const touch = e.touches[0];
         touchStartX = touch.clientX;
@@ -455,15 +504,15 @@
         touchStartTime = Date.now();
         isTouching = true;
         isDragging = false;
+        hasStartedDrag = false;
+        touchMoved = false;
+        clickTarget = e.target;
         
         initialTransform = currentTransform;
         
         // Arrêter l'animation en cours
         carousel.style.transition = 'none';
         stopAutoScroll();
-        
-        // Empêcher la sélection de texte
-        e.preventDefault();
     }
     
     function handleTouchMove(e) {
@@ -475,13 +524,24 @@
         
         const deltaX = touchCurrentX - touchStartX;
         const deltaY = touchCurrentY - touchStartY;
+        const absDeltaX = Math.abs(deltaX);
+        const absDeltaY = Math.abs(deltaY);
         
-        // Déterminer si c'est un scroll horizontal ou vertical
-        if (!isDragging && Math.abs(deltaX) > DRAG_THRESHOLD) {
-            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        // Marquer comme déplacé si le mouvement dépasse la tolérance
+        if (absDeltaX > CLICK_TOLERANCE || absDeltaY > CLICK_TOLERANCE) {
+            touchMoved = true;
+        }
+        
+        // Déterminer si c'est un drag horizontal
+        if (!hasStartedDrag && absDeltaX > DRAG_THRESHOLD) {
+            if (absDeltaX > absDeltaY * 1.5) { // Plus horizontal que vertical
                 isDragging = true;
+                hasStartedDrag = true;
+                carousel.classList.add('dragging');
+                
                 // Empêcher le scroll vertical de la page
                 document.body.style.overflow = 'hidden';
+                e.preventDefault();
             }
         }
         
@@ -493,13 +553,11 @@
             
             if (currentPos > 0) {
                 // Résistance au début
-                resistance = 1 - (currentPos / (cardWidth * 0.5));
-                resistance = Math.max(0.1, resistance);
+                resistance = Math.max(0.2, 1 - (currentPos / (cardWidth * 0.5)));
             } else if (currentPos < maxPosition) {
                 // Résistance à la fin
                 const overscroll = Math.abs(currentPos - maxPosition);
-                resistance = 1 - (overscroll / (cardWidth * 0.5));
-                resistance = Math.max(0.1, resistance);
+                resistance = Math.max(0.2, 1 - (overscroll / (cardWidth * 0.5)));
             }
             
             const newTransform = initialTransform + (deltaX * resistance);
@@ -518,15 +576,18 @@
         
         const deltaX = touchEndX - touchStartX;
         const deltaY = touchEndY - touchStartY;
+        const absDeltaX = Math.abs(deltaX);
+        const absDeltaY = Math.abs(deltaY);
         const touchDuration = Date.now() - touchStartTime;
-        const velocity = Math.abs(deltaX) / touchDuration;
+        const velocity = absDeltaX / touchDuration;
         
         isTouching = false;
+        carousel.classList.remove('dragging');
         document.body.style.overflow = '';
         
         if (isDragging) {
             // Déterminer l'action basée sur la distance et la vélocité
-            const shouldMove = Math.abs(deltaX) > SWIPE_THRESHOLD || velocity > VELOCITY_THRESHOLD;
+            const shouldMove = absDeltaX > SWIPE_THRESHOLD || velocity > VELOCITY_THRESHOLD;
             
             if (shouldMove) {
                 if (deltaX > 0) {
@@ -542,7 +603,11 @@
             }
             
             isDragging = false;
-        } else if (touchDuration < MAX_TOUCH_TIME && Math.abs(deltaX) > SWIPE_THRESHOLD) {
+            hasStartedDrag = false;
+        } else if (!touchMoved && touchDuration < MAX_TOUCH_TIME) {
+            // Tap simple - naviguer vers la recette
+            handleRecipeClick(clickTarget);
+        } else if (touchDuration < MAX_TOUCH_TIME && absDeltaX > SWIPE_THRESHOLD && absDeltaX > absDeltaY) {
             // Swipe rapide sans drag
             if (deltaX > 0) {
                 moveCarousel('prev');
@@ -562,6 +627,9 @@
     function handleTouchCancel(e) {
         isTouching = false;
         isDragging = false;
+        hasStartedDrag = false;
+        touchMoved = false;
+        carousel.classList.remove('dragging');
         document.body.style.overflow = '';
         updateCarouselPosition(true);
         
@@ -586,25 +654,37 @@
             setTimeout(startAutoScroll, 5000);
         });
         
-        // Événements tactiles
-        carousel.addEventListener('touchstart', handleTouchStart, { passive: false });
+        // Événements tactiles avec options optimisées
+        carousel.addEventListener('touchstart', handleTouchStart, { passive: true });
         carousel.addEventListener('touchmove', handleTouchMove, { passive: false });
-        carousel.addEventListener('touchend', handleTouchEnd, { passive: false });
-        carousel.addEventListener('touchcancel', handleTouchCancel, { passive: false });
+        carousel.addEventListener('touchend', handleTouchEnd, { passive: true });
+        carousel.addEventListener('touchcancel', handleTouchCancel, { passive: true });
+        
+        // Gestionnaire de clic pour desktop et fallback
+        carousel.addEventListener('click', (e) => {
+            if (!touchMoved && !isDragging) {
+                handleRecipeClick(e.target);
+            }
+        });
         
         // Support souris pour desktop (optionnel)
         let mouseDown = false;
         let mouseStartX = 0;
         let mouseCurrentX = 0;
+        let mouseMoved = false;
+        let mouseClickTarget = null;
         
         carousel.addEventListener('mousedown', (e) => {
             mouseDown = true;
             mouseStartX = e.clientX;
             mouseCurrentX = e.clientX;
+            mouseMoved = false;
+            mouseClickTarget = e.target;
             initialTransform = currentTransform;
             carousel.style.transition = 'none';
             stopAutoScroll();
             carousel.style.cursor = 'grabbing';
+            carousel.classList.add('dragging');
             e.preventDefault();
         });
         
@@ -613,7 +693,24 @@
             
             mouseCurrentX = e.clientX;
             const deltaX = mouseCurrentX - mouseStartX;
-            const newTransform = initialTransform + deltaX * 0.8; // Réduction de la sensibilité
+            
+            if (Math.abs(deltaX) > CLICK_TOLERANCE) {
+                mouseMoved = true;
+            }
+            
+            // Appliquer une résistance similaire au tactile
+            let resistance = 1;
+            const maxPosition = -(totalOriginalCards - 1) * cardWidth;
+            const currentPos = initialTransform + deltaX;
+            
+            if (currentPos > 0) {
+                resistance = Math.max(0.2, 1 - (currentPos / (cardWidth * 0.5)));
+            } else if (currentPos < maxPosition) {
+                const overscroll = Math.abs(currentPos - maxPosition);
+                resistance = Math.max(0.2, 1 - (overscroll / (cardWidth * 0.5)));
+            }
+            
+            const newTransform = initialTransform + (deltaX * resistance * 0.8);
             carousel.style.transform = `translateX(${newTransform}px)`;
         });
         
@@ -622,10 +719,14 @@
             
             mouseDown = false;
             carousel.style.cursor = 'grab';
+            carousel.classList.remove('dragging');
             
             const deltaX = mouseCurrentX - mouseStartX;
             
-            if (Math.abs(deltaX) > SWIPE_THRESHOLD) {
+            if (!mouseMoved) {
+                // Clic simple
+                handleRecipeClick(mouseClickTarget);
+            } else if (Math.abs(deltaX) > SWIPE_THRESHOLD) {
                 if (deltaX > 0) {
                     moveCarousel('prev');
                 } else {
@@ -638,19 +739,23 @@
             setTimeout(startAutoScroll, 3000);
         });
         
-        // Pause au survol
+        // Gestion du survol pour desktop
         carousel.addEventListener('mouseenter', () => {
             stopAutoScroll();
-            carousel.style.cursor = 'grab';
+            if (!mouseDown) {
+                carousel.style.cursor = 'grab';
+            }
         });
         
         carousel.addEventListener('mouseleave', () => {
-            carousel.style.cursor = 'default';
-            setTimeout(() => {
-                if (!isTouching && !isDragging && !mouseDown) {
-                    startAutoScroll();
-                }
-            }, 1000);
+            if (!mouseDown) {
+                carousel.style.cursor = 'default';
+                setTimeout(() => {
+                    if (!isTouching && !isDragging && !mouseDown) {
+                        startAutoScroll();
+                    }
+                }, 1000);
+            }
         });
         
         // Pause quand l'onglet n'est pas visible
@@ -673,6 +778,14 @@
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(handleResize, 150);
         });
+        
+        // Optimisation pour les appareils tactiles
+        if ('ontouchstart' in window) {
+            // Désactiver le zoom sur double tap pour les éléments du carrousel
+            carousel.addEventListener('touchend', (e) => {
+                e.preventDefault();
+            }, { passive: false });
+        }
         
         // Initialisation
         updateCarouselMetrics();
@@ -698,6 +811,42 @@
             card.style.transform = 'translateY(0)';
         }, 100 + (index * 150));
     });
+    
+    // Optimisation des performances
+    let ticking = false;
+    
+    function optimizeScroll() {
+        if (!ticking) {
+            requestAnimationFrame(() => {
+                ticking = false;
+            });
+            ticking = true;
+        }
+    }
+    
+    // Amélioration de l'accessibilité
+    carousel.setAttribute('role', 'region');
+    carousel.setAttribute('aria-label', 'Carrousel de recettes');
+    
+    // Navigation au clavier
+    carousel.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            stopAutoScroll();
+            moveCarousel('prev');
+            setTimeout(startAutoScroll, 5000);
+        } else if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            stopAutoScroll();
+            moveCarousel('next');
+            setTimeout(startAutoScroll, 5000);
+        }
+    });
+    
+    // Rendre le carrousel focusable
+    if (!carousel.hasAttribute('tabindex')) {
+        carousel.setAttribute('tabindex', '0');
+    }
 });
 </script>
 {% endblock %}
